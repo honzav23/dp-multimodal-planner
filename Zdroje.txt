@@ -1,0 +1,23 @@
+Data Brno
+
+https://data.brno.cz/datasets/747a824783044377b6d07a8060e7769d/explore?location=49.213190%2C16.602669%2C13.85 - mapa všech MHD zastávek
+
+https://data.brno.cz/datasets/37fc8ffb7c0b4f7fad33fc519415caa2 - vedení linek
+https://data.brno.cz/datasets/0216e71bdea143758135224c7cdb52b4_0/explore - parkomaty - zatím nejde stáhnout geojson
+https://data.brno.cz/datasets/821d12a2e7ca45db90b4e01ca2ebd93c_0/explore - parkovací domy
+https://data.brno.cz/datasets/6d4bae2f42ec472f81fc2e1b6502d8b2/explore - kiss and ride stanoviště
+
+Akademické zdroje
+
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8528542 - merging carpool and public transport graphs
+
+https://dl.acm.org/doi/pdf/10.1145/2699886 - user-contstrained multimodal route planning
+
+
+https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=9a60449caa1b9548f7a0c0bd71986449d85fa473 - multimodal planning kniha (pokračovat na straně 107)
+
+https://kth.diva-portal.org/smash/get/diva2:1789550/FULLTEXT01.pdf (pokračovat na str. 27) - https://www.sciencedirect.com/science/article/abs/pii/S0968090X10001397?via%3Dihub
+
+https://stackoverflow.com/questions/76966303/connect-nearby-nodes-in-geographic-graph-network
+
+https://ieeexplore.ieee.org/abstract/document/10552720 - Routing algoritmus od Juraje
