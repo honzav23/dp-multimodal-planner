@@ -1,33 +1,34 @@
 import geopandas as gpd
 from shapely import to_geojson
 
+# Chrlice, nádraží;Brno-Horní Heršpice;Brno-Starý Lískovec
 
-train_stations = ["Židenice, nádraží", "Hlavní nádraží", "Chrlice, nádraží", "Lesná, nádraží", "Královo Pole, nádraží",
-                      "Řečkovice, nádraží", "Slatina, nádraží", "Brno-Černovice", "Brno-Horní Heršpice", "Brno-Starý Lískovec"]
+train_stations = ["Židenice, nádraží", "Hlavní nádraží", "Lesná, nádraží", "Královo Pole, nádraží",
+                      "Řečkovice, nádraží", "Slatina, nádraží", "Brno-Černovice"]
 
-def get_transfer_evaluation(row, parking_houses, parking_lots, city_boundary):
+def get_transfer_evaluation(stop, parking_houses, parking_lots, city_boundary):
     '''
-    :param row:
-    :param parking_houses:
-    :param parking_lots:
-    :param city_boundary:
-    :return:
+    :param stop:
+    :param parking_houses: All parking houses
+    :param parking_lots: All parking lots
+    :param city_boundary: City boundary of Brno
+    :return: Return parking places (houses, lots) that are the closest to the stop
     '''
     places_to_park = []
     threshold_distance = 500  # meters
     distance_from_border = 2000
 
     for _, house in parking_houses.iterrows():
-        if house['geometry'].distance(row["geometry"]) < threshold_distance:
-            places_to_park.append(house)
+        if house['geometry'].distance(stop["geometry"]) < threshold_distance:
+            places_to_park.append({"type": "park_and_ride", "parking": house})
 
-    if city_boundary["geometry"].exterior.distance(row["geometry"]) > distance_from_border and \
-        row["stop_name"] not in train_stations:
+    if city_boundary["geometry"].exterior.distance(stop["geometry"]) > distance_from_border and \
+        stop["stop_name"] not in train_stations:
         return places_to_park
 
     for _, parking_lot in parking_lots.iterrows():
-        if parking_lot["geometry"].distance(row["geometry"]) < threshold_distance:
-            places_to_park.append(parking_lot)
+        if parking_lot["geometry"].distance(stop["geometry"]) < threshold_distance:
+            places_to_park.append({"type": "parking_lot", "parking": parking_lot})
 
     return places_to_park
 
