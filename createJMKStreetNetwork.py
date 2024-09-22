@@ -4,7 +4,6 @@ from shapely import get_coordinates
 import geopandas as gpd
 
 if __name__ == "__main__":
-    city = "Brno"
 
     city_boundary = ox.geocode_to_gdf(city)
     geom_centre = city_boundary["geometry"].centroid.loc[0]
