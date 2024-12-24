@@ -1,0 +1,31 @@
+Endpoint POST /api/route
+{
+  startPoint: [latitude, longitude],
+  endPoint: [latitude, longitude],
+  departureTime: DateTime,
+  preferredMeans: [All means of transport you want to use]
+}
+
+
+OTP - posílání dotazů
+- egressMode a accessMode nastavit na 'flexible'
+- nějak rozumně nastavit numOfTripPatterns (max. 5?)
+- parametr from: {place: <id zastávky>} pro výpočet z přestupního bodu do cíle (cíl mohou být normální souřadnice)
+- specifikovat maximumTransfers? - možná pro minimalizaci přestupů
+
+
+Co je potřeba vracet pro výpočet?
+Celkový přehled: čas startu, čas dojezdu, celkový čas
+pro každý trip:
+	čas startu, čas dojezdu
+	fromPlace: {name}
+	toPlace: {name}
+	mode (typ dopravy)
+	line: {publicCode, name?}
+	authority:?
+	pointsOnLink: {points - jsou v polyline, vracet jen pro auto}
+	interchangeFrom: {staySeated - může se hodit, viz Kolejní - Technopark, Technopark - Semilasso}
+	interchangeTo: {staySeated - může se hodit, viz Kolejní - Technopark, Technopark - Semilasso}
+
+
+
