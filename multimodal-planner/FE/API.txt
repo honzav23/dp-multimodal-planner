@@ -28,4 +28,22 @@ pro každý trip:
 	interchangeTo: {staySeated - může se hodit, viz Kolejní - Technopark, Technopark - Semilasso}
 
 
+Dotaz na získání parkovišť, která jsou v určité vzdálenosti od daného bodu (veřejná) - mohou být placená
+[out:json][timeout:25];
+// Define the search area
+node(around:1000, 48.85, 16.056); // Replace with your coordinates (latitude, longitude)
+// Search for parking lots
+(
+  node["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+  way["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+  relation["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+);
+// Output results
+out body;
+>;
+out skel qt;
+
+
+API pro náhradu geosouřadnic za normální adresu
+https://nominatim.org/release-docs/latest/api/Reverse/
 
