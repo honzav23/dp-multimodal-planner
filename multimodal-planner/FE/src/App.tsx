@@ -5,12 +5,15 @@ import 'leaflet/dist/leaflet.css'
 import decodePolyline from './decodePolyline.ts'
 import MarkerWrapper from './components/MarkerWrapper.tsx';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAppSelector } from './store/hooks.ts';
 import { useAppDispatch } from './store/hooks.ts';
 import { setFocus } from './store/inputsFocusSlice.ts';
-import { setStartCoords, setEndCoords } from './store/tripRequestSlice.ts';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime } from './store/tripRequestSlice.ts';
 import { clearStartAddress, clearEndAddress } from './store/addressSlice.ts';
+import dayjs from 'dayjs';
 
 function App() {
   const x = decodePolyline("srmkH}vedBTCl@Ab@CdAEVC`@EZGJEBAPIFCLGj@]LIDARMNIXQVOnCgBbDmBrAy@HGt@e@ZS`@WLG@ARMLGFEVOACEU[_BACKo@Km@Mi@m@}CEWaCwM?M?E?E@C@EBKBCDCDGHATMNGjCaB@AHEBKF}B?ME[ACCU}@eHCOsAyKEU?CLG~CaBHEVM|@c@@APIRKFEBApAo@pCwA~DsBb@WfAi@`EqB\\QDCHE@Al@YNIDAlAo@fAi@`Ag@PI?AC[}@qFCQESg@mDc@qCFCHA")
@@ -78,10 +81,11 @@ function App() {
       <div
         style={{
           position: "absolute",
+          padding: "20px",
           top: "5%",
           left: "5%",
           zIndex: 1000,
-          backgroundColor: "transparent",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
           display: "flex",
           flexDirection: "column",
           gap: "10px",
@@ -116,6 +120,9 @@ function App() {
         ref={endInput} placeholder='End' type='text'
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
       />
+  
+      <DatePicker label="Departure date" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate(date.$d.toLocaleDateString()))}/>
+      <TimePicker label="Departure time" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(date.$d.toLocaleTimeString()))}/>
       </div>
       <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
       <TileLayer

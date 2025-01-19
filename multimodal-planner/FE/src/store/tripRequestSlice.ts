@@ -4,11 +4,15 @@ import { LatLngTuple } from 'leaflet';
 interface TripRequest {
     startCoords: LatLngTuple;
     endCoords: LatLngTuple;
+    departureDate: string;
+    departureTime: string;
 }
 
 const initialState: TripRequest = {
     startCoords: [1000, 1000],
     endCoords: [1000, 1000],
+    departureDate: (new Date()).toLocaleDateString(),
+    departureTime: (new Date()).toLocaleTimeString()
 };
 
 const tripRequestSlice = createSlice({
@@ -20,10 +24,16 @@ const tripRequestSlice = createSlice({
         },
         setEndCoords(state, action: PayloadAction<LatLngTuple>) {
             state.endCoords = action.payload;
+        },
+        setDepartureDate(state, action: PayloadAction<string>) {
+            state.departureDate = action.payload;
+        },
+        setDepartureTime(state, action: PayloadAction<string>) {
+            state.departureTime = action.payload;
         }
     },
 });
 
-export const { setStartCoords, setEndCoords } = tripRequestSlice.actions;
+export const { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime } = tripRequestSlice.actions;
 
 export default tripRequestSlice.reducer;
