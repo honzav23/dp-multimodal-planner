@@ -121,7 +121,7 @@ function App() {
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
       />
   
-      <DatePicker label="Departure date" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate(date.$d.toLocaleDateString()))}/>
+      <DatePicker label="Departure date" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
       <TimePicker label="Departure time" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(date.$d.toLocaleTimeString()))}/>
       </div>
       <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>

@@ -25,8 +25,8 @@ const tripRequestSlice = createSlice({
         setEndCoords(state, action: PayloadAction<LatLngTuple>) {
             state.endCoords = action.payload;
         },
-        setDepartureDate(state, action: PayloadAction<string>) {
-            state.departureDate = action.payload;
+        setDepartureDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
+            state.departureDate = `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`;
         },
         setDepartureTime(state, action: PayloadAction<string>) {
             state.departureTime = action.payload;
