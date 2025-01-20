@@ -4,14 +4,14 @@ import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
 import decodePolyline from './decodePolyline.ts'
 import MarkerWrapper from './components/MarkerWrapper.tsx';
-import { IconButton, InputAdornment, TextField } from '@mui/material';
+import { Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAppSelector } from './store/hooks.ts';
 import { useAppDispatch } from './store/hooks.ts';
 import { setFocus } from './store/inputsFocusSlice.ts';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime } from './store/tripRequestSlice.ts';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getRoutes } from './store/tripRequestSlice.ts';
 import { clearStartAddress, clearEndAddress } from './store/addressSlice.ts';
 import dayjs from 'dayjs';
 
@@ -27,8 +27,8 @@ function App() {
   const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
   const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
 
-  const startCoords = useAppSelector((state) => state.tripRequest.startCoords)
-  const endCoords = useAppSelector((state) => state.tripRequest.endCoords)
+  const startCoords = useAppSelector((state) => state.tripRequest.origin)
+  const endCoords = useAppSelector((state) => state.tripRequest.destination)
 
   const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
   const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
@@ -122,7 +122,8 @@ function App() {
       />
   
       <DatePicker label="Departure date" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
-      <TimePicker label="Departure time" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(date.$d.toLocaleTimeString()))}/>
+      <TimePicker label="Departure time" sx={{ backgroundColor: 'white' }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/>
+      <Button variant='outlined' onClick={() => dispatch(getRoutes())}>Show routes</Button>
       </div>
       <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
       <TileLayer
@@ -131,6 +132,7 @@ function App() {
         />
         <MarkerWrapper/>
         <Polyline eventHandlers={{click: handleClick}} positions={x} pathOptions={{color: "orange", weight: 5}}/>
+
     </MapContainer>
     </div>
   
