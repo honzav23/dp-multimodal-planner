@@ -1,7 +1,7 @@
 export type TripRequest = {
     origin: [number, number];
     destination: [number, number];
-    departureTime: Date;
+    departureDate: string;
     preferences?: {
         modeOfTransport: ['bus' | 'train' | 'tram' | 'trolleybus'];
         minimizeTransfers: boolean;
