@@ -9,9 +9,11 @@ interface TripRequest {
     departureTime: string;
 }
 
+export const initialCoords: LatLngTuple = [1000, 1000]
+
 const initialState: TripRequest = {
-    origin: [1000, 1000],
-    destination: [1000, 1000],
+    origin: initialCoords,
+    destination: initialCoords,
     departureDate: getFormattedDate(),
     departureTime: (new Date()).toLocaleTimeString()
 };

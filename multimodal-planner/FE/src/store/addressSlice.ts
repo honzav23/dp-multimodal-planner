@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
@@ -31,6 +31,12 @@ const addressSlice = createSlice({
         clearEndAddress(state) {
             state.endAddress = null;
         },
+        setStartAddress(state, action: PayloadAction<string>) {
+            state.startAddress = action.payload
+        },
+        setEndAddress(state, action: PayloadAction<string>) {
+            state.endAddress = action.payload
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(getAddress.rejected, (state, action) => {
@@ -52,6 +58,6 @@ const addressSlice = createSlice({
     }
 });
 
-export const { clearStartAddress, clearEndAddress } = addressSlice.actions;
+export const { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } = addressSlice.actions;
 
 export default addressSlice.reducer;
