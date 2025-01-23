@@ -1,0 +1,198 @@
+stop_name;stop_lat;stop_lon;stop_id;has_parking
+Adamov, železniční stanice;49.295341;16.663538;U12230Z10;1
+Adamov, železniční zastávka;49.300671;16.650653;U12231Z10;1
+Autobusové nádraží;49.185873;16.61787;U1011Z1;1
+Babice nad Svitavou;49.276645;16.673012;U22101Z1;1
+Blansko město;49.360996;16.639464;U22302Z1;1
+Blansko, aut. st.;49.352753;16.646848;U12342Z30;1
+Blatnice pod Sv. Antonínkem;48.941163;17.437706;U29403Z10;0
+Blažovice;49.163735;16.798179;U26103Z1;0
+Blížkovice;49.004292;15.854364;U28401Z11;0
+Bohutice;48.987956;16.356025;U24501Z11;0
+Borač, žel. st.;49.400145;16.366389;U13463Z2;0
+Boskovice, aut.st.;49.491667;16.651778;U12635Z50;0
+Bořetice, železniční stanice;48.916314;16.850139;U15513Z10;0
+Boří les;48.738078;16.866374;U25702Z10;0
+Božice, železniční stanice;48.823282;16.287832;U18208Z10;0
+Brankovice, železniční stanice;49.150361;17.13375;U16628Z11;0
+Brestovec;48.786012;17.557593;U29601Z1;0
+Brno-Horní Heršpice;49.167404;16.60686;U11002Z11;1
+Brno-Starý Lískovec;49.162216;16.570659;U11009Z22;1
+Brno-Černovice;49.188984;16.631233;U11001Z2;1
+Brněnec, Mor.Chrastová, žel.st.;49.623616;16.524459;U12804Z11;0
+Brumovice, železniční stanice;48.947228;16.905767;U16454Z10;0
+Bučovice, Marefy, žel. st.;49.149167;16.973056;U16406Z11;0
+Bučovice, železniční stanice;49.145619;16.999658;U16463Z51;1
+Bystřice nad Pern., aut. nádr.;49.526152;16.260663;U13742Z1;1
+Bystřice nad Pern., železniční stanice;49.513611;16.246667;U13701Z12;0
+Bzenec, Přívoz, železniční stanice;48.935197;17.286642;U16905Z10;0
+Bzenec, železniční stanice;48.969173;17.263183;U16908Z11;1
+Bzenec-Olšovec;48.970217;17.293339;U26901Z11;0
+Bílovice nad Svitavou, žel. stanice;49.242715;16.673677;U12158Z10;1
+Břeclav, autobusové nádraží;48.753851;16.893169;U15729Z14;1
+Březová nad Svitavou, železniční stanice;49.633104;16.520656;U12936Z11;0
+Březí;48.812925;16.554169;U25601Z10;0
+Břežany;48.873106;16.367539;U25507Z10;0
+Chrlice, nádraží;49.132031;16.657232;U1183Z11;1
+Chvalkovice na Hané;49.321667;17.111389;U27502Z2;0
+Citonice;48.878906;15.977467;U28103Z11;0
+Dobré Pole;48.820008;16.533833;U25602Z10;0
+Dolenice;48.9122;16.367822;U25506Z10;0
+Dolní Lhota;49.386917;16.633978;U22301Z1;0
+Dolní Loučky, železniční stanice;49.356389;16.346945;U13411Z11;0
+Doubravice, žel.st.;49.438707;16.621809;U12511Z50;0
+Doubravník, železniční stanice;49.426945;16.352389;U13506Z11;0
+Dyje;48.850047;16.1205;U28102Z10;0
+Grešlové Mýto, železniční stanice;48.98455;15.874436;U18339Z11;0
+Hlavní nádraží;49.191815;16.613991;U1146Z31;1
+Hodonice;48.841514;16.164403;U28101Z10;0
+Hodonín, autobusové nádraží;48.853643;17.121537;U19001Z50;1
+Hostěrádky-Rešov;49.119822;16.782755;U26102Z2;1
+Hoštice-Heroltice;49.291389;17.057778;U27501Z2;0
+Hradčany, železniční stanice;49.333603;16.438056;U13306Z10;0
+Hrotovice, autobusové nádraží;49.107408;16.060075;U14701Z50;0
+Hrušky zastávka;48.787124;16.98157;U29101Z11;0
+Hrušovany nad Jevišovkou, žel. st.;48.810029;16.383137;U15637Z10;0
+Hrušovany u Brna, žel. st.;49.034228;16.591501;U15222Z11;0
+Hustopeče, autobusové nádraží;48.93752;16.735901;U15403Z11;1
+Ivanovice na Hané, aut. st.;49.306111;17.086945;U17514Z21;1
+Ivančice letovisko;49.094167;16.40225;U24402Z1;0
+Ivančice město;49.099167;16.383722;U24403Z1;1
+Ivančice, železniční stanice;49.098056;16.371389;U14454Z10;1
+Javorník nad Veličkou zastávka;48.86;17.520833;U29502Z11;0
+Jestřabice;49.088889;17.113333;U26601Z2;0
+Jevišovka;48.820272;16.467125;U25505Z10;0
+Knínice, U Nádraží;49.535347;16.689375;U12711Z1;0
+Kobylí na Moravě;48.934022;16.881272;U25504Z10;0
+Kostelany nad Moravou;49.052678;17.396915;U30342Z10;0
+Kralice nad Oslavou;49.193333;16.204722;U24401Z1;0
+Královo Pole, nádraží;49.231051;16.596651;U1286Z10;1
+Kunovice;49.051914;17.470711;U31026Z2;1
+Kunovice zastávka;49.038454;17.46113;U31025Z1;1
+Kuřim, železniční stanice;49.301;16.534523;U13143Z10;1
+Kyjov zastávka;49.003117;17.124022;U26603Z2;0
+Kyjov, Bohuslavice, železniční stanice;49.055833;17.118917;U16604Z11;0
+Kyjov, železniční stanice;49.013889;17.120833;U16650Z51;1
+Křenovice, dol. žel. st.;49.144328;16.834021;U16211Z11;0
+Křenovice, hor. žel. st.;49.143553;16.824564;U16212Z11;0
+Křižanovice, žel. st.;49.145011;16.934747;U16318Z11;0
+Ladná, železniční stanice;48.813095;16.880976;U15609Z11;0
+Lanžhot, autobusové nádraží;48.725332;16.967657;U15817Z1;0
+Lesná, nádraží;49.220432;16.627505;U1331Z10;1
+Letovice zastávka;49.535496;16.576998;U22702Z1;0
+Letovice, železniční stanice;49.555973;16.570906;U12736Z50;0
+Lipov;48.909806;17.457953;U29402Z11;0
+Louka u Ostrohu;48.912234;17.484226;U29401Z11;0
+Lužice, železniční stanice;48.827619;17.061961;U19119Z11;0
+Mikulov, železniční stanice;48.802203;16.625492;U15714Z10;1
+Miroslav, autobusové nádraží;48.946832;16.313061;U14546Z2;0
+Miroslav, železniční stanice;48.93532;16.362297;U14555Z10;0
+Modřice, železniční stanice;49.133256;16.606209;U15140Z11;1
+Moravská Nová Ves, železniční stanice;48.799493;17.021674;U19129Z11;1
+Moravské Bránice, žel. st.;49.084611;16.428333;U14350Z10;0
+Moravské Budějovice;49.057522;15.809326;U28502Z11;0
+Moravské Budějovice, autobusové nádraží;49.056355;15.808013;U18502Z2;0
+Moravský Krumlov, Rakšice, žel.st.;49.014428;16.34527;U14490Z10;0
+Moravský Krumlov, autobusové nádraží;49.048283;16.309278;U14499Z5;1
+Moravský Krumlov, železniční stanice;49.046389;16.338056;U14479Z10;0
+Moravský Písek zastávka;48.991257;17.330117;U29301Z10;0
+Moravský Písek, Kolonie, žel. stanice;48.977119;17.314582;U19302Z11;0
+Mutěnice;48.904678;17.039875;U29106Z10;0
+Mutěnice zastávka;48.911986;17.027008;U29105Z10;0
+Myjava;48.763641;17.570897;U29602Z1;0
+Nedakonice;49.032515;17.374985;U30319Z10;0
+Nedvědice, železniční stanice;49.454167;16.338333;U13520Z2;0
+Nemotice, železniční stanice;49.133056;17.115;U16503Z11;0
+Nesovice, železniční stanice;49.149167;17.081111;U16509Z11;1
+Nevojice;49.136847;17.04775;U26501Z2;1
+Nezamyslice;49.336;17.1625;U27503Z2;0
+Novosedly, železniční stanice;48.825719;16.49405;U15563Z10;0
+Náměšť nad Oslavou, autobusové nádraží;49.207254;16.147697;U14507Z10;1
+Níhov, železniční stanice;49.335275;16.269007;U13454Z11;0
+Olbramkostel, železniční stanice;48.903229;15.949177;U18158Z11;0
+Ostopovice;49.164803;16.544451;U24103Z2;0
+Ostrožská Nová Ves;49.009975;17.436797;U30314Z2;1
+Ostrožská Nová Ves lázně;49.018181;17.446255;U31103Z2;0
+Petrov;48.878911;17.273703;U29201Z10;1
+Podivín, železniční stanice;48.837775;16.853671;U15619Z11;0
+Ponětovice, železniční stanice;49.154709;16.748578;U16121Z10;1
+Popice;48.924332;16.668084;U25402Z11;0
+Popovice, u tratě;49.103463;16.605647;U15135Z11;0
+Pouzdřany;48.942025;16.630527;U25401Z11;0
+Pravice;48.848689;16.370211;U25603Z10;0
+Prudká zastávka;49.419195;16.367361;U13464Z2;0
+Radostice;49.133611;16.461945;U24202Z1;0
+Rajhrad, železniční stanice;49.084966;16.60532;U15181Z11;1
+Rakvice;48.866893;16.821444;U25501Z11;0
+Rapotice, železniční stanice;49.184028;16.256111;U14435Z10;0
+Retz;48.753724;15.957444;U31034Z11;1
+Rohatec;48.892515;17.197852;U29103Z10;0
+Rohatec kolonie;48.892642;17.212111;U29104Z10;0
+Rohatec zastávka;48.88309;17.178111;U29102Z10;0
+Rousínov, žel. st.;49.196667;16.867139;U17342Z10;0
+Rovné-Divišov;49.547632;16.172826;U23801Z2;0
+Rozhraní, železniční zastávka;49.601763;16.532438;U12819Z11;0
+Rozsochy, železniční stanice;49.537385;16.195122;U13801Z12;0
+Rožná, železniční stanice;49.472143;16.245416;U13605Z12;0
+Rájec-Jestřebí, železniční stanice;49.408206;16.627711;U12439Z50;0
+Sedlec u Mikulova;48.774564;16.699006;U25701Z10;0
+Silůvky;49.108611;16.462778;U24203Z1;0
+Skalice nad Svitavou, žel.st.;49.480123;16.609726;U12676Z50;0
+Slatina, nádraží;49.169478;16.682148;U1573Z10;1
+Slavkov u Brna, žel. st.;49.14495;16.873475;U16333Z11;1
+Sokolnice, železniční stanice;49.108029;16.733459;U16149Z11;1
+Staré Město u Uherského Hradiště;49.076022;17.42271;U31028Z2;1
+Strážnice, aut. st.;48.897385;17.317688;U19205Z10;1
+Střelice;49.153889;16.483056;U24101Z1;0
+Střelice, dolní železniční stanice;49.156945;16.508889;U14119Z10;0
+Sudoměřice nad Moravou;48.871653;17.243039;U29202Z10;0
+Svitávka;49.499434;16.599208;U22602Z1;0
+Tišnov, železniční stanice;49.3475;16.41725;U13334Z20;1
+Troubsko, U dráhy;49.164172;16.527167;U14110Z10;0
+Uherské Hradiště;49.066825;17.457085;U31027Z2;1
+Uherský Ostroh;48.982198;17.403538;U29404Z10;0
+Unterretzbach;48.764701;16.007784;U31033Z1;0
+Valtice, železniční stanice;48.74683;16.745117;U15811Z10;0
+Valtice, železniční zastávka;48.748776;16.762369;U15828Z10;1
+Velká nad Veličkou, železniční stanice;48.878631;17.51092;U19530Z11;0
+Velké Bílovice, autobusové nádraží;48.851516;16.889186;U15620Z4;1
+Velké Pavlovice;48.88985;16.823672;U25502Z10;0
+Velké Pavlovice zastávka;48.901672;16.8224;U25503Z10;0
+Velké Pavlovice, autobusové nádraží;48.897843;16.81716;U15528Z51;1
+Vesce;49.019071;15.831277;U28501Z11;0
+Veselí nad Moravou, Milokošť;48.966335;17.398435;U19310Z11;0
+Veselí nad Moravou, železniční stanice;48.948694;17.382439;U19316Z12;1
+Veselí nad Moravou-Zarazice;48.937236;17.361306;U29302Z10;0
+Vlkov u Tišnova;49.323611;16.211111;U30008Z2;0
+Vlkoš;48.987806;17.163569;U26801Z11;0
+Vnorovy;48.931508;17.348464;U29303Z10;0
+Vojkovice nad Svratkou, žel. st.;49.056208;16.597445;U25201Z11;0
+Vracov;48.976457;17.221155;U26802Z11;1
+Vranovice, žel.st.;48.964528;16.604187;U15307Z11;1
+Vrbovce;48.824439;17.516352;U29501Z11;0
+Vrbovce zastávka;48.804784;17.52869;U29504Z1;0
+Vyškov, Autobusové nádraží;49.275942;16.991855;U17423Z7;1
+Vyškov, železniční stanice;49.277222;16.990833;U17446Z11;1
+Věžná;49.451547;16.270316;U23601Z2;0
+Zaječí, za nádražím;48.894263;16.786972;U15532Z2;0
+Zaječí, železniční stanice;48.889637;16.781831;U15537Z11;1
+Zboněk;49.521608;16.583438;U22701Z1;1
+Zbýšov;49.132691;16.806859;U26201Z2;0
+Znojmo nemocnice;48.865504;16.048394;U28002Z11;1
+Znojmo, autobusové nádraží;48.851908;16.056983;U18009Z51;1
+Znojmo-Nový Šaldorf;48.820061;16.044266;U28001Z1;0
+Újezd u Brna;49.107297;16.745564;U26101Z2;0
+Čebín, železniční stanice;49.319722;16.465278;U13206Z10;0
+Čejč, železniční stanice;48.942189;16.958672;U16546Z10;0
+Česká, železniční stanice;49.284546;16.566731;U13109Z10;1
+Řečkovice, nádraží;49.250794;16.590446;U1557Z10;1
+Řikonín, železniční stanice;49.365833;16.305833;U13425Z11;0
+Šakvice, železniční stanice;48.912883;16.70557;U15425Z11;1
+Šatov, železniční stanice;48.780786;16.026006;U18168Z11;0
+Šlapanice, železniční stanice;49.156654;16.729514;U16137Z10;1
+Šlapanice, železniční zastávka;49.163271;16.718638;U16136Z11;1
+Štěpánovice;49.374445;16.388056;U13462Z2;0
+Šumná, železniční stanice;48.923097;15.874306;U18259Z11;0
+Žabčice, žel. st.;49.010278;16.594722;U15306Z11;0
+Židenice, nádraží;49.204282;16.636042;U1809Z10;1
+Židlochovice, železniční stanice;49.033178;16.617165;U15241Z22;1
