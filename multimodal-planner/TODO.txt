@@ -1,0 +1,6 @@
+1. Co dělat, když nenajdu přestupní bod (jsou moc daleko)?
+2. Dodělat automatické získávání přestupních bodů
+3. Přidat vícejazyčnost
+4. Udělat fetch tras (aspoň nějaké, aby bylo vidět, jak vypadá výsledek)
+5. V návaznosti na bod 4 - zkusit nejprve výběr trasy pro jeden konkrétní přestupní bod, který se vybere v seznamu v pokročilých možnostech
+a potom řešit více tras

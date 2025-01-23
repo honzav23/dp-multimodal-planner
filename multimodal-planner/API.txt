@@ -1,0 +1,49 @@
+Endpoint POST /api/route
+{
+  startPoint: [latitude, longitude],
+  endPoint: [latitude, longitude],
+  departureTime: DateTime,
+  preferredMeans: [All means of transport you want to use]
+}
+
+
+OTP - posílání dotazů
+- egressMode a accessMode nastavit na 'flexible'
+- nějak rozumně nastavit numOfTripPatterns (max. 5?)
+- parametr from: {place: <id zastávky>} pro výpočet z přestupního bodu do cíle (cíl mohou být normální souřadnice)
+- specifikovat maximumTransfers? - možná pro minimalizaci přestupů
+
+
+Co je potřeba vracet pro výpočet?
+Celkový přehled: čas startu, čas dojezdu, celkový čas
+pro každý trip:
+	čas startu, čas dojezdu
+	fromPlace: {name}
+	toPlace: {name}
+	mode (typ dopravy)
+	line: {publicCode, name?}
+	authority:?
+	pointsOnLink: {points - jsou v polyline, vracet jen pro auto}
+	interchangeFrom: {staySeated - může se hodit, viz Kolejní - Technopark, Technopark - Semilasso}
+	interchangeTo: {staySeated - může se hodit, viz Kolejní - Technopark, Technopark - Semilasso}
+
+
+Dotaz na získání parkovišť, která jsou v určité vzdálenosti od daného bodu (veřejná) - mohou být placená
+[out:json][timeout:25];
+// Define the search area
+node(around:1000, 48.85, 16.056); // Replace with your coordinates (latitude, longitude)
+// Search for parking lots
+(
+  node["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+  way["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+  relation["amenity"="parking"]["access" = "yes"](around:1000, 48.85, 16.056);
+);
+// Output results
+out body;
+>;
+out skel qt;
+
+
+API pro náhradu geosouřadnic za normální adresu
+https://nominatim.org/release-docs/latest/api/Reverse/
+
