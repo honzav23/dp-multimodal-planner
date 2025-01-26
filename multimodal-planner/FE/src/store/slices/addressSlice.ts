@@ -1,3 +1,11 @@
+/**
+ * @file addressSlice.ts
+ * @brief This file contains the Redux slice for managing address-related state in the application.
+ * It includes actions and asynchronous thunks for setting, clearing, and fetching addresses based on coordinates.
+ * 
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date 
+ */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';

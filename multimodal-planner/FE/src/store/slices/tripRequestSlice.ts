@@ -1,13 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
+import { TripRequest } from '../../types/TripRequest';
+import { TransferStop } from '../../../../types/TransferStop';
 import axios from 'axios';
-
-interface TripRequest {
-    origin: LatLngTuple;
-    destination: LatLngTuple;
-    departureDate: string;
-    departureTime: string;
-}
 
 export const initialCoords: LatLngTuple = [1000, 1000]
 
@@ -15,7 +10,12 @@ const initialState: TripRequest = {
     origin: initialCoords,
     destination: initialCoords,
     departureDate: getFormattedDate(),
-    departureTime: (new Date()).toLocaleTimeString()
+    departureTime: (new Date()).toLocaleTimeString(),
+    preferences: {
+        modeOfTransport: null,
+        transferPoint: null,
+        minimizeTransfers: false
+    }
 };
 
 function getFormattedDate() {
@@ -47,10 +47,15 @@ const tripRequestSlice = createSlice({
         },
         setDepartureTime(state, action: PayloadAction<string>) {
             state.departureTime = action.payload;
+        },
+        setTransferStop(state, action: PayloadAction<TransferStop | null>) {
+            if (action.payload !== null) {
+                state.preferences.transferPoint = action.payload;
+            }
         }
     },
 });
 
-export const { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime } = tripRequestSlice.actions;
+export const { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, setTransferStop } = tripRequestSlice.actions;
 
 export default tripRequestSlice.reducer;
