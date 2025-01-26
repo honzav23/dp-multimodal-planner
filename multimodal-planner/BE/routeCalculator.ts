@@ -1,8 +1,7 @@
-import type { TripRequest } from "./types/TripRequest.ts";
+import type { TripRequestCombined } from "./types/TripRequestCombined.ts";
 import { gql, request } from "https://deno.land/x/graphql_request/mod.ts";
-import { parse } from "@std/csv"
-import { TransferStop, TransferStopWithDistance } from "./types/TransferStop.ts";
-import { transferPoints } from "./main.ts";
+import { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
+import { transferStops } from "./main.ts";
 
 /**
  * Calculates the distance between two points on the Earth's surface.
@@ -35,9 +34,9 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
  * @param tripRequest The trip request
  * @returns Candidate transfer stops
  */
-async function getCandidateTransferStops(tripRequest: TripRequest): Promise<TransferStop[]> {
+async function getCandidateTransferStops(tripRequest: TripRequestCombined): Promise<TransferStopWithDistance[]> {
 
-    const transferPointsWithDistance: TransferStopWithDistance[] = transferPoints.map((row) => {
+    const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
             ...row,
             distanceFromOrigin: calculateDistance(tripRequest.origin[0], tripRequest.origin[1], row.stopLat, row.stopLon),
@@ -51,7 +50,7 @@ async function getCandidateTransferStops(tripRequest: TripRequest): Promise<Tran
     return candidateTransferPoints;
 }
 
-export async function calculateRoad(tripRequest: TripRequest): Promise<string> {
+export async function calculateRoad(tripRequest: TripRequestCombined): Promise<string> {
 //     const variables = {
 //         from: {
 //           coordinates: {
@@ -131,8 +130,6 @@ export async function calculateRoad(tripRequest: TripRequest): Promise<string> {
 //   `;
 
     const candidateTransferPoints = await getCandidateTransferStops(tripRequest);
-
-    console.log(candidateTransferPoints.length)
     
     return "Calculating road route";
 }
