@@ -1,14 +1,27 @@
-import { TextField, InputAdornment, IconButton, Button, Tooltip, } from '@mui/material';
+/**
+ * @file TripRequestForm.tsx
+ * @brief Component for planning a trip, including input fields for start and end points, date and time pickers.
+ * 
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
+import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+
 import CloseIcon from '@mui/icons-material/Close';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import TuneIcon from '@mui/icons-material/Tune';
+
 import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { setFocus } from '../store/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getRoutes, initialCoords } from '../store/tripRequestSlice';
-import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/addressSlice';
-import { useRef, useEffect } from 'react';
+import { setFocus } from '../store/slices/inputsFocusSlice';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getRoutes, initialCoords } from '../store/slices/tripRequestSlice';
+import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/slices/addressSlice';
+import { getTransferStops } from '../store/slices/transferStopSlice';
+import { useEffect } from 'react';
 import dayjs from 'dayjs';
+import AdditionalPreferences from './AdditionalPreferences';
 
 export function TripRequestForm() {
 
@@ -24,14 +37,15 @@ export function TripRequestForm() {
     const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
     const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
 
-    const startInput = useRef<HTMLInputElement>(null)
-    const endInput = useRef<HTMLInputElement>(null)
-
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         changeCursor()
       }, [startInputFocused, endInputFocused])
+
+    useEffect(() => {
+        dispatch(getTransferStops())
+    }, [])
 
 
     /**
@@ -97,7 +111,7 @@ export function TripRequestForm() {
         <div
         style={{
           position: "absolute",
-          padding: "20px",
+          padding: "10px 20px",
           top: "5%",
           left: "5%",
           zIndex: 1000,
@@ -108,6 +122,14 @@ export function TripRequestForm() {
           gap: "5px",
         }}
       >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+  <IconButton edge='start' sx={{ color: 'black' }}>
+    <TuneIcon />
+  </IconButton>
+  <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+    Plan your trip
+  </h2>
+</div>
       {/* Start point text field */}
       <TextField style={{ backgroundColor: "white" }} slotProps={
         {
@@ -118,8 +140,7 @@ export function TripRequestForm() {
                 <CloseIcon/>
               </IconButton>
             </InputAdornment>}}}
-        size="small" value={startInputValue}
-        ref={startInput} placeholder='Start' type='text'
+        size="small" value={startInputValue} placeholder='Start' type='text'
         onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
       />
       <Tooltip title="Switch places">
@@ -138,17 +159,14 @@ export function TripRequestForm() {
                 <CloseIcon/>
               </IconButton>
             </InputAdornment>}}}
-        size="small" value={endInputValue}
-        ref={endInput} placeholder='End' type='text'
+        size="small" value={endInputValue} placeholder='End' type='text'
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
       />
       <div style={{ display: 'flex', gap: '10px'}}>
         <DatePicker label="Departure date" sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
         <TimePicker label="Departure time" sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/>
       </div>
-        {/* // <DatePicker label="Departure date" sx={{ backgroundColor: 'white', flex: "0 0 80%" }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
-        // <TimePicker label="Departure time" sx={{ backgroundColor: 'white', flex: "0 0 20%" }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/> */}
-      
+      <AdditionalPreferences/>      
   
       <Button variant='outlined' onClick={() => dispatch(getRoutes())}>Show routes</Button>
       </div>

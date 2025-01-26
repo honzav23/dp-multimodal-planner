@@ -1,3 +1,11 @@
+/**
+ * @file MarkerWrapper.tsx
+ * @brief Component for handling map marker interactions, including setting start and end points on the map.
+ * 
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
 import { Icon, LatLngTuple, LeafletMouseEvent } from 'leaflet';
 
 // Marker images adopted from https://github.com/pointhi/leaflet-color-markers/blob/master/
@@ -5,9 +13,9 @@ import markerIconStart from '../img/marker-icon-green.png'
 import markerIconEnd from '../img/marker-icon-red.png'
 import { Marker, useMapEvents } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { getAddress } from '../store/addressSlice';
-import { setFocus } from '../store/inputsFocusSlice';
-import { setStartCoords, setEndCoords } from '../store/tripRequestSlice';
+import { getAddress } from '../store/slices/addressSlice';
+import { setFocus } from '../store/slices/inputsFocusSlice';
+import { setStartCoords, setEndCoords } from '../store/slices/tripRequestSlice';
 
 function MarkerWrapper() {
   const dispatch = useAppDispatch()
@@ -16,7 +24,7 @@ function MarkerWrapper() {
 
   const startCoords = useAppSelector((state) => state.tripRequest.origin)
   const endCoords = useAppSelector((state) => state.tripRequest.destination)
-
+  
   const map = useMapEvents({
     click(e: LeafletMouseEvent) {
       const coords: LatLngTuple = [e.latlng.lat, e.latlng.lng]

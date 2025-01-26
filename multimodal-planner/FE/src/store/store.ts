@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import addressReducer from './addressSlice';
-import inputFocusReducer from './inputsFocusSlice';
-import tripRequestReducer from './tripRequestSlice';
+import addressReducer from './slices/addressSlice';
+import inputFocusReducer from './slices/inputsFocusSlice';
+import tripRequestReducer from './slices/tripRequestSlice';
+import transferStopReducer from './slices/transferStopSlice';
 
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export type RootState = ReturnType<typeof store.getState>;
@@ -12,6 +13,7 @@ const store = configureStore({
         address: addressReducer,
         focus: inputFocusReducer,
         tripRequest: tripRequestReducer,
+        transferStop: transferStopReducer,
     },
 });
 

@@ -1,7 +1,12 @@
+/**
+ * @file inputFocusSlice.ts
+ * @brief Redux slice for managing the focus state of input fields.
+ * 
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date 
+ */
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { LatLngTuple } from 'leaflet';
 
 interface FocusState {
     startInputFocused: boolean;
