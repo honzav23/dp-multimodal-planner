@@ -1,5 +1,5 @@
 import { parse } from "@std/csv"
-import { TransferStop } from "../types/TransferStop.ts";
+import { TransferStop } from "../../types/TransferStop.ts";
 
 export function getTransferStops(): TransferStop[] {
     const text = Deno.readTextFileSync('transferPointsWithParkingLots.csv');
@@ -13,7 +13,7 @@ export function getTransferStops(): TransferStop[] {
             stopName: row.stop_name,
             stopLat: latitude,
             stopLon: longitude,
-            hasParking: row.has_parking,
+            hasParking: row.has_parking === "1",
         }
     });
 

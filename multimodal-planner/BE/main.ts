@@ -2,7 +2,7 @@ import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
 import { calculateRoad } from "./routeCalculator.ts";
-import { TripRequest } from "./types/TripRequest.ts";
+import { TripRequestCombined } from "./types/TripRequestCombined.ts";
 import { ResultStatus } from "./types/ResultStatus.ts";
 import { getTransferStops } from "./common/common.ts";
 
@@ -21,20 +21,23 @@ app.post('/api/route', async (request) => {
     return request.json({ error: inputValidationResult.message }, 400);
   }
 
-  const tripRequest: TripRequest = {
+  const tripRequest: TripRequestCombined = {
     origin: body.origin,
     destination: body.destination,
     departureDate: `${body.departureDate}T${body.departureTime}`
   }
   calculateRoad(tripRequest);
-  // console.log(transferPoints.length)
   return request.text('Hello World');
+});
+
+app.get('/api/transferStops', (request) => {
+  return request.json(transferStops);
 });
 
 app.notFound((request) => {
   return request.json({ error: 'Not Found' }, 404);
 })
 
-export const transferPoints = getTransferStops();
+export const transferStops = getTransferStops();
 
 Deno.serve(app.fetch);
