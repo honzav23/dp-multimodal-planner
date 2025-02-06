@@ -1,8 +1,11 @@
 1. Co dělat, když nenajdu přestupní bod (jsou moc daleko)?
-2. Dodělat automatické získávání přestupních bodů
+2. Dodělat automatické získávání přestupních bodů - automatické stahování GTFS -> získání přestupních bodů
 3. Přidat vícejazyčnost
-4. Udělat fetch tras (aspoň nějaké, aby bylo vidět, jak vypadá výsledek)
-5. V návaznosti na bod 4 - zkusit nejprve výběr trasy pro jeden konkrétní přestupní bod, který se vybere v seznamu v pokročilých možnostech
+4. Zobrazit přestupní body na mapě (aspoň jako malé tečky, když se na ni najede, zobrazí se informace o něm), při volbě přestupního bodu se poté označí nějakým špendlíkem 
+5. Udělat fetch tras (aspoň nějaké, aby bylo vidět, jak vypadá výsledek)
+6. V návaznosti na bod 4 - zkusit nejprve výběr trasy pro jeden konkrétní přestupní bod, který se vybere v seznamu v pokročilých možnostech
 a potom řešit více tras
-6. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
+7. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
 viz Pubtran
+
+https://backend.orbit.dtu.dk/ws/portalfiles/portal/104276012/DTU_Transport_Compendium_Part_2_MCDA_.pdf - paper na různé přístupy tvorby vah na základě více kritérií

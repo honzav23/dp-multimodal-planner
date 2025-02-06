@@ -2,12 +2,13 @@ import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
 import { calculateRoad } from "./routeCalculator.ts";
-import { TripRequestCombined } from "./types/TripRequestCombined.ts";
-import { ResultStatus } from "./types/ResultStatus.ts";
+import { TripRequest } from "./types/TripRequest.ts";
+import { ResultStatus } from "../types/ResultStatus.ts";
 import { getTransferStops } from "./common/common.ts";
 
 const app = new Hono();
 
+// Define who can make requests to this server and which methods are allowed
 app.use('/api/*', cors({
   origin: 'http://localhost:3000',
   allowMethods: ['POST', 'GET']
@@ -21,10 +22,15 @@ app.post('/api/route', async (request) => {
     return request.json({ error: inputValidationResult.message }, 400);
   }
 
-  const tripRequest: TripRequestCombined = {
+  const tripRequest: TripRequest = {
     origin: body.origin,
     destination: body.destination,
-    departureDate: `${body.departureDate}T${body.departureTime}`
+    departureDate: `${body.departureDate}T${body.departureTime}`,
+    preferences: {
+      modeOfTransport: body.preferences.modeOfTransport,
+      transferStop: body.preferences.transferStop,
+      minimizeTransfers: body.minimizeTransfers
+    }
   }
   calculateRoad(tripRequest);
   return request.text('Hello World');
@@ -38,6 +44,6 @@ app.notFound((request) => {
   return request.json({ error: 'Not Found' }, 404);
 })
 
-export const transferStops = getTransferStops();
+export const transferStops = await getTransferStops();
 
 Deno.serve(app.fetch);

@@ -1,4 +1,4 @@
-import type { ResultStatus } from "./types/ResultStatus.ts";
+import type { ResultStatus } from "../types/ResultStatus.ts";
 
 /**
  * Validate the coordinates of the origin and destination 
