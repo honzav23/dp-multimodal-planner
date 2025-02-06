@@ -7,9 +7,10 @@ def main():
     
     # Skip the header
     next(transferPoints)
-
+    cnt = 1
     modifiedTransferPoints = [["stop_name", "stop_lat", "stop_lon", "stop_id", "has_parking"]]
     for transferPoint in transferPoints:
+        print(cnt)
         modifiedTransferPoint = transferPoint
         lat = float(transferPoint[1].replace(",", "."))
         lon = float(transferPoint[2].replace(",", "."))
@@ -31,6 +32,7 @@ def main():
         else:
             modifiedTransferPoint.append("0")
         modifiedTransferPoints.append(modifiedTransferPoint)
+        cnt += 1
 
     with open("../transferPointsWithParkingLots.csv", "w", newline='', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter=";")

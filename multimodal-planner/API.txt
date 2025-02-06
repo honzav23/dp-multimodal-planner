@@ -47,3 +47,12 @@ out skel qt;
 API pro náhradu geosouřadnic za normální adresu
 https://nominatim.org/release-docs/latest/api/Reverse/
 
+
+SELECT s.stop_name, s.stop_lat, s.stop_lon, s.stop_id, s.parent_station
+FROM stops s
+JOIN stop_times st ON s.stop_id = st.stop_id
+JOIN trips t ON st.trip_id = t.trip_id
+JOIN routes r ON t.route_id = r.route_id
+WHERE (r.route_type = 2 OR s.stop_name LIKE '%nádr.%' OR s.stop_name LIKE '%nádraží%')
+GROUP BY s.stop_name
+
