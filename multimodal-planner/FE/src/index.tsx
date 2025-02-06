@@ -6,8 +6,12 @@ import reportWebVitals from './reportWebVitals';
 import store from './store/store.ts';
 import { Provider } from 'react-redux';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import { theme } from './theme/theme.ts';
+import { ThemeProvider } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/cs.js';
+import '@fontsource/inter'
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,7 +20,9 @@ root.render(
   <React.StrictMode>
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='cs'>
       <Provider store={store}>
-        <App />
+        <ThemeProvider theme={theme}>
+          <App/>
+        </ThemeProvider>
       </Provider>
     </LocalizationProvider>
   </React.StrictMode>
