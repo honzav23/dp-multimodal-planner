@@ -20,7 +20,7 @@ function AdditionalPreferences() {
     const dispatch = useAppDispatch()
     return (
         <Autocomplete onChange={(_, value: TransferStop | null) => (dispatch(setTransferStop(value)))} renderInput={(params) => 
-            <TextField {...params}/>
+            <TextField label="Transfer points" {...params}/>
           }
           renderOption={(props, option) => {
             return (
