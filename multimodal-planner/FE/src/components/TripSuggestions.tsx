@@ -28,13 +28,12 @@ function TripSuggestions() {
     return (
         <div
           style={{
-         // padding: "10px 20px",
           width: "340px",
           backgroundColor: "rgba(255, 255, 255, 0.8)",
           display: "flex",
           flexDirection: "column",
           gap: "5px",
-          fontSize: '1.25em'
+          fontSize: '1em'
         }}
         >
             <List>
@@ -42,8 +41,8 @@ function TripSuggestions() {
                     return (
                         <>
                             <ListItem key={trip.startTime}>
-                                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-                                    <p>{trip.startTime} - {trip.endTime}</p>
+                                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0'}}>
+                                    <p style={{margin: 0}}>{trip.startTime} - {trip.endTime}</p>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                                         <Icon component={getIconBasedOnMeansOfTransport(trip.modeOfTransport)}/>
                                         <p>({trip.line}) {trip.from} &rarr; {trip.to}</p>
