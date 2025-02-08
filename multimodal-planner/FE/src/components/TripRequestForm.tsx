@@ -143,7 +143,7 @@ export function TripRequestForm() {
       onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
     />
     <Tooltip title="Switch places">
-      <IconButton size="large" sx={{ width: '50px', color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
+      <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
         <SwapVertIcon fontSize='inherit'/>
       </IconButton>
     </Tooltip>
