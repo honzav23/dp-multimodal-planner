@@ -38,7 +38,6 @@ function validateDateAndTime(body: Record<string, any>): ResultStatus {
     }
     const timePattern: RegExp = new RegExp('([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]');
     if (!timePattern.test(time)) {
-        console.log(time)
         result.error = true;
     }
     

@@ -1,7 +1,11 @@
-import type { TripRequest } from "./types/TripRequest.ts";
 import { gql, request } from "https://deno.land/x/graphql_request/mod.ts";
-import { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
+import { getRouteByCar } from "./common/common.ts";
+
+import type { TripRequest } from "./types/TripRequest";
+import type { TripResult, TripLeg } from "../types/TripResult";
+import type { TransferStopWithDistance } from "./types/TransferStopWithDistance";
 import { transferStops } from "./main.ts";
+import {OTPGraphQLData} from "./types/OTPGraphQLData";
 
 /**
  * Calculates the distance between two points on the Earth's surface.
@@ -50,100 +54,40 @@ async function getCandidateTransferStops(tripRequest: TripRequest): Promise<Tran
     return candidateTransferPoints;
 }
 
-export async function calculateRoad(tripRequest: TripRequest): Promise<string> {
-//     const variables = {
-//         from: {
-//           coordinates: {
-//             latitude: tripRequest.origin[0],
-//             longitude: tripRequest.origin[1]
-//           }
-//         },
-//         to: {
-//           coordinates: {
-//             latitude: tripRequest.destination[0],
-//             longitude: tripRequest.destination[1]
-//           }
-//         },
-//         dateTime: "2025-01-17T14:00:15.000Z",
-//         modes: {
-//           accessMode: "flexible",
-//           egressMode: "flexible",
-//           directMode: "flexible"
-//         },
-//         numTripPatterns: 12
-//       }
-
-
-//     const query = gql`
-//     query trip($from: Location!, $to: Location!, $arriveBy: Boolean, $dateTime: DateTime, $numTripPatterns: Int, $searchWindow: Int, $modes: Modes, $itineraryFiltersDebug: ItineraryFilterDebugProfile, $pageCursor: String) {
-//   trip(
-//     from: $from
-//     to: $to
-//     arriveBy: $arriveBy
-//     dateTime: $dateTime
-//     numTripPatterns: $numTripPatterns
-//     searchWindow: $searchWindow
-//     modes: $modes
-//     itineraryFilters: {debug: $itineraryFiltersDebug}
-//     pageCursor: $pageCursor
-//   ) {
-//     tripPatterns {
-//       expectedEndTime
-//       expectedStartTime
-//       duration
-//       distance
-//       legs {
-//         mode
-//         expectedEndTime
-//         expectedStartTime
-//         realtime
-//         distance
-//         duration
-//         fromPlace {
-//           name
-//           quay {
-//             id
-//           }
-//         }
-//         toPlace {
-//           name
-//           quay {
-//             id
-//           }
-//         }
-//         line {
-//           publicCode
-//         }
-//         pointsOnLink {
-//           points
-//         }
-//         interchangeTo {
-//           staySeated
-//         }
-//         interchangeFrom {
-//           staySeated
-//         }
-//       }
-//     }
-//   }
-// }
-//   `;
-
-    console.log(tripRequest.preferences.transferStop?.stopId)
-    const variables = {
-        id: `1:${tripRequest.preferences.transferStop?.stopId}`
-    }
-    const query = gql`
-        query stopPlace($id: String!) {
-            stopPlace(id: $id) {
-                latitude
-            }
+function createTripResults(trips): TripResult[] {
+    const tripResults: TripResult[] = [];
+    for (let trip of trips) {
+        const tripResult = {
+            totalTime: trip.duration,
+            totalDistance: trip.distance,
+            startTime: trip.aimedStartTime,
+            endTime: trip.aimedEndTime,
+            legs: []
         }
-    `;
-    const data = await request("http://localhost:8080/otp/transmodel/v3", query, variables)
-    // console.log(data)
-    // console.log(tripRequest.preferences.transferStop)
+        for (let tripLeg of trip.legs) {
+            const newTripLeg: TripLeg = {
+                startTime: tripLeg.aimedStartTime,
+                endTime: tripLeg.aimedEndTime,
+                modeOfTransport: tripLeg.mode,
+                from: tripLeg.fromPlace.name,
+                to: tripLeg.toPlace.name,
+                line: tripLeg.line?.publicCode ?? '',
+                route: tripLeg.pointsOnLink.points
+            }
+            tripResult.legs.push(newTripLeg);
+        }
+        tripResults.push(tripResult);
+    }
+    return tripResults
+}
+
+export async function calculateRoad(tripRequest: TripRequest): Promise<TripResult[]> {
     const candidateTransferPoints = await getCandidateTransferStops(tripRequest);
+    if (tripRequest.preferences.transferStop !== null) {
+        const trip: OTPGraphQLData = await getRouteByCar(tripRequest.origin, tripRequest.preferences.transferStop.stopCoords, tripRequest.departureDate)
+        const results = createTripResults(trip.trip.tripPatterns);
+        return results;
+    }
     
-    return "Calculating road route";
+    return [];
 }

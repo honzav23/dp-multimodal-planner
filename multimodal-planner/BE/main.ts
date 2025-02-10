@@ -15,7 +15,6 @@ app.use('/api/*', cors({
 }));
 
 app.post('/api/route', async (request) => {
-  
   const body = await request.req.json();
   const inputValidationResult: ResultStatus = validateRequestInput(body);
   if (inputValidationResult.error) {
@@ -32,8 +31,8 @@ app.post('/api/route', async (request) => {
       minimizeTransfers: body.minimizeTransfers
     }
   }
-  calculateRoad(tripRequest);
-  return request.text('Hello World');
+  const response = await calculateRoad(tripRequest);
+  return request.json(response);
 });
 
 app.get('/api/transferStops', (request) => {
