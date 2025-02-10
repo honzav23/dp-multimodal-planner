@@ -1,12 +1,12 @@
 export type TripResult = {
-    totalTime: string,
+    totalTime: number,
     totalDistance: number, // In kilometers
     startTime: string,
     endTime: string,
-    trip: TripProperties[]
+    legs: TripLeg[]
 }
 
-type TripProperties = {
+export type TripLeg = {
     startTime: string,
     endTime: string,
     modeOfTransport: string,

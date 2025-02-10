@@ -10,7 +10,7 @@ import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider } fro
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { TransferStop } from "../../../types/TransferStop";
-import { setTransferStop } from "../store/slices/tripRequestSlice";
+import { setTransferStop } from "../store/slices/tripSlice";
 
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 

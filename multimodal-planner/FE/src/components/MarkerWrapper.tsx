@@ -15,15 +15,15 @@ import { Marker, useMapEvents } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords } from '../store/slices/tripRequestSlice';
+import { setStartCoords, setEndCoords } from '../store/slices/tripSlice.ts';
 
 function MarkerWrapper() {
   const dispatch = useAppDispatch()
   const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
   const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
 
-  const startCoords = useAppSelector((state) => state.tripRequest.origin)
-  const endCoords = useAppSelector((state) => state.tripRequest.destination)
+  const startCoords = useAppSelector((state) => state.trip.tripRequest.origin)
+  const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
   
   const map = useMapEvents({
     click(e: LeafletMouseEvent) {
