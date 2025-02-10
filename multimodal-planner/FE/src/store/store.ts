@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import addressReducer from './slices/addressSlice';
 import inputFocusReducer from './slices/inputsFocusSlice';
-import tripRequestReducer from './slices/tripRequestSlice';
+import tripReducer from './slices/tripSlice';
 import transferStopReducer from './slices/transferStopSlice';
 
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -12,7 +12,7 @@ const store = configureStore({
     reducer: {
         address: addressReducer,
         focus: inputFocusReducer,
-        tripRequest: tripRequestReducer,
+        trip: tripReducer,
         transferStop: transferStopReducer,
     },
 });

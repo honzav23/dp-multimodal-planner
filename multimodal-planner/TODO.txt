@@ -9,3 +9,6 @@ a potom řešit více tras
 viz Pubtran
 
 https://backend.orbit.dtu.dk/ws/portalfiles/portal/104276012/DTU_Transport_Compendium_Part_2_MCDA_.pdf - paper na různé přístupy tvorby vah na základě více kritérií
+
+Funkce navíc v nastavení: minimalizace přestupů, výběr přestupního bodu, výběr hromadné dopravy, přepnout na plánování bez auta,
+jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním
