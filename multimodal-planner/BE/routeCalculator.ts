@@ -1,11 +1,10 @@
-import { gql, request } from "https://deno.land/x/graphql_request/mod.ts";
-import { getRouteByCar } from "./common/common.ts";
+import { getRouteByCar, getRouteByPublicTransport } from "./common/common.ts";
 
-import type { TripRequest } from "./types/TripRequest";
-import type { TripResult, TripLeg } from "../types/TripResult";
-import type { TransferStopWithDistance } from "./types/TransferStopWithDistance";
+import type { TripRequest } from "./types/TripRequest.ts";
+import type { TripResult } from "../types/TripResult.ts";
+import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops } from "./main.ts";
-import {OTPGraphQLData} from "./types/OTPGraphQLData";
+import type { OTPGraphQLData, OTPTripPattern, OTPTripLeg } from "./types/OTPGraphQLData.ts";
 
 /**
  * Calculates the distance between two points on the Earth's surface.
@@ -33,12 +32,19 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
     return distance;
 }
 
+function addMinutes(isoDate: string, minutes: number): string {
+    const date = new Date(isoDate)
+    date.setMinutes(date.getMinutes() + minutes)
+
+    return date.toISOString()
+}
+
 /**
  * Retrieves the candidate transfer stops for a trip request that are too far from the destination.
  * @param tripRequest The trip request
  * @returns Candidate transfer stops
  */
-async function getCandidateTransferStops(tripRequest: TripRequest): Promise<TransferStopWithDistance[]> {
+function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
 
     const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
@@ -54,39 +60,55 @@ async function getCandidateTransferStops(tripRequest: TripRequest): Promise<Tran
     return candidateTransferPoints;
 }
 
-function createTripResults(trips): TripResult[] {
-    const tripResults: TripResult[] = [];
-    for (let trip of trips) {
-        const tripResult = {
-            totalTime: trip.duration,
-            totalDistance: trip.distance,
-            startTime: trip.aimedStartTime,
-            endTime: trip.aimedEndTime,
-            legs: []
-        }
-        for (let tripLeg of trip.legs) {
-            const newTripLeg: TripLeg = {
-                startTime: tripLeg.aimedStartTime,
-                endTime: tripLeg.aimedEndTime,
-                modeOfTransport: tripLeg.mode,
-                from: tripLeg.fromPlace.name,
-                to: tripLeg.toPlace.name,
-                line: tripLeg.line?.publicCode ?? '',
-                route: tripLeg.pointsOnLink.points
-            }
-            tripResult.legs.push(newTripLeg);
-        }
-        tripResults.push(tripResult);
+function convertOTPDataToTripResult(trip: OTPTripPattern): TripResult {
+    const tripResult: TripResult = {
+        totalTime: trip.duration,
+        totalDistance: trip.distance,
+        startTime: trip.aimedStartTime,
+        endTime: trip.aimedEndTime,
+        legs: trip.legs.map((leg) => ({
+            startTime: leg.aimedStartTime,
+            endTime: leg.aimedEndTime,
+            modeOfTransport: leg.mode,
+            from: leg.fromPlace.name,
+            to: leg.toPlace.name,
+            line: leg.line?.publicCode ?? '',
+            route: leg.pointsOnLink.points
+        }))
+    };
+    return tripResult
+}
+
+function mergePublicTransportWithCar(car: TripResult, publicTransport: TripResult): TripResult {
+    const mergedResult: TripResult = {
+        totalTime: car.totalTime + publicTransport.totalTime,
+        totalDistance: car.totalDistance + publicTransport.totalDistance, // Might be inaccurate due to wrong public transport routing
+        startTime: car.startTime,
+        endTime: publicTransport.endTime,
+        legs: [...car.legs, ...publicTransport.legs]
     }
-    return tripResults
+    return mergedResult
 }
 
 export async function calculateRoad(tripRequest: TripRequest): Promise<TripResult[]> {
-    const candidateTransferPoints = await getCandidateTransferStops(tripRequest);
+    const candidateTransferPoints = getCandidateTransferStops(tripRequest);
     if (tripRequest.preferences.transferStop !== null) {
-        const trip: OTPGraphQLData = await getRouteByCar(tripRequest.origin, tripRequest.preferences.transferStop.stopCoords, tripRequest.departureDate)
-        const results = createTripResults(trip.trip.tripPatterns);
-        return results;
+
+        // First create a trip from the source location to the transfer point
+        const tripCar: OTPGraphQLData = await getRouteByCar(tripRequest.origin, tripRequest.preferences.transferStop.stopCoords, tripRequest.departureDate)
+        
+        // Then create a trip from the transfer point to destination with delayed departure time so that there is time between
+        // the transfer from a car to public transport   
+        const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(tripRequest.preferences.transferStop.stopCoords, tripRequest.destination, 
+            addMinutes(tripCar.trip.tripPatterns[0].aimedEndTime, 5), tripRequest.preferences.modeOfTransport)
+
+        // There is only one trip for a car
+        const carResult = convertOTPDataToTripResult(tripCar.trip.tripPatterns[0])
+        const publicTransportResults = tripPublicTransport.trip.tripPatterns.map((tripPattern) => convertOTPDataToTripResult(tripPattern))
+
+        const tripResults = publicTransportResults.map((publicResult) => mergePublicTransportWithCar(carResult, publicResult))
+        
+        return tripResults;
     }
     
     return [];
