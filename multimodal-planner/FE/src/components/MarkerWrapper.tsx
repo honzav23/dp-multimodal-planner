@@ -11,7 +11,7 @@ import { Icon, LatLngTuple, LeafletMouseEvent } from 'leaflet';
 // Marker images adopted from https://github.com/pointhi/leaflet-color-markers/blob/master/
 import markerIconStart from '../img/marker-icon-green.png'
 import markerIconEnd from '../img/marker-icon-red.png'
-import { Marker, useMapEvents } from 'react-leaflet'
+import { CircleMarker, Marker, useMapEvents, Popup } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
@@ -24,8 +24,10 @@ function MarkerWrapper() {
 
   const startCoords = useAppSelector((state) => state.trip.tripRequest.origin)
   const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
+
+  const transferStops = useAppSelector((state) => state.transferStop.transferStops)
   
-  const map = useMapEvents({
+  useMapEvents({
     click(e: LeafletMouseEvent) {
       const coords: LatLngTuple = [e.latlng.lat, e.latlng.lng]
       if (startInputFocused) {
@@ -45,6 +47,7 @@ function MarkerWrapper() {
     <div>
       <Marker position={startCoords} icon={new Icon({iconUrl: markerIconStart, iconAnchor: [12, 41]})}/>
       <Marker position={endCoords} icon={new Icon({iconUrl: markerIconEnd, iconAnchor: [12, 41]})}/>
+      { transferStops.map((stop) => <CircleMarker center={stop.stopCoords} radius={5} color='green'><Popup><h1>{stop.stopName}</h1></Popup></CircleMarker>) }
     </div>
   )
 }

@@ -26,7 +26,7 @@ const initialState: TripSliceState = {
         departureDate: getFormattedDate(),
         departureTime: (new Date()).toLocaleTimeString(),
         preferences: {
-            modeOfTransport: null,
+            modeOfTransport: [],
             transferStop: null,
             minimizeTransfers: false
         }
