@@ -4,7 +4,7 @@ export type OTPGraphQLData = {
     }
 }
 
-type OTPTripPattern = {
+export type OTPTripPattern = {
     aimedStartTime: string,
     aimedEndTime: string,
     distance: number,
@@ -12,7 +12,7 @@ type OTPTripPattern = {
     legs: OTPTripLeg[]
 }
 
-type OTPTripLeg = {
+export type OTPTripLeg = {
     mode: string,
     aimedStartTime: string,
     aimedEndTime: string,

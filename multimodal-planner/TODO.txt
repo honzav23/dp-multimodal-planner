@@ -1,5 +1,5 @@
 1. Co dělat, když nenajdu přestupní bod (jsou moc daleko)?
-2. Dodělat automatické získávání přestupních bodů - automatické stahování GTFS -> získání přestupních bodů
+2. Dodělat automatické získávání přestupních bodů - automatické stahování GTFS -> získání přestupních bodů (zatím přes GTFS, možná by šlo i přes OSM?)
 3. Přidat vícejazyčnost
 4. Zobrazit přestupní body na mapě (aspoň jako malé tečky, když se na ni najede, zobrazí se informace o něm), při volbě přestupního bodu se poté označí nějakým špendlíkem 
 5. Udělat fetch tras (aspoň nějaké, aby bylo vidět, jak vypadá výsledek)
