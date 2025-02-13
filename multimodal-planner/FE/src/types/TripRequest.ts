@@ -1,5 +1,6 @@
-import { LatLngTuple } from "leaflet";
-import { TransferStop } from "../../../types/TransferStop";
+import type { LatLngTuple } from "leaflet";
+import type { TransferStop } from "../../../types/TransferStop";
+import type { TransportMode } from "../../../types/TransportMode"
 
 export type TripRequest = {
     origin: LatLngTuple;
@@ -7,7 +8,7 @@ export type TripRequest = {
     departureDate: string;
     departureTime: string;
     preferences: {
-        modeOfTransport: ['bus' | 'train' | 'tram' | 'trolleybus'] | null;
+        modeOfTransport: TransportMode[];
         transferStop: TransferStop | null;
         minimizeTransfers: boolean;
     };

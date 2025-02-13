@@ -1,5 +1,5 @@
 import './App.css';
-import {MapContainer, TileLayer, Polyline} from 'react-leaflet';
+import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
 import decodePolyline from './decodePolyline.ts'
 import MarkerWrapper from './components/MarkerWrapper';
@@ -9,11 +9,7 @@ import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 
 function App() {
-    const x = decodePolyline("srmkH}vedBTCl@Ab@CdAEVC`@EZGJEBAPIFCLGj@]LIDARMNIXQVOnCgBbDmBrAy@HGt@e@ZS`@WLG@ARMLGFEVOACEU[_BACKo@Km@Mi@m@}CEWaCwM?M?E?E@C@EBKBCDCDGHATMNGjCaB@AHEBKF}B?ME[ACCU}@eHCOsAyKEU?CLG~CaBHEVM|@c@@APIRKFEBApAo@pCwA~DsBb@WfAi@`EqB\\QDCHE@Al@YNIDAlAo@fAi@`Ag@PI?AC[}@qFCQESg@mDc@qCFCHA")
-
-    const handleClick = (e: any) => {
-        console.log("Clicked on polyline")
-    }
+    const transferStops = useAppSelector((state) => state.transferStop.transferStops)
 
     const trips = useAppSelector((state) => state.trip.tripResults)
     return (
@@ -39,8 +35,12 @@ function App() {
                 <MarkerWrapper/>
 
                 {trips.length > 0 && trips[0].legs.map((leg => {
-                    return (<Polyline eventHandlers={{click: handleClick}} positions={decodePolyline(leg.route)}
-                              pathOptions={{color: "blue", weight: 5}}/>)
+                    return (
+                            <Polyline key={leg.startTime} positions={decodePolyline(leg.route)}
+                                pathOptions={{color: leg.modeOfTransport === "car" ? "#8E44AD " : "black", weight: 5, opacity: 0.8}}>
+                                    <Popup>Test popup</Popup>
+                            </Polyline>
+                    )
                 }))}
 
             </MapContainer>
