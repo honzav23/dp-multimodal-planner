@@ -3,7 +3,8 @@ export type TripResult = {
     totalDistance: number, // In kilometers
     startTime: string,
     endTime: string,
-    legs: TripLeg[]
+    legs: TripLeg[],
+    totalTransfers: number
 }
 
 export type TripLeg = {

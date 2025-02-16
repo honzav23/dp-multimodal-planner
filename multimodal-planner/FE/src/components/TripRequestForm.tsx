@@ -114,7 +114,7 @@ export function TripRequestForm() {
       <div
       style={{
         padding: "10px 20px",
-        width: "300px",
+        pointerEvents: 'auto',
         backgroundColor: "rgba(255, 255, 255, 0.8)",
         display: "flex",
         flexDirection: "column",
