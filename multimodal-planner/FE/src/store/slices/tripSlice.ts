@@ -8,13 +8,19 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResult } from "../../../../types/TripResult";
+import decodePolyline from "../../decodePolyline";
 import axios from 'axios';
+import type {TransportMode} from "../../../../types/TransportMode";
 
 export interface TripSliceState {
     tripRequest: TripRequest;
     tripResults: TripResult[];
     isLoading: boolean;
     openSnackbar: boolean;
+
+    // Decoded routes for each leg of each trip
+    decodedRoutes:{mode: TransportMode, route: LatLngTuple[]}[][];
+    selectedTrip: number
 }
 
 export const initialCoords: LatLngTuple = [1000, 1000]
@@ -32,6 +38,8 @@ const initialState: TripSliceState = {
         }
     },
     tripResults: [],
+    decodedRoutes: [],
+    selectedTrip: -1,
     isLoading: false,
     openSnackbar: false
 };
@@ -71,12 +79,18 @@ const tripSlice = createSlice({
             state.tripRequest.departureTime = action.payload;
         },
         setTransferStop(state, action: PayloadAction<TransferStop | null>) {
-            if (action.payload !== null) {
-                state.tripRequest.preferences.transferStop = action.payload;
-            }
+            state.tripRequest.preferences.transferStop = action.payload;
         },
         closeSnackbar(state) {
           state.openSnackbar = false;
+        },
+        setSelectedTrip(state, action: PayloadAction<number>) {
+            if (action.payload === state.selectedTrip) {
+                state.selectedTrip = -1
+            }
+            else {
+                state.selectedTrip = action.payload;
+            }
         }
     },
     extraReducers: (builder) => {
@@ -85,7 +99,24 @@ const tripSlice = createSlice({
         })
         builder.addCase(getTrips.fulfilled,(state, action) => {
             state.isLoading = false;
+
+            // Clear the routes array from previous loads
+            state.decodedRoutes = []
             state.tripResults = action.payload;
+            for (const tripResult of state.tripResults) {
+                const legs = tripResult.legs.map((leg) => (
+                    {
+                        mode: leg.modeOfTransport as TransportMode,
+                        route: decodePolyline(leg.route) as LatLngTuple[]
+                    }
+                ));
+                state.decodedRoutes.push(legs)
+            }
+
+            if (state.tripResults.length > 0) {
+                // Show the details of the first (best trip)
+                state.selectedTrip = 0
+            }
         })
         builder.addCase(getTrips.rejected, (state, action) => {
             state.isLoading = false;
@@ -94,6 +125,7 @@ const tripSlice = createSlice({
     }
 });
 
-export const { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, setTransferStop, closeSnackbar } = tripSlice.actions;
+export const { setStartCoords, setEndCoords, setDepartureDate,
+            setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip } = tripSlice.actions;
 
 export default tripSlice.reducer;

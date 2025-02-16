@@ -1,5 +1,5 @@
 /**
- * @file MarkerWrapper.tsx
+ * @file PositionSelection.tsx
  * @brief Component for handling map marker interactions, including setting start and end points on the map.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
@@ -15,9 +15,9 @@ import { CircleMarker, Marker, useMapEvents, Popup } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords } from '../store/slices/tripSlice.ts';
+import { setStartCoords, setEndCoords } from '../store/slices/tripSlice';
 
-function MarkerWrapper() {
+function PositionSelection() {
   const dispatch = useAppDispatch()
   const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
   const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
@@ -47,10 +47,9 @@ function MarkerWrapper() {
     <div>
       <Marker position={startCoords} icon={new Icon({iconUrl: markerIconStart, iconAnchor: [12, 41]})}/>
       <Marker position={endCoords} icon={new Icon({iconUrl: markerIconEnd, iconAnchor: [12, 41]})}/>
-      { transferStops.map((stop) => <CircleMarker center={stop.stopCoords} radius={5} color='green'><Popup><h1>{stop.stopName}</h1></Popup></CircleMarker>) }
     </div>
   )
 }
 
 
-export default MarkerWrapper
+export default PositionSelection
