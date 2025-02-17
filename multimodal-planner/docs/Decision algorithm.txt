@@ -1,0 +1,34 @@
+Algoritmus pro rozhodnutí, která trasa je nejvhodnější - https://backend.orbit.dtu.dk/ws/portalfiles/portal/104276012/DTU_Transport_Compendium_Part_2_MCDA_.pdf - paper na různé přístupy tvorby vah na základě více kritérií
+
+Kritéria:
+	- čas dojezdu - čím dříve, tím lépe,
+	- čas odjezdu - čím dříve, tím lépe,
+	- čas v autě vs. čas v MHD - možné poměry 1:3, 1:4, 1:2 - upřednostnit MHD,
+	- zpoždění - čím vyšší, tím horší,
+	- počet přestupů - čím více, tím horší
+
+Rozsahy hodnot:
+	- čas dojezdu - celkový čas mezi odjezdem z počátku a dojezdem do cíle, rozsah 0 - X minut
+	- čas odjezdu - odchylka proti času odjezdu stanoveného uživatelem, rozsah 0 - X minut
+	- čas v autě vs. čas v MHD (brát vzdálenost, nebo čas?), rozsah 0 - 1,
+	- zpoždění - rozsah 0 - X minut
+	- počet přestupů - rozsah 1 - X (spíše jednotky přestupů)
+
+Zatím asi použít metodu AHP
+
+Komparativní matice
+
+Ohodnocení důležitosti:
+
+1 - stejné
+3 - jedno je preferováno o málo více než druhé
+5 - jedno je jasně preferované oproti druhému
+7 - jedno je silněji preferované oproti druhému
+9 - nejsilněji
+
+|    | C1  | C2 | C3   | C4   | C5  |
+| C1 | 1   | 3  | 5    | 5    | 9   |
+| C2 | 1/3 | 1  | 1/3  | 1/3  | 1/5 |
+| C3 | 1/5 | 3  | 1    | 1/3  | 1/7 |
+| C4 | 1/5 | 3  | 3    | 1    | 7   |
+| C5 | 1/9 | 5  | 7    | 1/7  | 1   |
