@@ -43,17 +43,13 @@ export async function getTransferStops(): Promise<TransferStop[]> {
 
 function getGqlQueryString(): string {
     return gql`
-        query trip($from: Location!, $to: Location!, $arriveBy: Boolean, $dateTime: DateTime, $numTripPatterns: Int, $searchWindow: Int, $modes: Modes, $itineraryFiltersDebug: ItineraryFilterDebugProfile, $pageCursor: String) {
+        query trip($from: Location!, $to: Location!, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
           trip(
             from: $from
             to: $to
             arriveBy: $arriveBy
             dateTime: $dateTime
-            numTripPatterns: $numTripPatterns
-            searchWindow: $searchWindow
             modes: $modes
-            itineraryFilters: {debug: $itineraryFiltersDebug}
-            pageCursor: $pageCursor
           ) {
             tripPatterns {
               aimedStartTime
@@ -141,7 +137,8 @@ export async function getRouteByPublicTransport(from: [number, number], to: [num
         modes: {
             accessMode: "flexible",
             egressMode: "flexible",
-        }
+        },
+        numTripPatterns: 12
     }
 
     if (transport.length > 0) {
