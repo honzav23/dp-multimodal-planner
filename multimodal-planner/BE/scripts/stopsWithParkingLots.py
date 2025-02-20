@@ -3,7 +3,7 @@ import csv
 
 def main():
     api = overpy.Overpass()
-    transferPoints = csv.reader(open("../transferPoints.csv", "r", encoding='utf-8'), delimiter=";")
+    transferPoints = csv.reader(open("../transferStops/transferPoints.csv", "r", encoding='utf-8'), delimiter=";")
     
     # Skip the header
     next(transferPoints)
@@ -17,6 +17,8 @@ def main():
 
         modifiedTransferPoint[1] = lat
         modifiedTransferPoint[2] = lon
+
+        # Make request to Overpass to find all parking lots around 500 meters from the location
         result = api.query(f"""[out:json][timeout:25];
             node(around:500, {lat}, {lon});
             (
@@ -37,10 +39,6 @@ def main():
     with open("../transferPointsWithParkingLots.csv", "w", newline='', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerows(modifiedTransferPoints)
-            
-    
-   # print("Number of transfer points with parking lots: ", cnt)
-    # print("Number of parking lots: ", len(result.nodes) + len(result.ways) + len(result.relations))
 
 
 if __name__ == "__main__":

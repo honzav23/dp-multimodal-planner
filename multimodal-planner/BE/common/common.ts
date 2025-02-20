@@ -5,7 +5,7 @@ import type {OTPGraphQLData} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
 
 export async function getTransferStops(): Promise<TransferStop[]> {
-    const text = Deno.readTextFileSync('transferPointsWithParkingLots.csv');
+    const text = Deno.readTextFileSync('./transferStops/transferPointsWithParkingLots.csv');
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
     const variables = {
