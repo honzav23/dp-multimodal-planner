@@ -5,6 +5,7 @@ import type { TripResult } from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops } from "./main.ts";
 import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
+import { findBestTrips } from "./transferStopSelector.ts";
 
 /**
  * Calculates the distance between two points on the Earth's surface.
@@ -106,36 +107,27 @@ function mergePublicTransportWithCar(car: TripResult, publicTransport: TripResul
 }
 
 export async function calculateRoad(tripRequest: TripRequest): Promise<TripResult[]> {
-    const candidateTransferPoints = getCandidateTransferStops(tripRequest);
+    let candidateTransferPoints = []
     if (tripRequest.preferences.transferStop !== null) {
-
-        // First create a trip from the source location to the transfer point
-        const tripCar: OTPGraphQLData = await getRouteByCar(tripRequest.origin, tripRequest.preferences.transferStop.stopCoords, tripRequest.departureDate)
-        
-        // Then create a trip from the transfer point to destination with delayed departure time so that there is time between
-        // the transfer from a car to public transport   
-        const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(tripRequest.preferences.transferStop.stopCoords, tripRequest.destination,
-            addMinutes(tripCar.trip.tripPatterns[0].aimedEndTime, 5), tripRequest.preferences.modeOfTransport)
-
-        // There is only one trip for a car
-        const carResult = convertOTPDataToTripResult(tripCar.trip.tripPatterns[0])
-        const publicTransportResults = tripPublicTransport.trip.tripPatterns.map((tripPattern) => convertOTPDataToTripResult(tripPattern))
-
-        const tripResults = publicTransportResults.map((publicResult) => mergePublicTransportWithCar(carResult, publicResult))
-
-        return tripResults;
+        candidateTransferPoints = [tripRequest.preferences.transferStop]
     }
     else {
-        for (const candidate of candidateTransferPoints) {
-            const tripCar: OTPGraphQLData = await getRouteByCar(tripRequest.origin, candidate.stopCoords, tripRequest.departureDate)
-            if (tripCar.trip.tripPatterns.length > 0) {
-                const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(candidate.stopCoords, tripRequest.destination,
-                    addMinutes(tripCar.trip.tripPatterns[0].aimedEndTime, 5), tripRequest.preferences.modeOfTransport)
-            }
-        }
-        console.log("done")
-        return []
+        candidateTransferPoints = getCandidateTransferStops(tripRequest)
     }
+    const tripResults: TripResult[] = []
+    for (const candidate of candidateTransferPoints) {
+        const tripCar: OTPGraphQLData = await getRouteByCar(tripRequest.origin, candidate.stopCoords, tripRequest.departureDate)
+        if (tripCar.trip.tripPatterns.length > 0) {
+            const carResult = convertOTPDataToTripResult(tripCar.trip.tripPatterns[0])
+            const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(candidate.stopCoords, tripRequest.destination,
+                addMinutes(tripCar.trip.tripPatterns[0].aimedEndTime, 5), tripRequest.preferences.modeOfTransport)
+            const publicTransportResults = tripPublicTransport.trip.tripPatterns.map((tripPattern) => convertOTPDataToTripResult(tripPattern))
+            
+            const tempTripResults = publicTransportResults.map((publicResult) => mergePublicTransportWithCar(carResult, publicResult))
+            tripResults.push(...tempTripResults)
+        }
+    }
+    const bestTrips = findBestTrips(tripResults)
     
-    return [];
+    return bestTrips   
 }
