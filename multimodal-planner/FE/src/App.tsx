@@ -1,7 +1,6 @@
 import './App.css';
 import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
-import decodePolyline from './decodePolyline.ts'
 import PositionSelection from './components/PositionSelection';
 import TransferStopsSelection from './components/TransferStopsSelection';
 import TripRequestForm from './components/TripRequestForm';
@@ -21,7 +20,7 @@ function App() {
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
                 height: '90vh',
-                width: '19%',
+                width: '36%',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',

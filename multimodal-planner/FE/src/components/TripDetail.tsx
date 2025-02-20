@@ -6,9 +6,13 @@ import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk
 
 
 interface TripDetailProps {
-    trip: TripResult
+    trip: TripResult | null
 }
 function TripDetail({ trip }: TripDetailProps) {
+
+    if (trip === null) {
+        return <></>
+    }
 
     /**
      * Returns the icon based on the mode of transport
@@ -43,47 +47,17 @@ function TripDetail({ trip }: TripDetailProps) {
     return (
         <div
             style={{
-                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                overflow: "scroll",
+                overflow: "auto",
+                scrollbarWidth: 'thin',
                 gap: "5px",
-                fontSize: '1em',
-                maxHeight: '40vh'
+                maxHeight: '45vh'
             }}
         >
-            {/* <List>*/}
-            {/*     {trip.legs.map((leg, idx) => {*/}
-            {/*        return (*/}
-            {/*            <ListItem key={leg.startTime} dense divider={idx !== trip.legs.length - 1}>*/}
-            {/*                <div style={{*/}
-            {/*                    display: 'flex',*/}
-            {/*                    flexDirection: 'column',*/}
-            {/*                    justifyContent: 'space-between',*/}
-            {/*                    gap: '0'*/}
-            {/*                }}>*/}
-            {/*                    <p style={{margin: 0}}>{formatDateTime(leg.startTime)} - {formatDateTime(leg.endTime)}</p>*/}
-            {/*                    <div style={{*/}
-            {/*                        display: 'flex',*/}
-            {/*                        justifyContent: 'space-between',*/}
-            {/*                        alignItems: 'center',*/}
-            {/*                        gap: '10px'*/}
-            {/*                    }}>*/}
-            {/*                        <Icon component={getIconBasedOnMeansOfTransport(leg.modeOfTransport)}/>*/}
-            {/*                        <p>{formatLine(leg.line)} {leg.from} &rarr; {leg.to}</p>*/}
-            {/*                    </div>*/}
-            {/*                </div>*/}
-            {/*            </ListItem>*/}
-            {/*        )*/}
-            {/*    })*/}
-            {/*    }*/}
-            {/*</List>*/}
             <List
-                component={Paper}
-                elevation={3}
+                component="div"
                 sx={{
-                    bgcolor: "#ECEFF1", // Soft blue-gray background
                     p: 2,
-                   // border: "1px solid #B0BEC5", // Subtle border for separation
-                    color: "#37474F" // Dark gray text for readability
+                    color: "#37474F"
                 }}
             >
                 {trip.legs.map((leg, idx) => (
@@ -92,10 +66,10 @@ function TripDetail({ trip }: TripDetailProps) {
                         dense
                         divider={idx !== trip.legs.length - 1}
                         sx={{
-                            bgcolor: "#FFFFFF", // White background for trip legs
+                            bgcolor: "#FFFFFF",
                             borderRadius: 2,
                             p: 1.5,
-                            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" // Soft shadow for depth
+                            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"
                         }}
                     >
                         <Stack direction="column" spacing={0.5} sx={{ width: "100%" }}>
