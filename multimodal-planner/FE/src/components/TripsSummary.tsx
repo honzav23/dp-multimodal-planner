@@ -3,15 +3,17 @@ import {useAppSelector, useAppDispatch} from "../store/hooks";
 import { setSelectedTrip } from "../store/slices/tripSlice";
 
 import { formatDateTime } from "../common/common";
-import {ExpandMore, LocationOn, SwapHoriz} from "@mui/icons-material";
-import React from "react";
-import ExpandLess from "@mui/icons-material/ExpandLess";
+import { LocationOn, SwapHoriz, ChevronLeft, ChevronRight} from "@mui/icons-material";
 import TripDetail from "./TripDetail";
+
+import { useState } from 'react';
 
 function TripsSummary() {
 
     const trips = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
+
+    const showCollapse = selectedTrip !== -1
 
     const dispatch = useAppDispatch();
 
@@ -30,17 +32,17 @@ function TripsSummary() {
         <div
             style={{
                 backgroundColor: "rgba(255, 255, 255, 0.8)",
-                overflow: 'auto',
-                gap: "5px",
                 fontSize: '1em',
-                maxHeight: '40vh',
-                pointerEvents: 'auto'
+                maxHeight: '45vh',
+                pointerEvents: 'auto',
+                display: 'flex',
+                width: showCollapse ? '100%' : '50%',
+                padding: '0'
             }}
         >
-            <List component="nav">
+            <List sx={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px' }} component="nav">
             { trips.map((trip, idx) => {
                 return (
-                    <>
                     <ListItemButton onClick={() => dispatch(setSelectedTrip(idx))} selected={false} dense divider={idx !== trips.length - 1}>
                         <ListItemText
                             primary={
@@ -60,18 +62,17 @@ function TripsSummary() {
                                 </>
                             }
                         />
-                        {selectedTrip === idx ? <ExpandLess/> : <ExpandMore />}
+                        {selectedTrip === idx ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}
                     </ListItemButton>
-                    <Collapse in={selectedTrip === idx} timeout="auto" unmountOnExit>
-                       <TripDetail trip={trip}/>
-                    </Collapse>
-                    </>
                 )
             }) }
             </List>
-            </div>
-            :
-            <></>
+            <Collapse in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
+                <TripDetail trip={trips[selectedTrip] ?? null}/>
+            </Collapse>
+        </div>
+        :
+        <></>
     );
 };
 
