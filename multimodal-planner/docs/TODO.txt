@@ -1,9 +1,9 @@
 1. Co dělat, když nenajdu přestupní bod (jsou moc daleko)?
 2. Dodělat automatické získávání přestupních bodů - automatické stahování GTFS -> získání přestupních bodů (zatím přes GTFS, možná by šlo i přes OSM?)
 3. Přidat vícejazyčnost (detekce na základě jazyku prohlížeče, CZ, SK -> CZ, ostatní -> EN)
-4. Zobrazit přestupní body na mapě (aspoň jako malé tečky, když se na ni najede, zobrazí se informace o něm), při volbě přestupního bodu se poté označí nějakým špendlíkem
-5. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
+4. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
 viz Pubtran
+5. Reagovat na neočekávané chyby (nemusí se fetchnout data, chyba při běhu skriptu, ...)
 
 Funkce navíc v nastavení: minimalizace přestupů, výběr přestupního bodu, výběr hromadné dopravy, přepnout na plánování bez auta,
-jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním
+jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním, umožnit vyhledání NEJLEPŠÍ trasy? (za cenu dlouhého času výpočtu)

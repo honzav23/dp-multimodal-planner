@@ -1,4 +1,5 @@
 import { getRouteByCar, getRouteByPublicTransport } from "./common/common.ts";
+import { getRepresentativeTransferStops } from "./cluster.ts";
 
 import type { TripRequest } from "./types/TripRequest.ts";
 import type { TripResult } from "../types/TripResult.ts";
@@ -6,6 +7,7 @@ import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.
 import { transferStops } from "./main.ts";
 import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
+import {TransferStop} from "../types/TransferStop.ts";
 
 /**
  * Calculates the distance between two points on the Earth's surface.
@@ -107,12 +109,15 @@ function mergePublicTransportWithCar(car: TripResult, publicTransport: TripResul
 }
 
 export async function calculateRoad(tripRequest: TripRequest): Promise<TripResult[]> {
-    let candidateTransferPoints = []
+    let candidateTransferPoints: TransferStop[] = []
     if (tripRequest.preferences.transferStop !== null) {
         candidateTransferPoints = [tripRequest.preferences.transferStop]
     }
     else {
         candidateTransferPoints = getCandidateTransferStops(tripRequest)
+    }
+    if (candidateTransferPoints.length > 15) {
+        candidateTransferPoints = await getRepresentativeTransferStops(candidateTransferPoints)
     }
     const tripResults: TripResult[] = []
     for (const candidate of candidateTransferPoints) {
@@ -128,6 +133,5 @@ export async function calculateRoad(tripRequest: TripRequest): Promise<TripResul
         }
     }
     const bestTrips = findBestTrips(tripResults)
-    
     return bestTrips   
 }
