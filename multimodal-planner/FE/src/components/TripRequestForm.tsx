@@ -16,7 +16,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords } from '../store/slices/tripSlice';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip } from '../store/slices/tripSlice';
 import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/slices/addressSlice';
 import { getTransferStops } from '../store/slices/transferStopSlice';
 import { useEffect, useState } from 'react';
@@ -75,13 +75,16 @@ export function TripRequestForm() {
     */
     const clearInput = (origin: string) => {
       if (origin === 'start') {
-      dispatch(setStartCoords(initialCoords))
-      dispatch(clearStartAddress())
+          dispatch(setStartCoords(initialCoords))
+          dispatch(clearStartAddress())
       }
       else {
-      dispatch(setEndCoords(initialCoords))
-      dispatch(clearEndAddress())
+          dispatch(setEndCoords(initialCoords))
+          dispatch(clearEndAddress())
       }
+
+      // Remove the route if present
+      dispatch(setSelectedTrip(-1))
     }
 
     /**
@@ -124,7 +127,7 @@ export function TripRequestForm() {
         }}
     >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <IconButton edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
+            <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
                 <TuneIcon />
             </IconButton>
             <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: 'translateX(-5%)' }}>

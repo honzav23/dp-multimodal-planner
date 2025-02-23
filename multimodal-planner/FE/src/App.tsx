@@ -1,17 +1,15 @@
 import './App.css';
-import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
+import {MapContainer, TileLayer, Polyline} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
 import PositionSelection from './components/PositionSelection';
 import TransferStopsSelection from './components/TransferStopsSelection';
 import TripRequestForm from './components/TripRequestForm';
-import TripsSummary from './components/TripsSummary.tsx';
+import TripsSummary from './components/TripsSummary';
 import { useAppSelector } from "./store/hooks";
-import Test from './Test';
 import ActionFeedback from "./components/ActionFeedback";
 import {TransportMode} from "../../types/TransportMode";
 
 function App() {
-    const transferStops = useAppSelector((state) => state.transferStop.transferStops)
 
     const trips = useAppSelector((state) => state.trip.tripResults)
     const decodedRoutes = useAppSelector((state) => state.trip.decodedRoutes)

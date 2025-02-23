@@ -1,4 +1,4 @@
-import { ListItem, List, Icon, Stack, Typography, Paper } from '@mui/material'
+import { ListItem, List, Icon, Stack, Typography } from '@mui/material'
 import type {TripResult} from "../../../types/TripResult";
 import { formatDateTime } from "../common/common";
 
@@ -57,6 +57,9 @@ function TripDetail({ trip }: TripDetailProps) {
                 component="div"
                 sx={{
                     p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: '10px',
                     color: "#37474F"
                 }}
             >
