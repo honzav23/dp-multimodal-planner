@@ -1,5 +1,5 @@
-import {parse} from "@std/csv"
-import type {TransferStop} from "../../types/TransferStop";
+import {parse, stringify} from "@std/csv"
+import type {TransferStop, TransferStopCluster} from "../../types/TransferStop";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
 import type {OTPGraphQLData} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
@@ -25,6 +25,9 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     `;
     const data = await request(Deno.env.get("OTP_URL"), query, variables)
 
+    const command = new Deno.Command("python3", {args: ["./scripts/getClusters.py"]})
+    let { success } = await command.output()
+
     const transferPoints: TransferStop[] = []
 
     // The data from OTP are returned in order so this can be done
@@ -33,7 +36,7 @@ export async function getTransferStops(): Promise<TransferStop[]> {
             stopId: data.quays[i]?.stopPlace.id ?? csvData[i].stop_id,
             stopName: data.quays[i]?.stopPlace.name ?? csvData[i].stop_name,
             stopCoords: [data.quays[i]?.stopPlace.latitude ?? csvData[i].stop_lat, data.quays[i]?.stopPlace.longitude ?? csvData[i].stop_lon],
-            hasParking: csvData[i].has_parking === "1"
+            hasParking: csvData[i].has_parking === "1",
         }
         transferPoints.push(transferStop)
     }

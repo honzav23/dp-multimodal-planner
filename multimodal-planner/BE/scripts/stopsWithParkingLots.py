@@ -1,44 +1,38 @@
 import overpy
-import csv
+import pandas as pd
+import os
 
-def main():
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+file_path = os.path.join(script_dir, "..", "transferStops")
+file_path = os.path.normpath(file_path)
+
+
+def findNearestParkingLot(row):
     api = overpy.Overpass()
-    transferPoints = csv.reader(open("../transferStops/transferPoints.csv", "r", encoding='utf-8'), delimiter=";")
-    
-    # Skip the header
-    next(transferPoints)
-    cnt = 1
-    modifiedTransferPoints = [["stop_name", "stop_lat", "stop_lon", "stop_id", "has_parking"]]
-    for transferPoint in transferPoints:
-        print(cnt)
-        modifiedTransferPoint = transferPoint
-        lat = float(transferPoint[1].replace(",", "."))
-        lon = float(transferPoint[2].replace(",", "."))
-
-        modifiedTransferPoint[1] = lat
-        modifiedTransferPoint[2] = lon
-
-        # Make request to Overpass to find all parking lots around 500 meters from the location
-        result = api.query(f"""[out:json][timeout:25];
-            node(around:500, {lat}, {lon});
+    result = api.query(f"""[out:json][timeout:25];
+            node(around:500, {row['stop_lat']}, {row['stop_lon']});
             (
-            node["amenity"="parking"]["access" = "yes"](around:500, {lat}, {lon});
-            way["amenity"="parking"]["access" = "yes"](around:500, {lat}, {lon});
+            node["amenity"="parking"]["access" = "yes"](around:500, {row['stop_lat']}, {row['stop_lon']});
+            way["amenity"="parking"]["access" = "yes"](around:500, {row['stop_lat']}, {row['stop_lon']});
             );
             out body;
             >;
             out skel qt;
         """)
-        if (len(result.ways) > 0):
-            modifiedTransferPoint.append("1")
-        else:
-            modifiedTransferPoint.append("0")
-        modifiedTransferPoints.append(modifiedTransferPoint)
-        cnt += 1
+    print("zde")
+    if (len(result.ways) > 0):
+        return 1
+    return 0
 
-    with open("../transferPointsWithParkingLots.csv", "w", newline='', encoding='utf-8') as f:
-        writer = csv.writer(f, delimiter=";")
-        writer.writerows(modifiedTransferPoints)
+def main():
+
+    transferPoints = pd.read_csv(f'{file_path}/transferPoints.csv', delimiter=';', encoding='utf-8')
+    transferPoints['stop_lat'] = transferPoints['stop_lat'].str.replace(',', '.').astype(float)
+    transferPoints['stop_lon'] = transferPoints['stop_lon'].str.replace(',', '.').astype(float)
+    transferPoints["has_parking"] = transferPoints.apply(findNearestParkingLot, axis=1)
+    transferPoints.to_csv(f'{file_path}/transferPointsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
+
 
 
 if __name__ == "__main__":
