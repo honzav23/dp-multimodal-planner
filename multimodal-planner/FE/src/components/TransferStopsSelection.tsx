@@ -11,6 +11,8 @@ function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
 
+    const dispatch = useAppDispatch();
+
     const selectTransferStop = (stopSelected: boolean, stop: TransferStop | null) => {
         if (stopSelected) {
             dispatch(setTransferStop(null));
@@ -34,20 +36,20 @@ function TransferStopsSelection() {
             </Button>
             )
     }
-
-    const dispatch = useAppDispatch();
     return (
         <>
-            { transferStops.map((stop) => <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
-                <Popup closeOnClick={true}>
-                    <Stack direction='column' sx={{alignItems: 'center'}}>
-                        <h2>{stop.stopName}</h2>
-                        {
-                            getSelectionButton(stop)
-                        }
-                    </Stack>
-                </Popup>
-            </CircleMarker>) }
+            { transferStops.map((stop) =>
+                    <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
+                        <Popup closeOnClick={true}>
+                            <Stack direction='column' sx={{alignItems: 'center'}}>
+                                <h2>{stop.stopName}</h2>
+                                {
+                                    getSelectionButton(stop)
+                                }
+                            </Stack>
+                        </Popup>
+                    </CircleMarker>
+            )}
             <Marker position={selectedTransferStop !== null ? selectedTransferStop.stopCoords : initialCoords}
                     icon={new Icon({iconUrl: markerIconTransfer, iconAnchor: [12, 41]})}/>
         </>

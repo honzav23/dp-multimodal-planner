@@ -8,14 +8,13 @@
 
 import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dialog, DialogTitle, DialogContent, IconButton, Checkbox } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { WarningAmber, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 
 import { TransferStop } from "../../../types/TransferStop";
-import { setTransferStop } from "../store/slices/tripSlice";
+import { setTransferStop, setSelectedModeOfTransport } from "../store/slices/tripSlice";
 
 import { useAppSelector, useAppDispatch } from "../store/hooks";
+import type { TransportMode } from "../../../types/TransportMode";
 
 interface AdditionalPreferencesProps {
     dialogOpen: boolean
@@ -25,6 +24,12 @@ interface AdditionalPreferencesProps {
 function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreferencesProps) {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops)
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop)
+    const selectedMeansOfTransport = useAppSelector((state) => state.trip.tripRequest.preferences.modeOfTransport)
+
+    const icon = <CheckBoxOutlineBlank fontSize="small" />;
+    const checkedIcon = <CheckBox fontSize="small" />;
+
+    const options: TransportMode[] = ["bus", "rail", "tram", "trolleybus"]
 
     const dispatch = useAppDispatch()
     return (
@@ -47,10 +52,11 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
             </IconButton>
             <Divider></Divider>
             <DialogContent sx={{ backgroundColor: '#f3f3f3' }}>
-                <div style={{ marginLeft: '5%', display: 'flex', flexDirection: 'column', width: '30%' }}>
+                <div style={{ marginLeft: '5%', display: 'flex', gap: '15px', flexDirection: 'column', width: '30%' }}>
                     
                     {/* Select transfer stop */}
-                    <Autocomplete size='small' sx={{ backgroundColor: 'white' }} value={selectedTransferStop} onChange={(_, value: TransferStop | null) => (dispatch(setTransferStop(value)))} renderInput={(params) =>
+                    <Autocomplete size='small' sx={{ backgroundColor: 'white' }} value={selectedTransferStop}
+                                  onChange={(_, value: TransferStop | null) => (dispatch(setTransferStop(value)))} renderInput={(params) =>
                         <TextField label="Transfer points" {...params}/>
                     }
                     renderOption={(props, option) => {
@@ -58,7 +64,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         <div key={option.stopId}>
                             <ListItem {...props} key={option.stopId} secondaryAction={ (!option.hasParking) &&
                             <Tooltip title="No parking lots nearby" placement='right'>
-                                <WarningAmberIcon color='warning'/>
+                                <WarningAmber color='warning'/>
                             </Tooltip>
                             }>
                             <ListItemText primary={option.stopName}/>
@@ -68,31 +74,35 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         )
                     }}
                     getOptionLabel={(op) => op.stopName} options={transferStops}/>
-                    {/* TODO add autocomplete with multiple choices and checkboxes */}
-                    {/* <Autocomplete
+
+                    {/* Select means of public transport */}
+                    {/*https://mui.com/material-ui/react-autocomplete/#checkboxes  20. 2. 2025*/}
+                    <Autocomplete
                         multiple
-                        options={["bus", "train", "tram", "trolleybus"]}
+                        sx={{ backgroundColor: 'white' }}
+                        options={options}
+                        size='small'
+                        value={selectedMeansOfTransport}
+                        onChange={(_, value: TransportMode[] | null) => (dispatch(setSelectedModeOfTransport(value)))}
                         disableCloseOnSelect
-                        // getOptionLabel={(option) => option.title}
                         renderOption={(props, option, { selected }) => {
                             const { key, ...optionProps } = props;
                             return (
-                            <li key={key} {...optionProps}>
-                                <Checkbox
-                                icon={icon}
-                                checkedIcon={checkedIcon}
-                                style={{ marginRight: 8 }}
-                                checked={selected}
-                                />
-                                {option.title}
-                            </li>
+                                <li key={key} {...optionProps}>
+                                    <Checkbox
+                                        icon={icon}
+                                        checkedIcon={checkedIcon}
+                                        style={{ marginRight: 8 }}
+                                        checked={selected}
+                                    />
+                                    {option}
+                                </li>
                             );
                         }}
-                        style={{ width: 500 }}
                         renderInput={(params) => (
-                            <TextField {...params} label="Checkboxes" placeholder="Favorites" />
+                            <TextField {...params} label="Preferred means of transport" />
                         )}
-    /> */}
+                    />
                 </div>
             </DialogContent>
         </Dialog>
