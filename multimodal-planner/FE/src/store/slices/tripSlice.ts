@@ -8,7 +8,7 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResult } from "../../../../types/TripResult";
-import decodePolyline from "../../decodePolyline";
+import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
 
@@ -115,7 +115,7 @@ const tripSlice = createSlice({
                 const legs = tripResult.legs.map((leg) => (
                     {
                         mode: leg.modeOfTransport as TransportMode,
-                        route: decodePolyline(leg.route) as LatLngTuple[]
+                        route: polyLine.decode(leg.route) as LatLngTuple[]
                     }
                 ));
                 state.decodedRoutes.push(legs)

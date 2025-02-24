@@ -23,6 +23,8 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import AdditionalPreferences from './AdditionalPreferences';
 
+import { useTranslation } from 'react-i18next';
+
 export function TripRequestForm() {
     const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
     const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
@@ -35,13 +37,14 @@ export function TripRequestForm() {
     const isLoading = useAppSelector((state) => state.trip.isLoading)
 
     const [dialogOpen, setDialogOpen] = useState(false)
+    const { t } = useTranslation()
 
     const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
     const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
 
     const inputValid = startAddress !== null && endAddress !== null
-
     const dispatch = useAppDispatch()
+
 
     useEffect(() => {
       changeCursor()
@@ -131,7 +134,7 @@ export function TripRequestForm() {
                 <TuneIcon />
             </IconButton>
             <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: 'translateX(-5%)' }}>
-                Plan a trip
+                {t('form.plan')}
             </h2>
         </div>
 
@@ -149,7 +152,7 @@ export function TripRequestForm() {
         size="small" value={startInputValue} placeholder='Start' type='text'
         onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
-        <Tooltip title="Switch places">
+        <Tooltip title={t('form.switch')}>
         <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
             <SwapVertIcon fontSize='inherit'/>
         </IconButton>
@@ -166,23 +169,23 @@ export function TripRequestForm() {
                 <CloseIcon/>
                 </IconButton>
             </InputAdornment>}}}
-        size="small" value={endInputValue} placeholder='End' type='text'
+        size="small" value={endInputValue} placeholder={t('form.end')} type='text'
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
         />
 
 
         <div style={{ display: 'flex', gap: '10px'}}>
             {/* Select date */}
-            <DatePicker label="Departure date" sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
+            <DatePicker label={t('form.departureDate')} sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.$y, month: date.$M, day: date.$D}))}/>
 
             {/* Select time */}
-            <TimePicker label="Departure time" sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/>
+            <TimePicker label={t('form.departureTime')} sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/>
         </div>
         <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={() => setDialogOpen(false)}/>
 
         <Button disabled={!inputValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
                 onClick={() => dispatch(getTrips())}>
-            Show routes
+            {t('form.show')}
         </Button>
     </div>
     )

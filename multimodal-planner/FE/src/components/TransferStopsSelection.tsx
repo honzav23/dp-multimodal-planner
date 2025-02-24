@@ -6,12 +6,14 @@ import { setTransferStop, initialCoords } from "../store/slices/tripSlice";
 
 import markerIconTransfer from '../img/marker-icon-orange.png'
 import {Icon} from "leaflet";
+import { useTranslation } from "react-i18next";
 
 function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
 
     const dispatch = useAppDispatch();
+    const { t } = useTranslation();
 
     const selectTransferStop = (stopSelected: boolean, stop: TransferStop | null) => {
         if (stopSelected) {
@@ -32,7 +34,7 @@ function TransferStopsSelection() {
         return (
             <Button onClick={() => selectTransferStop(currentTransferStopSelected, stop)} color='secondary'
                     size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained'>
-                { selectedTransferStop?.stopId !== stop.stopId ? "Select as a transfer stop" : "Deselect transfer stop" }
+                { selectedTransferStop?.stopId !== stop.stopId ? t('transfer.select') : t('transfer.deselect') }
             </Button>
             )
     }

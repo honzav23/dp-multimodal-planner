@@ -85,7 +85,7 @@ function TripDetail({ trip }: TripDetailProps) {
                             <Stack direction="row" spacing={1} alignItems="center">
                                 <Icon
                                     component={getIconBasedOnMeansOfTransport(leg.modeOfTransport)}
-                                    sx={{ fontSize: 28, color: "primary" }} // Soft blue icon
+                                    sx={{ fontSize: 28, color: "primary" }}
                                 />
                                 <Typography variant="subtitle2">
                                     <strong>{formatLine(leg.line)}</strong>{" "}
