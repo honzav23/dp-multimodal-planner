@@ -15,6 +15,9 @@ import { setTransferStop, setSelectedModeOfTransport } from "../store/slices/tri
 
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
+import {type Language, availableLanguages } from "../types/Language.ts";
+
+import { useTranslation } from "react-i18next";
 
 interface AdditionalPreferencesProps {
     dialogOpen: boolean
@@ -26,16 +29,28 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop)
     const selectedMeansOfTransport = useAppSelector((state) => state.trip.tripRequest.preferences.modeOfTransport)
 
+    const { t, i18n } = useTranslation()
+
     const icon = <CheckBoxOutlineBlank fontSize="small" />;
     const checkedIcon = <CheckBox fontSize="small" />;
 
     const options: TransportMode[] = ["bus", "rail", "tram", "trolleybus"]
 
     const dispatch = useAppDispatch()
+
+    const changeLanguage = async (lang: Language | null) => {
+        if (lang === null) {
+            await i18n.changeLanguage('en')
+        }
+        else {
+            await i18n.changeLanguage(lang.code)
+        }
+    }
+
     return (
         <Dialog open={dialogOpen} fullWidth maxWidth='md'>
             <DialogTitle textAlign='center' variant="h4" sx={{ backgroundColor: '#f3f3f3' }}>
-                Additional preferences
+                {t('preferences.headline')}
             </DialogTitle>
             {/* https://mui.com/material-ui/react-dialog/#customization */}
             <IconButton
@@ -56,14 +71,15 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                     
                     {/* Select transfer stop */}
                     <Autocomplete size='small' sx={{ backgroundColor: 'white' }} value={selectedTransferStop}
+                                  getOptionLabel={(op) => op.stopName} options={transferStops}
                                   onChange={(_, value: TransferStop | null) => (dispatch(setTransferStop(value)))} renderInput={(params) =>
-                        <TextField label="Transfer points" {...params}/>
+                        <TextField label={t('preferences.transferPoints')} {...params}/>
                     }
                     renderOption={(props, option) => {
                         return (
                         <div key={option.stopId}>
                             <ListItem {...props} key={option.stopId} secondaryAction={ (!option.hasParking) &&
-                            <Tooltip title="No parking lots nearby" placement='right'>
+                            <Tooltip title={t('preferences.noParkingLots')} placement='right'>
                                 <WarningAmber color='warning'/>
                             </Tooltip>
                             }>
@@ -73,7 +89,23 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         </div>
                         )
                     }}
-                    getOptionLabel={(op) => op.stopName} options={transferStops}/>
+                    />
+
+                    {/* Select language */}
+                    <Autocomplete size='small' sx={{ backgroundColor: 'white' }}
+                                  getOptionLabel={(op) => op.name} options={availableLanguages}
+                                  onChange={(_, value: Language | null) => changeLanguage(value)}
+                                  renderInput={(params) =>
+                        <TextField label={t('language.select')} {...params}/>
+                    }
+                              renderOption={(props, option) => {
+                                  return (
+                                      <ListItem {...props} key={option.code} divider={option.code === "cs"}>
+                                          <ListItemText primary={option.name}/>
+                                      </ListItem>
+                                  )
+                              }}
+                    />
 
                     {/* Select means of public transport */}
                     {/*https://mui.com/material-ui/react-autocomplete/#checkboxes  20. 2. 2025*/}
@@ -95,12 +127,12 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                         style={{ marginRight: 8 }}
                                         checked={selected}
                                     />
-                                    {option}
+                                    {t(`transport.${option}`)}
                                 </li>
                             );
                         }}
                         renderInput={(params) => (
-                            <TextField {...params} label="Preferred means of transport" />
+                            <TextField {...params} label={t('preferences.transport')} />
                         )}
                     />
                 </div>

@@ -9,6 +9,8 @@ import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 import {TransportMode} from "../../types/TransportMode";
 
+import '../i18n.ts'
+
 function App() {
 
     const trips = useAppSelector((state) => state.trip.tripResults)

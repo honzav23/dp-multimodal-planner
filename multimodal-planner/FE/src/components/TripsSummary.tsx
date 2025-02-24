@@ -6,7 +6,7 @@ import { formatDateTime } from "../common/common";
 import { LocationOn, SwapHoriz, ChevronLeft, ChevronRight} from "@mui/icons-material";
 import TripDetail from "./TripDetail";
 
-import { useState } from 'react';
+import { useTranslation } from "react-i18next";
 
 function TripsSummary() {
 
@@ -17,6 +17,7 @@ function TripsSummary() {
 
     const dispatch = useAppDispatch();
 
+    const { t } = useTranslation();
 
     const convertSecondsToHoursAndMinutes = (seconds: number): string => {
         const hours = Math.floor(seconds / 3600);
@@ -26,6 +27,16 @@ function TripsSummary() {
             return `${minutes} min`
         }
         return `${hours} h ${minutes} min`
+    }
+
+    const getTransferTranslation =  (totalTransfers: number): string => {
+        if (totalTransfers === 1) {
+            return t('transfer.transferSingular')
+        }
+        else if (totalTransfers === 2 || totalTransfers === 3 || totalTransfers === 4) {
+            return t('transfer.transfer234')
+        }
+        return t('transfer.transferPlural')
     }
 
     return (trips.length > 0 ?
@@ -53,7 +64,7 @@ function TripsSummary() {
                             secondary={
                                 <>
                                     <Typography component='span' variant="body2">
-                                        <SwapHoriz style={{ verticalAlign: "middle" }} /> { trip.totalTransfers } transfers
+                                        <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}
                                     </Typography>
                                     <br/>
                                     <Typography component='span' variant="body2">

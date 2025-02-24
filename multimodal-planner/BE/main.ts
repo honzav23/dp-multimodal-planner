@@ -10,7 +10,7 @@ const app = new Hono();
 
 // Define who can make requests to this server and which methods are allowed
 app.use('/api/*', cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:5173',
   allowMethods: ['POST', 'GET']
 }));
 
