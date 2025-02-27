@@ -6,12 +6,13 @@
  * @date
  */
 
-import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dialog, DialogTitle, DialogContent, IconButton, Checkbox } from "@mui/material";
+import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dialog, DialogTitle, 
+    DialogContent, IconButton, Checkbox, FormControlLabel, Box } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { WarningAmber, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 
 import { TransferStop } from "../../../types/TransferStop";
-import { setTransferStop, setSelectedModeOfTransport } from "../store/slices/tripSlice";
+import { setTransferStop, setSelectedModeOfTransport, setFindBestTrip } from "../store/slices/tripSlice";
 
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
@@ -28,6 +29,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const transferStops = useAppSelector((state) => state.transferStop.transferStops)
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop)
     const selectedMeansOfTransport = useAppSelector((state) => state.trip.tripRequest.preferences.modeOfTransport)
+    const findBestTripSelected = useAppSelector((state) => state.trip.tripRequest.preferences.findBestTrip)
 
     const { t, i18n } = useTranslation()
 
@@ -67,8 +69,23 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
             </IconButton>
             <Divider></Divider>
             <DialogContent sx={{ backgroundColor: '#f3f3f3' }}>
-                <div style={{ marginLeft: '5%', display: 'flex', gap: '15px', flexDirection: 'column', width: '30%' }}>
+                <Box sx={{ marginLeft: { md: '5%', sm: 0 }, display: 'flex', gap: '15px', flexDirection: 'column', width: { md: '30%', sm: '100%' } }}>
                     
+                    {/* Select language */}
+                    <Autocomplete size='small' sx={{ backgroundColor: 'white' }}
+                                  getOptionLabel={(op) => op.name} options={availableLanguages}
+                                  onChange={(_, value: Language | null) => changeLanguage(value)}
+                                  renderInput={(params) =>
+                        <TextField label={t('language.select')} {...params}/>
+                    }
+                              renderOption={(props, option) => {
+                                  return (
+                                      <ListItem {...props} key={option.code} divider={option.code === "cs"}>
+                                          <ListItemText primary={option.name}/>
+                                      </ListItem>
+                                  )
+                              }}
+                    />
                     {/* Select transfer stop */}
                     <Autocomplete size='small' sx={{ backgroundColor: 'white' }} value={selectedTransferStop}
                                   getOptionLabel={(op) => op.stopName} options={transferStops}
@@ -91,21 +108,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                     }}
                     />
 
-                    {/* Select language */}
-                    <Autocomplete size='small' sx={{ backgroundColor: 'white' }}
-                                  getOptionLabel={(op) => op.name} options={availableLanguages}
-                                  onChange={(_, value: Language | null) => changeLanguage(value)}
-                                  renderInput={(params) =>
-                        <TextField label={t('language.select')} {...params}/>
-                    }
-                              renderOption={(props, option) => {
-                                  return (
-                                      <ListItem {...props} key={option.code} divider={option.code === "cs"}>
-                                          <ListItemText primary={option.name}/>
-                                      </ListItem>
-                                  )
-                              }}
-                    />
 
                     {/* Select means of public transport */}
                     {/*https://mui.com/material-ui/react-autocomplete/#checkboxes  20. 2. 2025*/}
@@ -135,7 +137,11 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                             <TextField {...params} label={t('preferences.transport')} />
                         )}
                     />
-                </div>
+                    {/* Find the best solution checkbox */}
+                    <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setFindBestTrip(val))} 
+                        checked={findBestTripSelected}/>} label={t('preferences.bestTrip')}
+                    />
+                </Box>
             </DialogContent>
         </Dialog>
     );

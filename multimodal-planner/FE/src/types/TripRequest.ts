@@ -11,5 +11,6 @@ export type TripRequest = {
         modeOfTransport: TransportMode[];
         transferStop: TransferStop | null;
         minimizeTransfers: boolean;
+        findBestTrip: boolean;
     };
 }

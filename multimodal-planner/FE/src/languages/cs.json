@@ -1,0 +1,37 @@
+{
+    "form": {
+        "plan": "Plánování trasy",
+        "start": "Počátek",
+        "end": "Cíl",
+        "departureDate": "Datum odjezdu",
+        "departureTime": "Čas odjezdu",
+        "show": "Ukázat trasy",
+        "switch": "Prohodit počátek a cíl"
+    },
+    "feedback": {
+        "error": "Nepodařilo se načíst trasy"
+    },
+    "preferences": {
+        "headline": "Rozšířená nastavení",
+        "transferPoints": "Přestupní body",
+        "noParkingLots": "Žádná parkoviště v blízkosti",
+        "transport": "Preferované dopravní prostředky",
+        "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)"
+    },
+    "transfer": {
+        "select": "Zvolit jako přestupní bod",
+        "deselect": "Zrušit výběr přestupního bodu",
+        "transferPlural": "přestupů",
+        "transferSingular": "přestup",
+        "transfer234": "přestupy"
+    },
+    "language": {
+        "select": "Jazyk"
+    },
+    "transport": {
+        "bus": "Autobus",
+        "rail": "Vlak",
+        "tram": "Tramvaj",
+        "trolleybus": "Trolejbus"
+    }
+}

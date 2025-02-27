@@ -13,6 +13,7 @@ export type TripLeg = {
     modeOfTransport: string,
     from: string,
     to: string,
+    distance: number,
     line: string,
     route: string
 }

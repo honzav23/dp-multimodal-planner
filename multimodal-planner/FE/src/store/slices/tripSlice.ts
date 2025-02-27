@@ -34,7 +34,8 @@ const initialState: TripSliceState = {
         preferences: {
             modeOfTransport: [],
             transferStop: null,
-            minimizeTransfers: false
+            minimizeTransfers: false,
+            findBestTrip: false
         }
     },
     tripResults: [],
@@ -99,6 +100,9 @@ const tripSlice = createSlice({
             else {
                 state.tripRequest.preferences.modeOfTransport = action.payload
             }
+        },
+        setFindBestTrip(state, action: PayloadAction<boolean>) {
+            state.tripRequest.preferences.findBestTrip = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -134,6 +138,7 @@ const tripSlice = createSlice({
 });
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
-            setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, setSelectedModeOfTransport } = tripSlice.actions;
+            setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, 
+            setSelectedModeOfTransport, setFindBestTrip } = tripSlice.actions;
 
 export default tripSlice.reducer;

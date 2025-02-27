@@ -25,7 +25,6 @@ function PositionSelection() {
   const startCoords = useAppSelector((state) => state.trip.tripRequest.origin)
   const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
 
-  const transferStops = useAppSelector((state) => state.transferStop.transferStops)
   
   useMapEvents({
     click(e: LeafletMouseEvent) {
