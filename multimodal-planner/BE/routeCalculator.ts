@@ -1,4 +1,4 @@
-import { getRouteByCar, getRouteByPublicTransport } from "./common/common.ts";
+import { getRouteByCar, getRouteByPublicTransport, calculateDistance } from "./common/common.ts";
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
 import type { TripRequest } from "./types/TripRequest.ts";
@@ -9,31 +9,6 @@ import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
 
-/**
- * Calculates the distance between two points on the Earth's surface.
- * 
- * @param lat1 Latitude of the first point
- * @param lon1 Longitude of the first point
- * @param lat2 Latitude of the second point
- * @param lon2 Longitude of the second point
- * 
- * @returns The distance between the two points in kilometers
- */
-function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const toRadians = (degrees: number) => degrees * Math.PI / 180;
-
-    const R = 6371;
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-    const a = 
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * 
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return distance;
-}
 
 function addMinutes(isoDate: string, minutes: number): string {
     const date = new Date(isoDate)
@@ -75,6 +50,7 @@ function convertOTPDataToTripResult(trip: OTPTripPattern): TripResult {
             modeOfTransport: leg.mode,
             from: leg.fromPlace.name,
             to: leg.toPlace.name,
+            distance: leg.distance,
             line: leg.line?.publicCode ?? '',
             route: leg.pointsOnLink.points
         })),
@@ -93,7 +69,13 @@ function calculateTotalNumberOfTransfers(publicTransport: TripResult): number {
     return totalNumberTransports - 1
 }
 
-function mergePublicTransportWithCar(car: TripResult, publicTransport: TripResult): TripResult {
+function mergePublicTransportWithCar(car: TripResult, publicTransport: TripResult, transferStopName: string): TripResult {
+
+    // Modify the results so that the destination name of car and starting name of public transport
+    // is the transfer stop name (instead of generic Origin and Destination)
+    car.legs[0].to = transferStopName
+    publicTransport.legs[0].from = transferStopName
+
     const mergedResult: TripResult = {
 
         // Total time by car + total time by public transport + time waiting for public transport
@@ -116,10 +98,15 @@ export async function calculateRoad(tripRequest: TripRequest): Promise<TripResul
     else {
         candidateTransferPoints = getCandidateTransferStops(tripRequest)
     }
-    if (candidateTransferPoints.length > 15) {
+    if (candidateTransferPoints.length === 0) {
+        
+    }
+
+    else if (candidateTransferPoints.length > 15 && !tripRequest.preferences.findBestTrip) {
         candidateTransferPoints = await getRepresentativeTransferStops(candidateTransferPoints)
     }
     const tripResults: TripResult[] = []
+
     for (const candidate of candidateTransferPoints) {
         const tripCar: OTPGraphQLData = await getRouteByCar(tripRequest.origin, candidate.stopCoords, tripRequest.departureDate)
         if (tripCar.trip.tripPatterns.length > 0) {
@@ -128,7 +115,7 @@ export async function calculateRoad(tripRequest: TripRequest): Promise<TripResul
                 addMinutes(tripCar.trip.tripPatterns[0].aimedEndTime, 5), tripRequest.preferences.modeOfTransport)
             const publicTransportResults = tripPublicTransport.trip.tripPatterns.map((tripPattern) => convertOTPDataToTripResult(tripPattern))
             
-            const tempTripResults = publicTransportResults.map((publicResult) => mergePublicTransportWithCar(carResult, publicResult))
+            const tempTripResults = publicTransportResults.map((publicResult) => mergePublicTransportWithCar(carResult, publicResult, candidate.stopName))
             tripResults.push(...tempTripResults)
         }
     }

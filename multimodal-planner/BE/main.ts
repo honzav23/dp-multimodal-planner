@@ -28,7 +28,8 @@ app.post('/api/route', async (request) => {
     preferences: {
       modeOfTransport: body.preferences.modeOfTransport,
       transferStop: body.preferences.transferStop,
-      minimizeTransfers: body.minimizeTransfers
+      minimizeTransfers: body.preferences.minimizeTransfers,
+      findBestTrip: body.preferences.findBestTrip
     }
   }
   const response = await calculateRoad(tripRequest);
