@@ -4,7 +4,7 @@ import { setSelectedTrip } from "../store/slices/tripSlice";
 
 import { formatDateTime } from "../common/common";
 import { LocationOn, SwapHoriz, ChevronLeft, ChevronRight} from "@mui/icons-material";
-import TripDetail from "./TripDetail";
+import TripDetail from "./TripDetail/TripDetail";
 
 import { useTranslation } from "react-i18next";
 
@@ -78,7 +78,7 @@ function TripsSummary() {
                 )
             }) }
             </List>
-            <Collapse in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
+            <Collapse sx={{width: '50%'}} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
                 <TripDetail trip={trips[selectedTrip] ?? null}/>
             </Collapse>
         </div>

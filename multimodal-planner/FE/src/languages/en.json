@@ -1,0 +1,37 @@
+{
+    "form": {
+        "plan": "Plan a trip",
+        "start": "Start",
+        "end": "End",
+        "departureDate": "Departure date",
+        "departureTime": "Departure time",
+        "show": "Show routes",
+        "switch": "Switch start and end"
+    },
+    "feedback": {
+        "error": "Unable to fetch trips"
+    },
+    "preferences": {
+        "headline": "Additional preferences",
+        "transferPoints": "Transfer points",
+        "noParkingLots": "No parking lots nearby",
+        "transport": "Preferred means of transport",
+        "bestTrip": "Find the best trip (might take a long time)"
+    },
+    "transfer": {
+        "select": "Select as a transfer point",
+        "deselect": "Deselect the transfer point",
+        "transferPlural": "transfers",
+        "transferSingular": "transfer",
+        "transfer234": "transfers"
+    },
+    "language": {
+        "select": "Language"
+    },
+    "transport": {
+        "bus": "Bus",
+        "rail": "Train",
+        "tram": "Tram",
+        "trolleybus": "Trolleybus"
+    }
+}

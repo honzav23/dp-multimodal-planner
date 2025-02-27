@@ -4,6 +4,7 @@
 4. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
 viz Pubtran
 5. Reagovat na neočekávané chyby (nemusí se fetchnout data, chyba při běhu skriptu, ...)
+6. Zkusit třeba nalézt nejzazší čas, kdy se můžu vrátit zpátky
 
 Funkce navíc v nastavení: minimalizace přestupů, výběr přestupního bodu, výběr hromadné dopravy, přepnout na plánování bez auta,
 jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním, umožnit vyhledání NEJLEPŠÍ trasy? (za cenu dlouhého času výpočtu)
