@@ -25,9 +25,6 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     `;
     const data = await request(Deno.env.get("OTP_URL"), query, variables)
 
-    const command = new Deno.Command("python3", {args: ["./scripts/getClusters.py"]})
-    let { success } = await command.output()
-
     const transferPoints: TransferStop[] = []
 
     // The data from OTP are returned in order so this can be done
@@ -63,11 +60,14 @@ function getGqlQueryString(): string {
                 mode
                 aimedStartTime
                 aimedEndTime
+                distance
                 fromPlace {
                   name
                 }
                 toPlace {
                     name
+                    latitude
+                    longitude
                 }
                 line {
                     publicCode
@@ -153,4 +153,30 @@ export async function getRouteByPublicTransport(from: [number, number], to: [num
     }
     const publicTransportRoute = await request(Deno.env.get("OTP_URL"), query, variables)
     return publicTransportRoute
+}
+
+/**
+ * Calculates the distance between two points on the Earth's surface.
+ * 
+ * @param lat1 Latitude of the first point
+ * @param lon1 Longitude of the first point
+ * @param lat2 Latitude of the second point
+ * @param lon2 Longitude of the second point
+ * 
+ * @returns The distance between the two points in kilometers
+ */
+export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRadians = (degrees: number) => degrees * Math.PI / 180;
+
+    const R = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * 
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return distance;
 }

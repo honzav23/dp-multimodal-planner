@@ -16,11 +16,14 @@ export type OTPTripLeg = {
     mode: string,
     aimedStartTime: string,
     aimedEndTime: string,
+    distance: number,
     fromPlace: {
         name: string,
     },
     toPlace: {
         name: string,
+        latitude: number,
+        longitude: number
     },
     line: {
         publicCode: string | null
