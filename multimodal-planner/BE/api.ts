@@ -32,6 +32,7 @@ app.post('/api/route', async (request) => {
       findBestTrip: body.preferences.findBestTrip
     }
   }
+
   const response = await calculateRoad(tripRequest);
   return request.json(response);
 });
