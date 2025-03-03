@@ -4,7 +4,7 @@ import { getRepresentativeTransferStops } from "./cluster.ts";
 import type { TripRequest } from "./types/TripRequest.ts";
 import type { TripResult } from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
-import { transferStops } from "./main.ts";
+import { transferStops } from "./api.ts";
 import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
@@ -119,6 +119,5 @@ export async function calculateRoad(tripRequest: TripRequest): Promise<TripResul
             tripResults.push(...tempTripResults)
         }
     }
-    const bestTrips = findBestTrips(tripResults)
-    return bestTrips   
+    return findBestTrips(tripResults)
 }
