@@ -12,8 +12,9 @@ import { initReactI18next } from "react-i18next";
 import translationCS from './src/languages/cs.json'
 import translationEN from './src/languages/en.json'
 
-i18n.use(LanguageDetector).use(initReactI18next).init({
-    lng: 'en',
+export const availableLanguages = ["cs", "en"]
+
+i18n.use(initReactI18next).use(LanguageDetector).init({
     fallbackLng: 'en',
     resources: {
         cs: {
@@ -22,5 +23,10 @@ i18n.use(LanguageDetector).use(initReactI18next).init({
         en: {
             translation: translationEN
         }
-    }
+    },
+    detection: {
+        order: ['navigator'],
+    },
+    supportedLngs: ["en", "cs"],
+    nonExplicitSupportedLngs: true,
 })

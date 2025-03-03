@@ -1,6 +1,7 @@
 import { List } from '@mui/material'
 import type {TripResult} from "../../../../types/TripResult";
 import TripDetailLeg from './TripDetailLeg';
+import { isMobile } from "react-device-detect";
 
 interface TripDetailProps {
     trip: TripResult | null
@@ -14,12 +15,10 @@ function TripDetail({ trip }: TripDetailProps) {
     return (
         <div
             style={{
-                overflow: "auto",
+                overflow: isMobile ? 'hidden' : "auto",
                 scrollbarWidth: 'thin',
                 gap: "5px",
-                maxHeight: '45vh'
-            }}
-        >
+            }}>
             <List
                 component="div"
                 sx={{
@@ -31,7 +30,7 @@ function TripDetail({ trip }: TripDetailProps) {
                 }}
             >
                 {trip.legs.map((leg, idx) => (
-                    <TripDetailLeg leg={leg} idx={idx} totalLegs={trip.legs.length}/>
+                    <TripDetailLeg key={leg.startTime} leg={leg} idx={idx} totalLegs={trip.legs.length}/>
                 ))}
             </List>
         </div>

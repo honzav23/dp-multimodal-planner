@@ -9,7 +9,8 @@
         "switch": "Prohodit počátek a cíl"
     },
     "feedback": {
-        "error": "Nepodařilo se načíst trasy"
+        "error": "Nepodařilo se načíst trasy",
+        "noTripsFound": "Nebyla nalezena žádná vhodná trasa"
     },
     "preferences": {
         "headline": "Rozšířená nastavení",
@@ -26,7 +27,9 @@
         "transfer234": "přestupy"
     },
     "language": {
-        "select": "Jazyk"
+        "select": "Jazyk",
+        "cs": "Čeština",
+        "en": "English"
     },
     "transport": {
         "bus": "Autobus",

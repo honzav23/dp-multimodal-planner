@@ -1,14 +1,19 @@
-import {List, Collapse, ListItemButton, ListItemText, Typography} from '@mui/material';
+import {List, Collapse, ListItemButton, ListItemText, Typography, IconButton, Divider, Box} from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
-import { setSelectedTrip } from "../store/slices/tripSlice";
-
+import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice";
+import { useState } from "react";
 import { formatDateTime } from "../common/common";
-import { LocationOn, SwapHoriz, ChevronLeft, ChevronRight} from "@mui/icons-material";
+import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap, Minimize} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
+import { isMobile } from "react-device-detect";
 
 import { useTranslation } from "react-i18next";
 
-function TripsSummary() {
+interface TripSummaryProps {
+    changeHeight?: (minimize: boolean) => void;
+}
+
+function TripsSummary({ changeHeight }: TripSummaryProps) {
 
     const trips = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
@@ -16,6 +21,7 @@ function TripsSummary() {
     const showCollapse = selectedTrip !== -1
 
     const dispatch = useAppDispatch();
+    const [minimized, setMinimized] = useState(false);
 
     const { t } = useTranslation();
 
@@ -39,19 +45,49 @@ function TripsSummary() {
         return t('transfer.transferPlural')
     }
 
+    const changeSummaryHeight = (minimize: boolean) => {
+        setMinimized(minimize)
+        if (changeHeight) {
+            changeHeight(minimize)
+        }
+    }
+
+    const backToTrips = () => {
+        setMinimized(false);
+        changeSummaryHeight(false)
+        // Go from trip detail to trip summary
+        if (selectedTrip !== -1) {
+            dispatch(setSelectedTrip(-1))
+        }
+
+        // Go from trip summary to trip planning
+        else {
+            dispatch(clearTripsAndRoutes())
+        }
+
+    }
+
     return (trips.length > 0 ?
-        <div
-            style={{
-                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                fontSize: '1em',
-                maxHeight: '45vh',
-                pointerEvents: 'auto',
-                display: 'flex',
-                width: showCollapse ? '100%' : '50%',
-                padding: '0'
-            }}
-        >
-            <List sx={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px' }} component="nav">
+        <>
+            {isMobile &&
+                    <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                    <IconButton color='primary' edge='end' onClick={backToTrips}>
+                        <ArrowBack/>
+                    </IconButton>
+                    {
+                        minimized ?
+                            <IconButton onClick={() => changeSummaryHeight(false)} color='primary' edge='start'>
+                                <ZoomOutMap/>
+                            </IconButton>
+                            :
+                            <IconButton onClick={() => changeSummaryHeight(true)} color='primary' edge='start'>
+                                <Minimize/>
+                            </IconButton>
+                    }
+                </Box>
+            }
+            <Divider/>
+            <List sx={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px', display: (showCollapse && isMobile) ? 'none' : 'block'  }} component="nav">
             { trips.map((trip, idx) => {
                 return (
                     <ListItemButton onClick={() => dispatch(setSelectedTrip(idx))} selected={false} dense divider={idx !== trips.length - 1}>
@@ -81,7 +117,7 @@ function TripsSummary() {
             <Collapse sx={{width: '50%'}} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
                 <TripDetail trip={trips[selectedTrip] ?? null}/>
             </Collapse>
-        </div>
+        </>
         :
         <></>
     );
