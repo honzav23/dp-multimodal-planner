@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      dockerfile: ./FE/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./BE:/app/BE
+      - ./types:/app/types  # Shared files
+
+  frontend:
+    build:
+      dockerfile: ./BE/Dockerfile
+    ports:
+      - "5173:5173"  # Runs React dev server
+    volumes:
+      - ./FE:/app/FE
+      - /app/FE/node_modules
+      - ./types:/app/types  # Shared files
+    command: ["npm", "start"]  # Ensures React runs in development mode
