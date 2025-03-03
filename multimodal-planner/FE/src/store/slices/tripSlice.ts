@@ -8,6 +8,7 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResult } from "../../../../types/TripResult";
+import { isMobile } from "react-device-detect";
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
@@ -17,6 +18,7 @@ export interface TripSliceState {
     tripResults: TripResult[];
     isLoading: boolean;
     openSnackbar: boolean;
+    snackbarMessage: string;
 
     // Decoded routes for each leg of each trip
     decodedRoutes:{mode: TransportMode, route: LatLngTuple[]}[][];
@@ -42,7 +44,8 @@ const initialState: TripSliceState = {
     decodedRoutes: [],
     selectedTrip: -1,
     isLoading: false,
-    openSnackbar: false
+    openSnackbar: false,
+    snackbarMessage: '',
 };
 
 function getFormattedDate() {
@@ -84,6 +87,7 @@ const tripSlice = createSlice({
         },
         closeSnackbar(state) {
           state.openSnackbar = false;
+          state.snackbarMessage = '';
         },
         setSelectedTrip(state, action: PayloadAction<number>) {
             if (action.payload === state.selectedTrip) {
@@ -103,6 +107,10 @@ const tripSlice = createSlice({
         },
         setFindBestTrip(state, action: PayloadAction<boolean>) {
             state.tripRequest.preferences.findBestTrip = action.payload
+        },
+        clearTripsAndRoutes(state) {
+            state.tripResults = []
+            state.decodedRoutes = []
         }
     },
     extraReducers: (builder) => {
@@ -115,6 +123,11 @@ const tripSlice = createSlice({
             // Clear the routes array from previous loads
             state.decodedRoutes = []
             state.tripResults = action.payload;
+            if (state.tripResults.length === 0) {
+                state.openSnackbar = true;
+                state.snackbarMessage = 'noTripsFound'
+            }
+
             for (const tripResult of state.tripResults) {
                 const legs = tripResult.legs.map((leg) => (
                     {
@@ -124,21 +137,21 @@ const tripSlice = createSlice({
                 ));
                 state.decodedRoutes.push(legs)
             }
-
-            if (state.tripResults.length > 0) {
-                // Show the details of the first (best trip)
+            // Select the first trip if mobile device is not used
+            if (!isMobile) {
                 state.selectedTrip = 0
             }
         })
         builder.addCase(getTrips.rejected, (state, action) => {
             state.isLoading = false;
             state.openSnackbar = true;
+            state.snackbarMessage = 'error'
         })
     }
 });
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, 
-            setSelectedModeOfTransport, setFindBestTrip } = tripSlice.actions;
+            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes } = tripSlice.actions;
 
 export default tripSlice.reducer;

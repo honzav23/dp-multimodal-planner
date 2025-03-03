@@ -13,10 +13,9 @@ import { WarningAmber, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-materia
 
 import { TransferStop } from "../../../types/TransferStop";
 import { setTransferStop, setSelectedModeOfTransport, setFindBestTrip } from "../store/slices/tripSlice";
-
+import { availableLanguages } from "../../i18n";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
-import {type Language, availableLanguages } from "../types/Language.ts";
 
 import { useTranslation } from "react-i18next";
 
@@ -40,12 +39,12 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
 
     const dispatch = useAppDispatch()
 
-    const changeLanguage = async (lang: Language | null) => {
+    const changeLanguage = async (lang: string | null) => {
         if (lang === null) {
             await i18n.changeLanguage('en')
         }
         else {
-            await i18n.changeLanguage(lang.code)
+            await i18n.changeLanguage(lang)
         }
     }
 
@@ -73,15 +72,17 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                     
                     {/* Select language */}
                     <Autocomplete size='small' sx={{ backgroundColor: 'white' }}
-                                  getOptionLabel={(op) => op.name} options={availableLanguages}
-                                  onChange={(_, value: Language | null) => changeLanguage(value)}
+                                  options={availableLanguages}
+                                  getOptionLabel={(option) => t(`language.${option}`)}
+                                  value={i18n.language}
+                                  onChange={(_, value: string | null) => changeLanguage(value)}
                                   renderInput={(params) =>
                         <TextField label={t('language.select')} {...params}/>
                     }
                               renderOption={(props, option) => {
                                   return (
-                                      <ListItem {...props} key={option.code} divider={option.code === "cs"}>
-                                          <ListItemText primary={option.name}/>
+                                      <ListItem {...props} key={option} divider={option !== 'en'}>
+                                          <ListItemText primary={t(`language.${option}`)}/>
                                       </ListItem>
                                   )
                               }}

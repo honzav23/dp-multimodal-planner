@@ -9,7 +9,8 @@
         "switch": "Switch start and end"
     },
     "feedback": {
-        "error": "Unable to fetch trips"
+        "error": "Unable to fetch trips",
+        "noTripsFound": "No suitable trips were found"
     },
     "preferences": {
         "headline": "Additional preferences",
@@ -26,7 +27,9 @@
         "transfer234": "transfers"
     },
     "language": {
-        "select": "Language"
+        "select": "Language",
+        "cs": "Čeština",
+        "en": "English"
     },
     "transport": {
         "bus": "Bus",

@@ -118,17 +118,7 @@ export function TripRequestForm() {
     }
 
     return (
-      <div
-        style={{
-            padding: "10px 10px",
-            pointerEvents: 'auto',
-            width: '50%',
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-        }}
-    >
+        <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
                 <TuneIcon />
@@ -166,7 +156,7 @@ export function TripRequestForm() {
             endAdornment:
             <InputAdornment position='end'>
                 <IconButton edge='end' onClick={() => clearInput('end')}>
-                <CloseIcon/>
+                    <CloseIcon/>
                 </IconButton>
             </InputAdornment>}}}
         size="small" value={endInputValue} placeholder={t('form.end')} type='text'
@@ -187,7 +177,7 @@ export function TripRequestForm() {
                 onClick={() => dispatch(getTrips())}>
             {t('form.show')}
         </Button>
-    </div>
+    </>
     )
 }
 
