@@ -12,14 +12,15 @@ import {TransportMode} from "../../types/TransportMode";
 
 import '../i18n.ts'
 import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
-
-import {BrowserView, MobileView, isMobile} from 'react-device-detect';
+import useIsMobile from './hooks/useIsMobile';
 
 function App() {
     const trips = useAppSelector((state) => state.trip.tripResults)
     const decodedRoutes = useAppSelector((state) => state.trip.decodedRoutes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showCollapse = selectedTrip !== -1
+
+    const isMobile = useIsMobile()
 
     // Route colors based on the current means of transport
     const routeColors: Record<TransportMode, string> = {
@@ -54,22 +55,8 @@ function App() {
                 pointerEvents: 'none',
                 zIndex: 1000
             }}>
-                <BrowserView>
-                    <div
-                        style={{
-                            padding: "10px 10px",
-                            pointerEvents: 'auto',
-                            width: '50%',
-                            backgroundColor: "rgba(255, 255, 255, 0.8)",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "5px",
-                        }}>
-                        <TripRequestForm/>
-                    </div>
-                </BrowserView>
-                <MobileView>
-                    { trips.length === 0 &&
+
+                { isMobile ? (trips.length === 0 &&
                         <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
                             <Box sx={{
                                 pointerEvents: 'auto',
@@ -81,11 +68,35 @@ function App() {
                                 <TripRequestForm/>
                             </Box>
                         </Drawer>
-                    }
-                </MobileView>
+                )
+                    :
+                    <div
+                        style={{
+                            padding: "10px 10px",
+                            pointerEvents: 'auto',
+                            width: '50%',
+                            backgroundColor: "rgba(255, 255, 255, 0.8)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "5px",
+                        }}>
+                        <TripRequestForm/>
+                    </div>                
+                }
 
-
-                <BrowserView>
+                { isMobile ? (trips.length > 0 &&
+                    <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
+                        <Box id="summary" sx={{
+                            fontSize: '1em',
+                            maxHeight: '50vh',
+                            pointerEvents: 'auto',
+                            display:'flex',
+                            flexDirection: 'column',
+                        }}>
+                            <TripsSummary changeHeight={changeHeight}/>
+                        </Box>
+                    </Drawer>)
+                    :
                     <div
                         style={{
                             backgroundColor: "rgba(255, 255, 255, 0.8)",
@@ -98,24 +109,7 @@ function App() {
                         }}>
                         <TripsSummary/>
                     </div>
-                </BrowserView>
-                <MobileView>
-                    { trips.length > 0 &&
-
-                            <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
-                                <Box id="summary" sx={{
-                                    fontSize: '1em',
-                                    maxHeight: '50vh',
-                                    pointerEvents: 'auto',
-                                    display:'flex',
-                                    flexDirection: 'column',
-                                }}>
-                                    <TripsSummary changeHeight={changeHeight}/>
-                                </Box>
-                            </Drawer>
-                    }
-                </MobileView>
-
+                }
 
             </div>
             <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
@@ -129,7 +123,7 @@ function App() {
                 {trips.length > 0 && selectedTrip !== -1 && decodedRoutes[selectedTrip].map((leg, i) => {
                     return (
                             <Polyline key={i} positions={leg.route}
-                                pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}}>
+                                pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : undefined}>
                                 <Popup closeOnClick={true}>
                                     <TripDetailLeg leg={trips[selectedTrip].legs[i]} idx={i} totalLegs={trips[selectedTrip].legs.length}/>
                                 </Popup>

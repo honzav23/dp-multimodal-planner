@@ -26,8 +26,7 @@ import AdditionalPreferences from './AdditionalPreferences';
 import { useTranslation } from 'react-i18next';
 
 export function TripRequestForm() {
-    const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
-    const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
+    const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
 
     const startAddress = useAppSelector((state) => state.address.startAddress)
     const endAddress = useAppSelector((state) => state.address.endAddress)
@@ -48,7 +47,7 @@ export function TripRequestForm() {
 
     useEffect(() => {
       changeCursor()
-    }, [startInputFocused, endInputFocused])
+    }, [startInputFocused, endInputFocused, pickupInputFocused])
 
     useEffect(() => {
       dispatch(getTransferStops())
@@ -62,13 +61,13 @@ export function TripRequestForm() {
       const elements = document.getElementsByClassName("leaflet-grab")
       let cursorStyle = "grab"
 
-      if (startInputFocused || endInputFocused) {
-      cursorStyle = "crosshair"
+      if (startInputFocused || endInputFocused || pickupInputFocused) {
+        cursorStyle = "crosshair"
       }
 
       for (let element of elements) {
-      element.style.cursor = cursorStyle
-      cursorStyle = "crosshair"
+        element.style.cursor = cursorStyle
+        cursorStyle = "crosshair"
       }
     }
 
@@ -139,8 +138,8 @@ export function TripRequestForm() {
                 <CloseIcon/>
                 </IconButton>
             </InputAdornment>}}}
-        size="small" value={startInputValue} placeholder='Start' type='text'
-        onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
+            size="small" value={startInputValue} placeholder='Start' type='text'
+            onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
         <Tooltip title={t('form.switch')}>
         <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>

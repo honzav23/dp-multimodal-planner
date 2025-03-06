@@ -8,7 +8,7 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResult } from "../../../../types/TripResult";
-import { isMobile } from "react-device-detect";
+import useIsMobile from '../../hooks/useIsMobile';
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
@@ -37,7 +37,8 @@ const initialState: TripSliceState = {
             modeOfTransport: [],
             transferStop: null,
             minimizeTransfers: false,
-            findBestTrip: false
+            findBestTrip: false,
+            pickupCoords: initialCoords
         }
     },
     tripResults: [],
@@ -75,6 +76,9 @@ const tripSlice = createSlice({
         },
         setEndCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.destination = action.payload;
+        },
+        setPickupCoords(state, action: PayloadAction<LatLngTuple>) {
+            state.tripRequest.preferences.pickupCoords = action.payload
         },
         setDepartureDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
             state.tripRequest.departureDate = `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`;
@@ -137,10 +141,6 @@ const tripSlice = createSlice({
                 ));
                 state.decodedRoutes.push(legs)
             }
-            // Select the first trip if mobile device is not used
-            if (!isMobile) {
-                state.selectedTrip = 0
-            }
         })
         builder.addCase(getTrips.rejected, (state, action) => {
             state.isLoading = false;
@@ -152,6 +152,6 @@ const tripSlice = createSlice({
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, 
-            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes } = tripSlice.actions;
+            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords } = tripSlice.actions;
 
 export default tripSlice.reducer;
