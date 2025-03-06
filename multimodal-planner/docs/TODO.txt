@@ -1,9 +1,9 @@
 1. Co dělat, když nenajdu přestupní bod (jsou moc daleko)?
-2. Dodělat automatické získávání přestupních bodů - automatické stahování GTFS -> získání přestupních bodů (zatím přes GTFS, možná by šlo i přes OSM?)
-3. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
+2. Udělat ukládání tras + párování? Po kliknutí na tlačítko se lokace uloží do local storage a potom by uživatelům mohly vyskakovat, případně doplnit i druhé pole,
 viz Pubtran
-4. Reagovat na neočekávané chyby (nemusí se fetchnout data, chyba při běhu skriptu, ...)
-5. Zkusit třeba nalézt nejzazší čas, kdy se můžu vrátit zpátky
+3. Reagovat na neočekávané chyby (nemusí se fetchnout data, chyba při běhu skriptu, ...)
+4. Zkusit třeba nalézt nejzazší čas, kdy se můžu vrátit zpátky
+5. Co dělat, když nedostanu trasy? Nějak posunout kurzor pro další časové okno?
 
 Funkce navíc v nastavení: minimalizace přestupů, výběr přestupního bodu, výběr hromadné dopravy, přepnout na plánování bez auta,
 jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním, umožnit vyhledání NEJLEPŠÍ trasy? (za cenu dlouhého času výpočtu)

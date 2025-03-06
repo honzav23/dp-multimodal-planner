@@ -71,9 +71,27 @@ export function validateTransferStop(transferStop: Record<string, any>): ResultS
     return result;
 }
 
+export function validatePickupPoint(pickupPoint: unknown): ResultStatus {
+    const result: ResultStatus = {error: false, message: ''}
+    const errorMessage = "Invalid pick up point coordinates"
+    if (Array.isArray(pickupPoint) && pickupPoint.length === 2 && typeof pickupPoint[0] === "number" && typeof pickupPoint[1] === "number") {
+        if (pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000) {
+            result.error = validateCoordinates(pickupPoint).error
+            result.message = errorMessage
+        }
+    }
+    else {
+        result.error = true
+        result.message = errorMessage
+    }
+
+    return result
+}
+
 export function validatePreferences(preferences: Record<string, any>): ResultStatus {
-    const result: ResultStatus = { error: false, message: '' };
-    if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("minimizeTransfers" in preferences) || !("findBestTrip" in preferences)) {
+    let result: ResultStatus = { error: false, message: '' };
+    if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("minimizeTransfers" in preferences) 
+        || !("findBestTrip" in preferences) || !("pickupCoords" in preferences)) {
         result.error = true;
         result.message = 'Missing required fields for preferences';
         return result
@@ -89,10 +107,14 @@ export function validatePreferences(preferences: Record<string, any>): ResultSta
         const transferStopsValid = validateTransferStop(preferences.transferStop);
 
         if (transferStopsValid.error) {
-            result.error = true;
-            result.message = transferStopsValid.message;
+            result = transferStopsValid
             return result
         }
+    }
+    const pickupPointValid = validatePickupPoint(preferences.pickupCoords)
+
+    if (pickupPointValid.error) {
+        result = pickupPointValid
     }
 
     return result
