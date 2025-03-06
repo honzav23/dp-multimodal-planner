@@ -32,7 +32,8 @@ export async function getTransferStops(): Promise<TransferStop[]> {
         const transferStop: TransferStop = {
             stopId: data.quays[i]?.stopPlace.id ?? csvData[i].stop_id,
             stopName: data.quays[i]?.stopPlace.name ?? csvData[i].stop_name,
-            stopCoords: [data.quays[i]?.stopPlace.latitude ?? csvData[i].stop_lat, data.quays[i]?.stopPlace.longitude ?? csvData[i].stop_lon],
+            stopCoords: [data.quays[i]?.stopPlace.latitude ?? parseFloat(csvData[i].stop_lat), 
+                data.quays[i]?.stopPlace.longitude ?? parseFloat(csvData[i].stop_lon)],
             hasParking: csvData[i].has_parking === "1",
         }
         transferPoints.push(transferStop)

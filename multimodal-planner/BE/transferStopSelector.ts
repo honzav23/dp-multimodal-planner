@@ -65,7 +65,27 @@ function getTotalEmissions(trip: TripResult): number {
     return totalEmissions
 }
 
-function determineRanks(tripRankings: TripDecision[]) {
+function getParetoOptimalTrips(trips: TripDecision[]) {
+
+    const dominates = (trip1: TripDecision, trip2: TripDecision) => {
+        let best = false
+        if (trip1.totalTime <= trip2.totalTime || trip1.totalEmissions <= trip2.totalEmissions || trip1.totalTransfers <= trip2.totalTransfers) {
+            best = true
+        }
+        if (trip1.totalTime > trip2.totalTime || trip1.totalEmissions > trip2.totalEmissions || trip1.totalTransfers > trip2.totalTransfers) {
+            best = false
+        }
+        return best
+    }
+
+    return trips.filter((candidate, i) => {
+        return !trips.some((other, j) => {
+            return j !== i && dominates(other, candidate);
+        });
+    });
+}
+
+function normalizeCriteria(tripRankings: TripDecision[]) {
     const len = tripRankings.length
     const sortByTotalTime = [...tripRankings].sort((a, b) => a.totalTime - b.totalTime)
     const sortByTransfers = [...tripRankings].sort((a, b) => a.totalTransfers - b.totalTransfers)
@@ -93,7 +113,7 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     }
     let tripsWithScores: {trip: TripDecision, score: number}[] = []
     
-    const tripRankings: TripDecision[] = []
+    let tripRankings: TripDecision[] = []
     for (let i = 0; i < trips.length; i++) {
         tripRankings.push(
             {
@@ -107,7 +127,8 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
             } as TripDecision
         )
     }
-    determineRanks(tripRankings)
+    tripRankings = getParetoOptimalTrips(tripRankings)
+    normalizeCriteria(tripRankings)
     tripsWithScores = tripRankings.map((val) => (
         { 
             trip: val, 

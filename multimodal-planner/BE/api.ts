@@ -29,7 +29,8 @@ app.post('/api/route', async (request) => {
       modeOfTransport: body.preferences.modeOfTransport,
       transferStop: body.preferences.transferStop,
       minimizeTransfers: body.preferences.minimizeTransfers,
-      findBestTrip: body.preferences.findBestTrip
+      findBestTrip: body.preferences.findBestTrip,
+      pickupCoords: body.preferences.pickupCoords
     }
   }
 

@@ -9,6 +9,7 @@ export type TripRequest = {
         modeOfTransport: TransportMode[];
         transferStop: TransferStop | null;
         minimizeTransfers: boolean;
-        findBestTrip: boolean
+        findBestTrip: boolean;
+        pickupCoords: [number, number]
     };
 }

@@ -9,7 +9,8 @@
     "jsr:@std/expect@*": "1.0.8",
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/streams@^1.0.8": "1.0.8",
-    "jsr:@std/testing@*": "1.0.5"
+    "jsr:@std/testing@*": "1.0.5",
+    "npm:polyline-encoded@0.0.9": "0.0.9"
   },
   "jsr": {
     "@hono/hono@4.6.12": {
@@ -52,6 +53,11 @@
         "jsr:@std/assert@^1.0.8",
         "jsr:@std/internal"
       ]
+    }
+  },
+  "npm": {
+    "polyline-encoded@0.0.9": {
+      "integrity": "sha512-xv6ONShzZdcISK6IT8x3IqsqxPq7HRqcPJ80V4et4hMolIRct5s/5dtUkfO7hGZEeKtWZ1fK7/fKur8gbd4fvg=="
     }
   },
   "redirects": {
@@ -201,7 +207,8 @@
     "dependencies": [
       "jsr:@hono/hono@^4.6.10",
       "jsr:@std/assert@1",
-      "jsr:@std/csv@*"
+      "jsr:@std/csv@*",
+      "npm:polyline-encoded@0.0.9"
     ]
   }
 }

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   backend:
     build:
-      dockerfile: ./FE/Dockerfile
+      dockerfile: ./BE/Dockerfile
     ports:
       - "8000:8000"
     volumes:
@@ -12,7 +12,7 @@ services:
 
   frontend:
     build:
-      dockerfile: ./BE/Dockerfile
+      dockerfile: ./FE/Dockerfile
     ports:
       - "5173:5173"  # Runs React dev server
     volumes:
