@@ -17,7 +17,8 @@
         "transferPoints": "Přestupní body",
         "noParkingLots": "Žádná parkoviště v blízkosti",
         "transport": "Preferované dopravní prostředky",
-        "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)"
+        "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)",
+        "pickup": "Místo vyzvednutí"
     },
     "transfer": {
         "select": "Zvolit jako přestupní bod",

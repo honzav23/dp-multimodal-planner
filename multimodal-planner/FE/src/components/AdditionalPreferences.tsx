@@ -7,15 +7,17 @@
  */
 
 import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dialog, DialogTitle, 
-    DialogContent, IconButton, Checkbox, FormControlLabel, Box } from "@mui/material";
+    DialogContent, IconButton, Checkbox, FormControlLabel, Box, InputAdornment } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { WarningAmber, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 
 import { TransferStop } from "../../../types/TransferStop";
-import { setTransferStop, setSelectedModeOfTransport, setFindBestTrip } from "../store/slices/tripSlice";
+import { setTransferStop, setSelectedModeOfTransport, setFindBestTrip, initialCoords, setPickupCoords } from "../store/slices/tripSlice";
 import { availableLanguages } from "../../i18n";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
+import { setPickupAddress, clearPickupAddress } from "../store/slices/addressSlice";
+import { setFocus } from "../store/slices/inputsFocusSlice";
 
 import { useTranslation } from "react-i18next";
 
@@ -26,9 +28,14 @@ interface AdditionalPreferencesProps {
 
 function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreferencesProps) {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops)
+
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop)
     const selectedMeansOfTransport = useAppSelector((state) => state.trip.tripRequest.preferences.modeOfTransport)
     const findBestTripSelected = useAppSelector((state) => state.trip.tripRequest.preferences.findBestTrip)
+    const pickupAddress = useAppSelector((state) => state.address.pickupAddress)
+    const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
+    
+    const pickupInputValue = pickupAddress === null ? '' : (pickupAddress === '' ? `${pickupCoords[0].toFixed(3)} ${pickupCoords[1].toFixed(3)}` : pickupAddress)
 
     const { t, i18n } = useTranslation()
 
@@ -46,6 +53,11 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
         else {
             await i18n.changeLanguage(lang)
         }
+    }
+
+    const clearInput = () => {
+        dispatch(setPickupCoords(initialCoords))
+        dispatch(clearPickupAddress())     
     }
 
     return (
@@ -107,6 +119,20 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         </div>
                         )
                     }}
+                    />
+
+                    {/* Select pick up point */}
+                    <TextField style={{ backgroundColor: "white" }} slotProps={
+                    {
+                        input: {
+                        endAdornment:
+                        <InputAdornment position='end'>
+                            <IconButton edge='end' onClick={() => clearInput()}>
+                            <CloseIcon/>
+                            </IconButton>
+                        </InputAdornment>}}}
+                        size="small" value={pickupInputValue} label={t('preferences.pickup')} type='text'
+                        onFocus={() => {dispatch(setFocus({origin: "pickup", focused: true}));closeDialog()}}
                     />
 
 

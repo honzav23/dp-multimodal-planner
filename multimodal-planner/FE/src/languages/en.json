@@ -17,7 +17,8 @@
         "transferPoints": "Transfer points",
         "noParkingLots": "No parking lots nearby",
         "transport": "Preferred means of transport",
-        "bestTrip": "Find the best trip (might take a long time)"
+        "bestTrip": "Find the best trip (might take a long time)",
+        "pickup": "Pick up point"
     },
     "transfer": {
         "select": "Select as a transfer point",

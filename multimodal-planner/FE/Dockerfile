@@ -16,5 +16,4 @@ COPY . .
 # Expose frontend port
 EXPOSE 5173
 
-# Start Nginx
 CMD ["npm", "start"]

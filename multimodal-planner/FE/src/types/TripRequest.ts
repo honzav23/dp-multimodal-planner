@@ -12,5 +12,6 @@ export type TripRequest = {
         transferStop: TransferStop | null;
         minimizeTransfers: boolean;
         findBestTrip: boolean;
+        pickupCoords: LatLngTuple
     };
 }

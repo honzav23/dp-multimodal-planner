@@ -5,7 +5,7 @@ import { useState } from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap, Minimize} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
-import { isMobile } from "react-device-detect";
+import useIsMobile from '../hooks/useIsMobile';
 
 import { useTranslation } from "react-i18next";
 
@@ -15,12 +15,17 @@ interface TripSummaryProps {
 
 function TripsSummary({ changeHeight }: TripSummaryProps) {
 
+    const isMobile = useIsMobile()
     const trips = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
+    const dispatch = useAppDispatch();
+
+    if (selectedTrip === -1 && !isMobile && trips.length > 0) {
+        dispatch(setSelectedTrip(0))
+    }
 
     const showCollapse = selectedTrip !== -1
 
-    const dispatch = useAppDispatch();
     const [minimized, setMinimized] = useState(false);
 
     const { t } = useTranslation();
@@ -114,7 +119,7 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
                 )
             }) }
             </List>
-            <Collapse sx={{width: '50%'}} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
+            <Collapse sx={{width: '50%', scrollbarWidth: 'thin', overflow: 'auto'}} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
                 <TripDetail trip={trips[selectedTrip] ?? null}/>
             </Collapse>
         </>

@@ -1,12 +1,13 @@
 import { List } from '@mui/material'
 import type {TripResult} from "../../../../types/TripResult";
 import TripDetailLeg from './TripDetailLeg';
-import { isMobile } from "react-device-detect";
+import useIsMobile from '../../hooks/useIsMobile';
 
 interface TripDetailProps {
     trip: TripResult | null
 }
 function TripDetail({ trip }: TripDetailProps) {
+    const isMobile = useIsMobile()
 
     if (trip === null) {
         return <></>

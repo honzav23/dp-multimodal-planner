@@ -14,11 +14,13 @@ import { LatLngTuple } from 'leaflet';
 interface AddressState {
     startAddress: string | null;
     endAddress: string | null;
+    pickupAddress: string | null
 }
 
 const initialState: AddressState = {
     startAddress: null,
     endAddress: null,
+    pickupAddress: null
 };
 
 /**
@@ -39,11 +41,17 @@ const addressSlice = createSlice({
         clearEndAddress(state) {
             state.endAddress = null;
         },
+        clearPickupAddress(state) {
+            state.pickupAddress = null
+        },
         setStartAddress(state, action: PayloadAction<string>) {
             state.startAddress = action.payload
         },
         setEndAddress(state, action: PayloadAction<string>) {
             state.endAddress = action.payload
+        },
+        setPickupAddress(state, action: PayloadAction<string>) {
+            state.pickupAddress = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -51,7 +59,10 @@ const addressSlice = createSlice({
             if (action.meta.arg.origin === 'start') {
                 state.startAddress = '';
             }
-            else {
+            else if (action.meta.arg.origin === 'pickup') {
+                state.pickupAddress = ''
+            }
+            else if (action.meta.arg.origin === 'end') {
                 state.endAddress = '';
             }
         })
@@ -59,13 +70,16 @@ const addressSlice = createSlice({
             if (action.payload.origin === 'start')  {
                 state.startAddress = action.payload.address;
             }
-            else {
+            else if (action.meta.arg.origin === 'pickup') {
+                state.pickupAddress = action.payload.address
+            }
+            else if (action.meta.arg.origin === 'end') {
                 state.endAddress = action.payload.address;
             }
         });
     }
 });
 
-export const { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } = addressSlice.actions;
+export const { clearStartAddress, clearEndAddress, clearPickupAddress, setStartAddress, setEndAddress, setPickupAddress } = addressSlice.actions;
 
 export default addressSlice.reducer;
