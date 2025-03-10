@@ -21,8 +21,11 @@ def getClusters():
 
     coords = np.dstack([transferPoints["stopLat"], transferPoints["stopLon"]]).reshape(-1,2)
 
-    base_num_clusters = np.sqrt(len(coords))
-    num_clusters = [int(base_num_clusters), int(base_num_clusters * 0.5), int(base_num_clusters * 1.5)]
+    base_num_clusters = 15
+    num_clusters = [base_num_clusters]
+    alternative_clusters = int(np.sqrt(len(transferPoints))) + base_num_clusters
+    if (alternative_clusters <= len(transferPoints)):
+        num_clusters.append(alternative_clusters)
 
     dbs = [sklearn.cluster.KMeans(n_clusters=n).fit(coords) for n in num_clusters]
     # Count Davies-Bouldin index for each result
@@ -30,6 +33,7 @@ def getClusters():
 
     # Find the best results
     best_index = np.argmin(davis_indices)
+    print(num_clusters[best_index])
 
     transferPoints["cluster"] = dbs[best_index].labels_
 

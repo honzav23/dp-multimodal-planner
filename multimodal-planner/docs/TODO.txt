@@ -3,7 +3,7 @@
 viz Pubtran
 3. Reagovat na neočekávané chyby (nemusí se fetchnout data, chyba při běhu skriptu, ...)
 4. Zkusit třeba nalézt nejzazší čas, kdy se můžu vrátit zpátky
-5. Co dělat, když nedostanu trasy? Nějak posunout kurzor pro další časové okno?
+5. Co dělat, když nedostanu trasy? Nějak posunout kurzor pro další časové okno? S tím souvisí i obecné přidání více tras třeba co se času odjezdu týče
 
 Funkce navíc v nastavení: minimalizace přestupů, výběr přestupního bodu, výběr hromadné dopravy, přepnout na plánování bez auta,
 jet autem z dané zastávky do cíle, preferovat přestupní body s parkováním, umožnit vyhledání NEJLEPŠÍ trasy? (za cenu dlouhého času výpočtu)

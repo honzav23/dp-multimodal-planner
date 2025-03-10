@@ -9,7 +9,9 @@ export const trip: Record<string, any> = {
         modeOfTransport: [],
         minimizeTransfers: false,
         findBestTrip: false,
-        transferStop: null
+        transferStop: null,
+        pickupCoords: [49.1848, 16.37228],
+        comingBack: null
     }
 }
 

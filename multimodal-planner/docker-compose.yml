@@ -5,10 +5,11 @@ services:
     build:
       dockerfile: ./BE/Dockerfile
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
-      - ./BE:/app/BE
       - ./types:/app/types  # Shared files
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
@@ -16,7 +17,6 @@ services:
     ports:
       - "5173:5173"  # Runs React dev server
     volumes:
-      - ./FE:/app/FE
       - /app/FE/node_modules
       - ./types:/app/types  # Shared files
     command: ["npm", "start"]  # Ensures React runs in development mode

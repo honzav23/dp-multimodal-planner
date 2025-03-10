@@ -41,7 +41,7 @@ const weights = calculateWeights()
  * Calculates the total amount of emissions based on the distance and mode of transport of
  * individual legs
  * @param trip Trip to calculate emissions from
- * @returns Total amout of emissions for a given trip
+ * @returns Total amount of emissions for a given trip
  */
 function getTotalEmissions(trip: TripResult): number {
     let totalEmissions = 0
@@ -65,24 +65,49 @@ function getTotalEmissions(trip: TripResult): number {
     return totalEmissions
 }
 
-function getParetoOptimalTrips(trips: TripDecision[]) {
+// function getParetoOptimalTrips(trips: TripDecision[]) {
+//     let optimalTrips: TripDecision[] = []
+//     for (const trip of trips) {
+//         optimalTrips = optimalTrips.filter(val => {
+//             return val.totalTime > trip.totalTime || val.totalEmissions > trip.totalEmissions || val.totalTransfers > trip.totalTransfers
+//         })
+//         optimalTrips.push(trip)
+//     }
+//     return optimalTrips
+// }
 
-    const dominates = (trip1: TripDecision, trip2: TripDecision) => {
-        let best = false
-        if (trip1.totalTime <= trip2.totalTime || trip1.totalEmissions <= trip2.totalEmissions || trip1.totalTransfers <= trip2.totalTransfers) {
-            best = true
+function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
+    let optimalTrips: TripDecision[] = [];
+
+    for (const trip of trips) {
+        // Remove trips that are dominated by the new trip
+        optimalTrips = optimalTrips.filter(existingTrip =>
+            !dominates(trip, existingTrip)
+        );
+
+        // Only add the new trip if it is not dominated by any existing trip
+        if (!optimalTrips.some(existingTrip => dominates(existingTrip, trip))) {
+            optimalTrips.push(trip);
         }
-        if (trip1.totalTime > trip2.totalTime || trip1.totalEmissions > trip2.totalEmissions || trip1.totalTransfers > trip2.totalTransfers) {
-            best = false
-        }
-        return best
     }
 
-    return trips.filter((candidate, i) => {
-        return !trips.some((other, j) => {
-            return j !== i && dominates(other, candidate);
-        });
-    });
+    return optimalTrips;
+}
+
+// Helper function to check if trip A dominates trip B
+function dominates(a: TripDecision, b: TripDecision): boolean {
+    let betterInAtLeastOne = false;
+
+    if (a.totalTime > b.totalTime) return false;
+    if (a.totalEmissions > b.totalEmissions) return false;
+    if (a.totalTransfers > b.totalTransfers) return false;
+
+    // At least one metric must be strictly better
+    if (a.totalTime < b.totalTime) betterInAtLeastOne = true;
+    if (a.totalEmissions < b.totalEmissions) betterInAtLeastOne = true;
+    if (a.totalTransfers < b.totalTransfers) betterInAtLeastOne = true;
+
+    return betterInAtLeastOne;
 }
 
 function normalizeCriteria(tripRankings: TripDecision[]) {

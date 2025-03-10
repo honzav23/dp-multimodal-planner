@@ -1,10 +1,10 @@
 import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
-import { calculateRoad } from "./routeCalculator.ts";
+import { calculateRoutes } from "./routeCalculator.ts";
 import { TripRequest } from "./types/TripRequest.ts";
 import { ResultStatus } from "../types/ResultStatus.ts";
-import { getTransferStops } from "./common/common.ts";
+import { getTransferStops, getTripsForLines } from "./common/common.ts";
 
 const app = new Hono();
 
@@ -24,18 +24,25 @@ app.post('/api/route', async (request) => {
   const tripRequest: TripRequest = {
     origin: body.origin,
     destination: body.destination,
-    departureDate: `${body.departureDate}T${body.departureTime}`,
+    departureDateTime: `${body.departureDate}T${body.departureTime}`,
     preferences: {
       modeOfTransport: body.preferences.modeOfTransport,
       transferStop: body.preferences.transferStop,
       minimizeTransfers: body.preferences.minimizeTransfers,
       findBestTrip: body.preferences.findBestTrip,
-      pickupCoords: body.preferences.pickupCoords
+      pickupCoords: body.preferences.pickupCoords,
+      comingBack: body.preferences.comingBack === null ? null :
+          { returnDateTime: `${body.preferences.comingBack.returnDate}T${body.preferences.comingBack.returnTime}` },
     }
   }
-
-  const response = await calculateRoad(tripRequest);
-  return request.json(response);
+  try {
+    const response = await calculateRoutes(tripRequest);
+    return request.json(response);
+  }
+  catch (error) {
+    console.log(error);
+    return request.json([], 500);
+  }
 });
 
 app.get('/api/transferStops', (request) => {
@@ -47,5 +54,6 @@ app.notFound((request) => {
 })
 
 export const transferStops = await getTransferStops();
+export const availableTripsForEachLine = await getTripsForLines()
 
 Deno.serve(app.fetch);
