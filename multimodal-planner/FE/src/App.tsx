@@ -15,7 +15,7 @@ import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
 import useIsMobile from './hooks/useIsMobile';
 
 function App() {
-    const trips = useAppSelector((state) => state.trip.tripResults)
+    const trips = useAppSelector((state) => state.trip.tripResults.outboundTrips)
     const decodedRoutes = useAppSelector((state) => state.trip.decodedRoutes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showCollapse = selectedTrip !== -1
@@ -32,6 +32,10 @@ function App() {
         trolleybus: '#800080',
     }
 
+    /**
+     * Change the drawer height based on if it is minimized or not
+     * @param minimize If the drawer is minimized
+     */
     const changeHeight = (minimize: boolean) => {
         if (minimize) {
             document.getElementById('summary').style.maxHeight = '5vh'

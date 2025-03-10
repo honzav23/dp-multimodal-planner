@@ -16,7 +16,7 @@ interface TripSummaryProps {
 function TripsSummary({ changeHeight }: TripSummaryProps) {
 
     const isMobile = useIsMobile()
-    const trips = useAppSelector((state) => state.trip.tripResults)
+    const trips = useAppSelector((state) => state.trip.tripResults.outboundTrips)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const dispatch = useAppDispatch();
 
