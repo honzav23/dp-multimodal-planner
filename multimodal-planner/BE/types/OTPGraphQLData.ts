@@ -17,6 +17,11 @@ export type OTPTripLeg = {
     aimedStartTime: string,
     aimedEndTime: string,
     distance: number,
+    serviceJourney: {
+        quays: {
+          name: string,
+        }[]
+    },
     fromPlace: {
         name: string,
     },

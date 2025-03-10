@@ -1,6 +1,7 @@
 import { describe, it } from "jsr:@std/testing/bdd"
 import { expect } from "jsr:@std/expect";
-import { validateRequestInput, validateCoordinates, validateDateAndTime, validatePreferences, validateTransferStop } from "../validate.ts";
+import { validateRequestInput, validateCoordinates, validateDateAndTime, validatePreferences, validateTransferStop,
+         validatePickupPoint, validateComingBackFields } from "../validate.ts";
 import { trip, transferStop } from "./data/testTrip.ts";
 import {TransferStop} from "../../types/TransferStop.ts";
 
@@ -102,4 +103,48 @@ describe("Validate trip request", () => {
     expect(result.error).toBe(false);
   })
 
+  it("Validates pickup point", () => {
+    const invalidPickupPoints = ["sdat", [0, 1, 2], [-1000, -1000]]
+    for (const invalidPickupPoint of invalidPickupPoints) {
+      const result = validatePickupPoint(invalidPickupPoint);
+      expect(result.error).toBe(true);
+      expect(result.message).toBe("Invalid pickup point coordinates");
+    }
+    const validPickupPoints = [[-90, -180], [0, 0], [42.1818, 16.456], [0, 180], [-90, 0], [1000, 1000]]
+    for (const validPickupPoint of validPickupPoints) {
+      const result = validatePickupPoint(validPickupPoint);
+      expect(result.error).toBe(false);
+    }
+  })
+
+  it("Validates coming back fields", () => {
+    const errorMessage = "Invalid date or time for coming back";
+
+    let invalidDates = ["25", "dasda", "2025-21-21", "2025-a-2"]
+    let comingBack = { returnDate: 'x', returnTime: '17:00:00' }
+    for (let d of invalidDates) {
+      comingBack.returnDate = d;
+      const result = validateComingBackFields(comingBack);
+      expect(result.error).toBe(true);
+      expect(result.message).toBe(errorMessage);
+    }
+
+    const invalidTimes = ["25", "dasda", "33:17"]
+    comingBack.returnDate = "2025-03-02"
+    for (let t of invalidTimes) {
+      comingBack.returnTime = t;
+      const result = validateComingBackFields(comingBack);
+      expect(result.error).toBe(true);
+      expect(result.message).toBe(errorMessage);
+    }
+
+    const validDatesAndTimes = [["2025-03-02", "17:00:00"], ["2025-12-21", "09:20:00"], ["2025-12-21", "9:20:00"], ["2025-03-02", "23:59:59"]]
+
+    for (const dt of validDatesAndTimes) {
+      comingBack.returnDate = dt[0]
+      comingBack.returnTime = dt[1]
+      const result = validateComingBackFields(comingBack);
+      expect(result.error).toBe(false);
+    }
+  })
 })

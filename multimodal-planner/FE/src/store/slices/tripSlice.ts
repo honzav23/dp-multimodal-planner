@@ -7,7 +7,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
-import type { TripResult } from "../../../../types/TripResult";
+import type { TripResult, TripResponse } from "../../../../types/TripResult";
 import useIsMobile from '../../hooks/useIsMobile';
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
@@ -15,7 +15,7 @@ import type {TransportMode} from "../../../../types/TransportMode";
 
 export interface TripSliceState {
     tripRequest: TripRequest;
-    tripResults: TripResult[];
+    tripResults: TripResponse;
     isLoading: boolean;
     openSnackbar: boolean;
     snackbarMessage: string;
@@ -38,10 +38,14 @@ const initialState: TripSliceState = {
             transferStop: null,
             minimizeTransfers: false,
             findBestTrip: false,
-            pickupCoords: initialCoords
+            pickupCoords: initialCoords,
+            comingBack: null,
         }
     },
-    tripResults: [],
+    tripResults: {
+        outboundTrips: [],
+        returnTrips: [],
+    },
     decodedRoutes: [],
     selectedTrip: -1,
     isLoading: false,
@@ -60,7 +64,7 @@ function getFormattedDate() {
 /**
  * Gets the most effective trips
  */
-export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, { getState }): Promise<TripResult[]> => {
+export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, { getState }): Promise<TripResponse> => {
     const tripRequest = (getState() as { trip: TripSliceState }).trip.tripRequest;
     const response = await axios.post('http://localhost:8000/api/route', tripRequest)
 
@@ -113,8 +117,29 @@ const tripSlice = createSlice({
             state.tripRequest.preferences.findBestTrip = action.payload
         },
         clearTripsAndRoutes(state) {
-            state.tripResults = []
+            state.tripResults.outboundTrips = []
+            state.tripResults.returnTrips = []
             state.decodedRoutes = []
+        },
+        clearComingBackDateTime(state) {
+          state.tripRequest.preferences.comingBack = null
+        },
+        setComingBackDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
+            if (state.tripRequest.preferences.comingBack === null) {
+
+                state.tripRequest.preferences.comingBack = {
+                    returnDate: `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`,
+                    returnTime: (new Date()).toLocaleTimeString()
+                };
+            }
+            else {
+                state.tripRequest.preferences.comingBack = {...state.tripRequest.preferences.comingBack, returnDate: `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`};
+            }
+        },
+        setComingBackTime(state, action: PayloadAction<string>) {
+            if (state.tripRequest.preferences.comingBack) {
+                state.tripRequest.preferences.comingBack.returnTime = action.payload
+            }
         }
     },
     extraReducers: (builder) => {
@@ -127,12 +152,12 @@ const tripSlice = createSlice({
             // Clear the routes array from previous loads
             state.decodedRoutes = []
             state.tripResults = action.payload;
-            if (state.tripResults.length === 0) {
+            if (state.tripResults.outboundTrips.length === 0) {
                 state.openSnackbar = true;
                 state.snackbarMessage = 'noTripsFound'
             }
 
-            for (const tripResult of state.tripResults) {
+            for (const tripResult of state.tripResults.outboundTrips) {
                 const legs = tripResult.legs.map((leg) => (
                     {
                         mode: leg.modeOfTransport as TransportMode,
@@ -152,6 +177,7 @@ const tripSlice = createSlice({
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, 
-            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords } = tripSlice.actions;
+            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords, clearComingBackDateTime,
+            setComingBackTime, setComingBackDate } = tripSlice.actions;
 
 export default tripSlice.reducer;

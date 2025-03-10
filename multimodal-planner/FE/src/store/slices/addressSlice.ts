@@ -49,9 +49,6 @@ const addressSlice = createSlice({
         },
         setEndAddress(state, action: PayloadAction<string>) {
             state.endAddress = action.payload
-        },
-        setPickupAddress(state, action: PayloadAction<string>) {
-            state.pickupAddress = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -80,6 +77,6 @@ const addressSlice = createSlice({
     }
 });
 
-export const { clearStartAddress, clearEndAddress, clearPickupAddress, setStartAddress, setEndAddress, setPickupAddress } = addressSlice.actions;
+export const { clearStartAddress, clearEndAddress, clearPickupAddress, setStartAddress, setEndAddress } = addressSlice.actions;
 
 export default addressSlice.reducer;

@@ -3,6 +3,7 @@ import type {TransferStop, TransferStopCluster} from "../../types/TransferStop";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
 import type {OTPGraphQLData} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
+import {LineTrip} from "../types/LineTrip.ts";
 
 export async function getTransferStops(): Promise<TransferStop[]> {
     const text = Deno.readTextFileSync('./transferStops/transferPointsWithParkingLots.csv');
@@ -42,6 +43,34 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     return transferPoints;
 }
 
+export async function getTripsForLines(): Promise<LineTrip[]> {
+    const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/availableDates`, {
+        method: "GET",
+        headers: {
+            "Authorization": Deno.env.get("LISSY_API_KEY")
+        }
+    })
+    if (!dateResponse.ok) {
+        return []
+    }
+    const dateResponseJson = await dateResponse.json();
+    const availableDate = dateResponseJson.end
+
+    const lineResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/getShapes?date=${availableDate}`, {
+        method: "GET",
+        headers: {
+            "Authorization": Deno.env.get("LISSY_API_KEY"),
+        }
+    })
+    const lineJson = await lineResponse.json();
+    if (!lineResponse.ok) {
+        return []
+    }
+
+    const trips: LineTrip[] = lineJson as LineTrip[];
+    return trips
+}
+
 function getGqlQueryString(): string {
     return gql`
         query trip($from: Location!, $to: Location!, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
@@ -62,6 +91,11 @@ function getGqlQueryString(): string {
                 aimedStartTime
                 aimedEndTime
                 distance
+                serviceJourney {
+                    quays {
+                        name
+                    }
+                }
                 fromPlace {
                   name
                 }
@@ -164,7 +198,7 @@ export async function getRouteByPublicTransport(from: [number, number], to: [num
  * @param lat2 Latitude of the second point
  * @param lon2 Longitude of the second point
  * 
- * @returns The distance between the two points in kilometers
+ * @returns The distance between the two points in meters
  */
 export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const toRadians = (degrees: number) => degrees * Math.PI / 180;
@@ -179,5 +213,12 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
 
-    return distance;
+    return distance * 1000;
+}
+
+export function addMinutes(isoDate: string, minutes: number): string {
+    const date = new Date(isoDate)
+    date.setMinutes(date.getMinutes() + minutes)
+
+    return date.toISOString()
 }

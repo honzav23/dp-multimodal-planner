@@ -15,5 +15,11 @@ export type TripLeg = {
     to: string,
     distance: number,
     line: string,
-    route: string
+    route: string,
+    delay: number // Always in minutes
+}
+
+export type TripResponse = {
+    outboundTrips: TripResult[],
+    returnTrips: TripResult[],
 }

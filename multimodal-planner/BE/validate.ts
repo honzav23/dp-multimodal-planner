@@ -26,6 +26,11 @@ export function validateCoordinates(coords: unknown): ResultStatus {
     return result;
 }
 
+/**
+ * Validate the date and time
+ * @param requestDate Date to validate
+ * @param requestTime Time to validate
+ */
 export function validateDateAndTime(requestDate: string, requestTime: string): ResultStatus {
     const result: ResultStatus = { error: false, message: '' };
     if (typeof requestDate !== 'string' || typeof requestTime !== 'string') {
@@ -49,6 +54,10 @@ export function validateDateAndTime(requestDate: string, requestTime: string): R
     return result;
 }
 
+/**
+ * Check if transfer stop is in correct format
+ * @param transferStop Transfer stop to validate
+ */
 export function validateTransferStop(transferStop: Record<string, any>): ResultStatus {
     const result: ResultStatus = { error: false, message: '' };
     if (!("stopId" in transferStop && "stopName" in transferStop && "stopCoords" in transferStop && "hasParking" in transferStop)) {
@@ -73,7 +82,7 @@ export function validateTransferStop(transferStop: Record<string, any>): ResultS
 
 export function validatePickupPoint(pickupPoint: unknown): ResultStatus {
     const result: ResultStatus = {error: false, message: ''}
-    const errorMessage = "Invalid pick up point coordinates"
+    const errorMessage = "Invalid pickup point coordinates"
     if (Array.isArray(pickupPoint) && pickupPoint.length === 2 && typeof pickupPoint[0] === "number" && typeof pickupPoint[1] === "number") {
         if (pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000) {
             result.error = validateCoordinates(pickupPoint).error
@@ -88,10 +97,34 @@ export function validatePickupPoint(pickupPoint: unknown): ResultStatus {
     return result
 }
 
+export function validateComingBackFields(comingBackFields: Record<string, any> | null): ResultStatus {
+    const result: ResultStatus = {error: false, message: '' };
+    if (comingBackFields === null) {
+        return result;
+    }
+    if (!("returnDate" in comingBackFields) || !("returnTime" in comingBackFields)) {
+        result.error = true;
+        result.message = 'Required fields missing for coming back';
+        return result;
+    }
+    if (typeof comingBackFields.returnDate !== "string" || typeof comingBackFields.returnTime !== "string") {
+        result.error = true;
+        result.message = 'Invalid types of coming back fields';
+        return result;
+    }
+    const dateTimeResult = validateDateAndTime(comingBackFields.returnDate, comingBackFields.returnTime);
+    if (dateTimeResult.error) {
+        result.error = true;
+        result.message = "Invalid date or time for coming back";
+        return result;
+    }
+    return result;
+}
+
 export function validatePreferences(preferences: Record<string, any>): ResultStatus {
     let result: ResultStatus = { error: false, message: '' };
     if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("minimizeTransfers" in preferences) 
-        || !("findBestTrip" in preferences) || !("pickupCoords" in preferences)) {
+        || !("findBestTrip" in preferences) || !("pickupCoords" in preferences) || !("comingBack" in preferences)) {
         result.error = true;
         result.message = 'Missing required fields for preferences';
         return result
@@ -111,10 +144,14 @@ export function validatePreferences(preferences: Record<string, any>): ResultSta
             return result
         }
     }
-    const pickupPointValid = validatePickupPoint(preferences.pickupCoords)
+    const pickupPointResult = validatePickupPoint(preferences.pickupCoords)
+    const comingBackResult = validateComingBackFields(preferences.comingBack);
 
-    if (pickupPointValid.error) {
-        result = pickupPointValid
+    if (pickupPointResult.error) {
+        result = pickupPointResult
+    }
+    if (comingBackResult.error) {
+        result = comingBackResult
     }
 
     return result
