@@ -18,7 +18,10 @@
         "noParkingLots": "Žádná parkoviště v blízkosti",
         "transport": "Preferované dopravní prostředky",
         "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)",
-        "pickup": "Místo vyzvednutí"
+        "pickup": "Místo vyzvednutí",
+        "return": "Budu se vracet",
+        "returnDate": "Datum návratu",
+        "returnTime": "Čas návratu"
     },
     "transfer": {
         "select": "Zvolit jako přestupní bod",
@@ -29,8 +32,8 @@
     },
     "language": {
         "select": "Jazyk",
-        "cs": "Čeština",
-        "en": "English"
+        "cs": "\uD83C\uDDE8\uD83C\uDDFF Čeština",
+        "en": "\uD83C\uDDEC\uD83C\uDDE7 English"
     },
     "transport": {
         "bus": "Autobus",

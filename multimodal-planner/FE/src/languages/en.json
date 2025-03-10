@@ -18,7 +18,10 @@
         "noParkingLots": "No parking lots nearby",
         "transport": "Preferred means of transport",
         "bestTrip": "Find the best trip (might take a long time)",
-        "pickup": "Pick up point"
+        "pickup": "Pickup point",
+        "return": "I will be coming back",
+        "returnDate": "Return date",
+        "returnTime": "Return time"
     },
     "transfer": {
         "select": "Select as a transfer point",
@@ -29,8 +32,8 @@
     },
     "language": {
         "select": "Language",
-        "cs": "Čeština",
-        "en": "English"
+        "cs": "\uD83C\uDDE8\uD83C\uDDFF Čeština",
+        "en": "\uD83C\uDDEC\uD83C\uDDE7 English"
     },
     "transport": {
         "bus": "Bus",

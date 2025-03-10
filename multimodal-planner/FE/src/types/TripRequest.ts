@@ -13,5 +13,9 @@ export type TripRequest = {
         minimizeTransfers: boolean;
         findBestTrip: boolean;
         pickupCoords: LatLngTuple
+        comingBack: {
+            returnDate: string;
+            returnTime: string
+        } | null;
     };
 }

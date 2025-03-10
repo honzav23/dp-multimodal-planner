@@ -1,4 +1,4 @@
-import { ListItem, Stack, Typography, Icon } from '@mui/material'
+import { ListItem, Stack, Typography, Icon, Box, Chip } from '@mui/material'
 import { TripLeg } from '../../../../types/TripResult'
 import { formatDateTime } from "../../common/common";
 import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk } from '@mui/icons-material'
@@ -33,7 +33,10 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                 return QuestionMark;
         }
     }
-
+    /**
+     * Formats the line based on if present or not
+     * @param line The line to format
+     */
     const formatLine = (line: string): string => {
         if (!line) {
             return '';
@@ -55,9 +58,12 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
         >
             <Stack direction="column" spacing={0.5} sx={{ width: "100%" }}>
                 {/* Time Range */}
-                <Typography variant="body2" sx={{ color: "#546E7A" }}>
-                    {formatDateTime(leg.startTime)} - {formatDateTime(leg.endTime)}
-                </Typography>
+                <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                    <Typography variant="body2" sx={{ color: "#546E7A" }}>
+                        {formatDateTime(leg.startTime)} - {formatDateTime(leg.endTime)}
+                    </Typography>
+                    { leg.delay > 0 &&  <Chip size='small' label={`+${leg.delay} min`} color='error'/>}
+                </Box>
 
                 {/* Transport Details */}
                 <Stack direction="row" spacing={1} alignItems="center">
