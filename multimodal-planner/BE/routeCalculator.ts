@@ -4,8 +4,8 @@ import { getRepresentativeTransferStops } from "./cluster.ts";
 import type { TripRequest } from "./types/TripRequest.ts";
 import type { TripResult, TripResponse } from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
-import { transferStops, availableTripsForEachLine } from "./api.ts";
-import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
+import { transferStops, availableTripsByLines, availableDate } from "./api.ts";
+import type { OTPGraphQLData, OTPTripLeg, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
 import polyline from 'polyline'
@@ -17,7 +17,7 @@ import polyline from 'polyline'
  * @returns Candidate transfer stops
  */
 function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
-
+    // TODO when pickup point is set let destination be probably that pickup point
     const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
             ...row,
@@ -38,58 +38,147 @@ function getTotalDistance(coords: [number, number][]): number {
     return distance
 }
 
-async function getPublicTransportRoute(trip: OTPTripPattern) {
-    const legRoutes: {route: string, distance: number}[] = []
-    for (const leg of trip.legs) {
-        if (leg.mode === 'car' || leg.mode === 'foot') {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
-            continue
+function convertStringTimeToUnix(tripLeg: OTPTripLeg): number {
+    const [hours, minutes] = tripLeg.serviceJourney.passingTimes[0].departure.time.split(":").map(Number)
+    const date = new Date(1970, 0, 1, hours, minutes)
+    return date.valueOf()
+}
+
+/**
+ * Looks for the nearest delay info for given stop when info for a given stop
+ * is not available
+ * @param delaysForTrip All delays for different stop segments on a trip 
+ * @param endingStopIndex Index of a stop for which delay is needed
+ * @returns The nearest delay information
+ */
+function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: number): string {
+    const possibleDelay = delaysForTrip[(endingStopIndex - 1).toString()]
+    let nearestDelay = null
+    let minDistance = Infinity
+
+    if (!possibleDelay) {
+        for (const key of Object.keys(delaysForTrip)) {
+            const numericKey = Number(key)
+            if (numericKey < endingStopIndex - 1) {
+                const distance = endingStopIndex - 1 - numericKey
+                if (distance < minDistance) {
+                    minDistance = distance
+                    nearestDelay = delaysForTrip[key]
+                }
+            }
         }
-        const correspondingLine = availableTripsForEachLine.find((value) => value.route_short_name === leg.line.publicCode)
-        if (!correspondingLine) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
+        return nearestDelay
+    }
+    return possibleDelay
+}
+
+async function getPublicTransportRoute(trip: OTPTripPattern) {
+    const legRoutes: {route: string, distance: number, delay: number}[] = []
+    for (const leg of trip.legs) {
+        let legDelay = 0
+
+        // Skip car and foot (route automatic, no delay)
+        if (leg.mode === 'car' || leg.mode === 'foot') {
+            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delay: legDelay})
             continue
         }
         const lineFrom = leg.serviceJourney.quays[0].name
         const lineTo = leg.serviceJourney.quays[leg.serviceJourney.quays.length - 1].name
-        const correspondingTrip = correspondingLine.trips.find((trip) => trip.stops === `${lineFrom} -> ${lineTo}`)
-        if (!correspondingTrip) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
-            continue
-        }
-        const tripResponse = await fetch(`${Deno.env.get('LISSY_API_URL')}/getShape?shape_id=${correspondingTrip.shape_id}`, {
-            method: "GET",
-            headers: {
-                "Authorization": Deno.env.get("LISSY_API_KEY"),
+        let correspondingTrips: any =[]
+
+        // Get all trips which are on the same line and have the same start stop and end stop
+        // (might have different routes or skip some stops)
+        for (const line of availableTripsByLines) {
+            correspondingTrips = line.filter((trip) => trip.stops === `${lineFrom} -> ${lineTo}`)
+            if (correspondingTrips.length > 0) {
+                break
             }
+        }
+        if (correspondingTrips.length === 0) {
+            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delay: legDelay})
+            continue
+        }
+        // For each trip, fetch its route and stops
+        const tripFetches = correspondingTrips.map((t) => {
+            return fetch(`${Deno.env.get("LISSY_API_URL")}/shapes/getShape?shape_id=${t.shape_id}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": Deno.env.get("LISSY_API_KEY")
+                }
+            })
         })
-        if (!tripResponse.ok) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
-            continue
+        const tripResponses = await Promise.all(tripFetches)
+        const tripJsons = await Promise.all(tripResponses.map((a) => a.json()))
+
+
+        let validTripRoute = {}
+        let validTrip = {}
+
+        // Find the correct trip based on the total number of stops they include
+        for (let i = 0; i < tripJsons.length; i++) {
+            if (tripJsons[i].stops.length === leg.serviceJourney.quays.length) {
+                validTripRoute = tripJsons[i]
+                validTrip = correspondingTrips[i]
+                break
+            }
         }
-        const tripJson = await tripResponse.json()
-        let routeCoords = tripJson.coords as [number, number][][]
-        const beginningStopIndex = tripJson.stops.findIndex((val) => val.stop_name === leg.fromPlace.name)
-        const endingStopIndex = tripJson.stops.findIndex((val) => val.stop_name === leg.toPlace.name)
-        if (beginningStopIndex === -1 || endingStopIndex === -1) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
-            continue
-        }
-        const routeCoordsFlatten = routeCoords.slice(beginningStopIndex, endingStopIndex).flat()
-        const distance = getTotalDistance(routeCoordsFlatten)
-        if (distance === 0) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance})
+
+        const routeCoords = validTripRoute.coords as [number, number][][]
+        const beginningStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.fromPlace.quay.id)
+        const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id)
+
+        const firstStopTimeOfDeparture = convertStringTimeToUnix(leg)
+        if (Object.keys(validTrip).length > 0) {
+            
+            // Find a trip with the correct departure time
+            const foundTrip = validTrip.trips.find((t) => t.dep_time === firstStopTimeOfDeparture)
+            if (foundTrip) {
+
+                // Fetch delays for the trip
+                const delayResponse = await fetch(`${Deno.env.get('LISSY_API_URL')}/delayTrips/getTripData?dates=[[${availableDate},${availableDate}]]&trip_id=${foundTrip.id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": Deno.env.get("LISSY_API_KEY"),
+                    }
+                })
+                const delayJson = await delayResponse.json()
+                if (Object.keys(delayJson).length > 0) {
+
+                    // Choose the last point before the destination as the delay
+                    const endSegmentDelay = findNearestDelay(delayJson[availableDate.toString()], endingStopIndex)
+                    const maxKey = Math.max(...Object.keys(endSegmentDelay).map(Number))
+                    legDelay = endSegmentDelay[maxKey.toString()]
+                }
+                
+            }
+            else {
+                console.log("not found")
+            }
+            if (beginningStopIndex === -1 || endingStopIndex === -1) {
+                legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delay: legDelay})
+                continue
+            }
+            const routeCoordsFlatten = routeCoords.slice(beginningStopIndex, endingStopIndex).flat()
+            const distance = getTotalDistance(routeCoordsFlatten)
+    
+            if (distance === 0) {
+                legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delay: legDelay})
+            }
+            else {
+                legRoutes.push({route: polyline.encode(routeCoordsFlatten), distance: distance, delay: legDelay})
+            }
         }
         else {
-            legRoutes.push({route: polyline.encode(routeCoordsFlatten), distance: distance})
+            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delay: legDelay})
         }
+
     }
     return legRoutes;
 }
 
 async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
     const totalTransfers = calculateTotalNumberOfTransfers(trip)
-    if (availableTripsForEachLine.length === 0) {
+    if (availableTripsByLines.length === 0) {
         return {
             totalTime: trip.duration,
             totalDistance: trip.distance,
@@ -127,7 +216,7 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
             distance: legRoutes[idx].distance,
             line: leg.line?.publicCode ?? '',
             route: legRoutes[idx].route,
-            delay: 0
+            delay: legRoutes[idx].delay
         })),
         totalTransfers
     } as TripResult;
@@ -198,7 +287,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     candidateTransferPoints = preferences.transferStop ?
         [preferences.transferStop] : getCandidateTransferStops(tripRequest)
 
-
     // No candidate stops were found
     if (candidateTransferPoints.length === 0) {
         const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(origin, finalDestination,
@@ -221,7 +309,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
 
         const tripPublicTransport: OTPGraphQLData = await getRouteByPublicTransport(candidate.stopCoords, finalDestination,
             addMinutes(carPatterns[0].aimedEndTime, 5), preferences.modeOfTransport)
-
         const publicTransportResultsPromises = tripPublicTransport.trip.tripPatterns.map(convertOTPDataToTripResult)
         const publicTransportResults = await Promise.all(publicTransportResultsPromises)
 

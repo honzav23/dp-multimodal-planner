@@ -54,6 +54,6 @@ app.notFound((request) => {
 })
 
 export const transferStops = await getTransferStops();
-export const availableTripsForEachLine = await getTripsForLines()
+export const [availableTripsByLines, availableDate] = await getTripsForLines()
 
 Deno.serve(app.fetch);
