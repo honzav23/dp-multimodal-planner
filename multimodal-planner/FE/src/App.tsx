@@ -127,7 +127,7 @@ function App() {
                 {trips.length > 0 && selectedTrip !== -1 && decodedRoutes[selectedTrip].map((leg, i) => {
                     return (
                             <Polyline key={i} positions={leg.route}
-                                pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : undefined}>
+                                pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : "0 0"}>
                                 <Popup closeOnClick={true}>
                                     <TripDetailLeg leg={trips[selectedTrip].legs[i]} idx={i} totalLegs={trips[selectedTrip].legs.length}/>
                                 </Popup>

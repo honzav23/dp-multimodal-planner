@@ -44,6 +44,11 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
         return `${hours} h ${minutes} min`
     }
 
+    /**
+     * Gets correct transfer word based on the number of transfers (for example 1 transfer but 2 transfers)
+     * @param totalTransfers 
+     * @returns Correct transfer word
+     */
     const getTransferTranslation =  (totalTransfers: number): string => {
         if (totalTransfers === 1) {
             return t('transfer.transferSingular')
@@ -99,7 +104,7 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
             <List sx={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px', display: (showCollapse && isMobile) ? 'none' : 'block'  }} component="nav">
             { trips.map((trip, idx) => {
                 return (
-                    <ListItem sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== trips.length - 1}>
+                    <ListItem key={idx} sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== trips.length - 1}>
                         <ListItemText
                             primary={
                                 <Typography variant='body1' sx={{fontWeight: 'bold'}}>

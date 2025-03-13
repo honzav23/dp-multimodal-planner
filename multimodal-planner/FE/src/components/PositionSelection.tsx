@@ -29,6 +29,9 @@ function PositionSelection() {
 
   
   useMapEvents({
+    /**
+     * Place a desired marker after clicking on the map
+     */
     click(e: LeafletMouseEvent) {
       const coords: LatLngTuple = [e.latlng.lat, e.latlng.lng]
       if (startInputFocused) {
