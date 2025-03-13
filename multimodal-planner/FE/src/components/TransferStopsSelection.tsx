@@ -16,6 +16,11 @@ function TransferStopsSelection() {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
+    /**
+     * Selects and deselects the transfer stop based on stopSelected parameter
+     * @param stopSelected Boolean saying if the current transfer stop is selected at the moment
+     * @param stop Transfer stop to select
+     */
     const selectTransferStop = (stopSelected: boolean, stop: TransferStop | null) => {
         if (stopSelected) {
             dispatch(setTransferStop(null));
