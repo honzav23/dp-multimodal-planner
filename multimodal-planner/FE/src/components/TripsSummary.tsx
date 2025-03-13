@@ -1,4 +1,4 @@
-import {List, Collapse, ListItemButton, ListItemText, Typography, IconButton, Divider, Box} from '@mui/material';
+import {List, Collapse, ListItemText, Typography, IconButton, Divider, Box, ListItem} from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
 import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice";
 import { useState } from "react";
@@ -31,8 +31,12 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
     const { t } = useTranslation();
 
     const convertSecondsToHoursAndMinutes = (seconds: number): string => {
-        const hours = Math.floor(seconds / 3600);
+        let hours = Math.floor(seconds / 3600);
         const minutes = Math.round((seconds - hours * 3600) / 60 );
+
+        if (minutes === 60) {
+            hours++
+        }
 
         if (hours === 0) {
             return `${minutes} min`
@@ -95,7 +99,7 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
             <List sx={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px', display: (showCollapse && isMobile) ? 'none' : 'block'  }} component="nav">
             { trips.map((trip, idx) => {
                 return (
-                    <ListItemButton onClick={() => dispatch(setSelectedTrip(idx))} selected={false} dense divider={idx !== trips.length - 1}>
+                    <ListItem sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== trips.length - 1}>
                         <ListItemText
                             primary={
                                 <Typography variant='body1' sx={{fontWeight: 'bold'}}>
@@ -115,7 +119,7 @@ function TripsSummary({ changeHeight }: TripSummaryProps) {
                             }
                         />
                         {selectedTrip === idx ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}
-                    </ListItemButton>
+                    </ListItem>
                 )
             }) }
             </List>

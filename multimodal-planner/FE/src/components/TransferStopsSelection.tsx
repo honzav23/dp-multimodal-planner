@@ -1,8 +1,9 @@
 import {CircleMarker, Marker, Popup} from "react-leaflet";
-import { Divider, Button, Stack } from "@mui/material";
+import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { setTransferStop, initialCoords } from "../store/slices/tripSlice";
+import { WarningAmber } from "@mui/icons-material";
 
 import markerIconTransfer from '../img/marker-icon-orange.png'
 import {Icon} from "leaflet";
@@ -44,7 +45,14 @@ function TransferStopsSelection() {
                     <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
                         <Popup closeOnClick={true}>
                             <Stack direction='column' sx={{alignItems: 'center'}}>
-                                <h2>{stop.stopName}</h2>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
+                                    <h2 style={{ textAlign: 'center' }}>{stop.stopName}</h2>
+                                    { !stop.hasParking &&
+                                        <Tooltip sx={{ alignSelf: 'center' }} title={t('preferences.noParkingLots')} placement='right'>
+                                            <WarningAmber color='warning'/>
+                                        </Tooltip>
+                                    }
+                                </div>
                                 {
                                     getSelectionButton(stop)
                                 }

@@ -24,12 +24,12 @@ function App() {
 
     // Route colors based on the current means of transport
     const routeColors: Record<TransportMode, string> = {
-        foot: '#4CAF50',
+        foot: '#009eda',
         car: '#FF0000',
-        tram: '#007BFF',
-        bus: '#FFD700',
-        rail: '#212121',
-        trolleybus: '#800080',
+        tram: '#A05A2C',
+        bus: '#00E68C',
+        rail: '#800000',
+        trolleybus: '#008033',
     }
 
     /**
