@@ -3,7 +3,7 @@ import type {TransferStop, TransferStopCluster} from "../../types/TransferStop";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
 import type {OTPGraphQLData} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
-import {LineTrip} from "../types/LineTrip.ts";
+import { AvailableTrip } from "../types/AvailableTrip.ts";
 
 export async function getTransferStops(): Promise<TransferStop[]> {
     const text = Deno.readTextFileSync('./transferStops/transferPointsWithParkingLots.csv');
@@ -43,8 +43,8 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     return transferPoints;
 }
 
-export async function getTripsForLines(): Promise<LineTrip[]> {
-    const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/availableDates`, {
+export async function getTripsForLines(): Promise<[AvailableTrip[][], number]> {
+    const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
         method: "GET",
         headers: {
             "Authorization": Deno.env.get("LISSY_API_KEY")
@@ -56,27 +56,39 @@ export async function getTripsForLines(): Promise<LineTrip[]> {
     const dateResponseJson = await dateResponse.json();
     const availableDate = dateResponseJson.end
 
-    const lineResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/getShapes?date=${availableDate}`, {
+    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${availableDate},${availableDate}]]`, {
         method: "GET",
         headers: {
-            "Authorization": Deno.env.get("LISSY_API_KEY"),
+            "Authorization": Deno.env.get("LISSY_API_KEY")
         }
     })
-    const lineJson = await lineResponse.json();
-    if (!lineResponse.ok) {
+
+    if (!availableRoutesResponse.ok) {
         return []
     }
 
-    const trips: LineTrip[] = lineJson as LineTrip[];
-    return trips
+    const availableRoutesJson = await availableRoutesResponse.json() as { route_short_name: string, id: number }[]
+    const availableRouteFetches = availableRoutesJson.map((ar) => {
+        return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${availableDate},${availableDate}]]&route_id=${ar.id}`, {
+            method: "GET",
+            headers: {
+                "Authorization": Deno.env.get("LISSY_API_KEY")
+            }
+        })
+    })
+
+    const availableTripsResponses = await Promise.all(availableRouteFetches)
+    const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json())) as AvailableTrip[][]
+    return [availableTripsJson, availableDate]
 }
 
 function getGqlQueryString(): string {
     return gql`
-        query trip($from: Location!, $to: Location!, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
+        query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
           trip(
             from: $from
             to: $to
+            numTripPatterns: $numTripPatterns
             arriveBy: $arriveBy
             dateTime: $dateTime
             modes: $modes
@@ -94,15 +106,27 @@ function getGqlQueryString(): string {
                 serviceJourney {
                     quays {
                         name
+                        id
+                    }
+                    passingTimes {
+                        departure {
+                            time
+                        }
                     }
                 }
                 fromPlace {
                   name
+                  quay {
+                    id
+                  }
                 }
                 toPlace {
                     name
                     latitude
                     longitude
+                    quay {
+                        id
+                    }
                 }
                 line {
                     publicCode

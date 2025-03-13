@@ -20,15 +20,27 @@ export type OTPTripLeg = {
     serviceJourney: {
         quays: {
           name: string,
+          id: string
+        }[],
+        passingTimes: {
+            departure: {
+                time: string
+            }
         }[]
     },
     fromPlace: {
         name: string,
+        quay: {
+            id: string
+        }
     },
     toPlace: {
         name: string,
         latitude: number,
-        longitude: number
+        longitude: number,
+        quay: {
+            id: string
+        }
     },
     line: {
         publicCode: string | null
