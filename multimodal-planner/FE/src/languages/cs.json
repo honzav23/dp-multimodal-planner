@@ -40,5 +40,7 @@
         "rail": "Vlak",
         "tram": "Tramvaj",
         "trolleybus": "Trolejbus"
-    }
+    },
+    "outbound": "Cesty tam",
+    "return": "Cesty zpět"
 }

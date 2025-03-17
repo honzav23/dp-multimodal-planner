@@ -1,7 +1,7 @@
 import {parse, stringify} from "@std/csv"
 import type {TransferStop, TransferStopCluster} from "../../types/TransferStop";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
-import type {OTPGraphQLData} from "../types/OTPGraphQLData";
+import type {OTPGraphQLData, OTPTripLeg} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
 import { AvailableTrip } from "../types/AvailableTrip.ts";
 
@@ -43,7 +43,8 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     return transferPoints;
 }
 
-export async function getTripsForLines(): Promise<[AvailableTrip[][], number]> {
+export async function getTripsForLines(): Promise<{availableTripsByLines: AvailableTrip[][], availableDates: number[]}> {
+    const oneDayMilis = 86400000
     const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
         method: "GET",
         headers: {
@@ -51,12 +52,13 @@ export async function getTripsForLines(): Promise<[AvailableTrip[][], number]> {
         }
     })
     if (!dateResponse.ok) {
-        return []
+        return [[], 0]
     }
     const dateResponseJson = await dateResponse.json();
-    const availableDate = dateResponseJson.end
+    const endDate = dateResponseJson.end
+    const startDate = dateResponseJson.end - oneDayMilis * 3
 
-    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${availableDate},${availableDate}]]`, {
+    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${startDate},${endDate}]]`, {
         method: "GET",
         headers: {
             "Authorization": Deno.env.get("LISSY_API_KEY")
@@ -64,12 +66,12 @@ export async function getTripsForLines(): Promise<[AvailableTrip[][], number]> {
     })
 
     if (!availableRoutesResponse.ok) {
-        return []
+        return [[], 0]
     }
 
     const availableRoutesJson = await availableRoutesResponse.json() as { route_short_name: string, id: number }[]
     const availableRouteFetches = availableRoutesJson.map((ar) => {
-        return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${availableDate},${availableDate}]]&route_id=${ar.id}`, {
+        return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${startDate},${endDate}]]&route_id=${ar.id}`, {
             method: "GET",
             headers: {
                 "Authorization": Deno.env.get("LISSY_API_KEY")
@@ -79,7 +81,7 @@ export async function getTripsForLines(): Promise<[AvailableTrip[][], number]> {
 
     const availableTripsResponses = await Promise.all(availableRouteFetches)
     const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json())) as AvailableTrip[][]
-    return [availableTripsJson, availableDate]
+    return {availableTripsByLines: availableTripsJson, availableDates: [startDate, endDate]}
 }
 
 function getGqlQueryString(): string {
@@ -180,7 +182,7 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
  * all means of transport
  * @returns 
  */
-export async function getRouteByPublicTransport(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[]): Promise<OTPGraphQLData> {
+export async function getPublicTransportTrip(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLData> {
     const query = getGqlQueryString()
     const variables: Record<string, any> = {
         from: {
@@ -200,7 +202,7 @@ export async function getRouteByPublicTransport(from: [number, number], to: [num
             accessMode: "flexible",
             egressMode: "flexible",
         },
-        numTripPatterns: 12
+        numTripPatterns
     }
 
     if (transport.length > 0) {

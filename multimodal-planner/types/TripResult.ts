@@ -16,10 +16,15 @@ export type TripLeg = {
     distance: number,
     line: string,
     route: string,
-    delay: number // Always in minutes
+    delayInfo: DelayInfo[]
 }
 
 export type TripResponse = {
     outboundTrips: TripResult[],
     returnTrips: TripResult[],
+}
+
+export type DelayInfo = {
+    delayDate: number, // Unix timestamp,
+    delay: number, // In minutes
 }
