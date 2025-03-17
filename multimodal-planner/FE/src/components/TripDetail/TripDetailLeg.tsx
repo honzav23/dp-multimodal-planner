@@ -1,5 +1,7 @@
-import { ListItem, Stack, Typography, Icon, Box, Chip } from '@mui/material'
+import { ListItem, Stack, Typography, Icon, Box, Chip, Popover } from '@mui/material'
+import { useState, MouseEvent } from 'react'
 import { TripLeg } from '../../../../types/TripResult'
+import LegDelayTable from "../LegDelayTable";
 import { formatDateTime } from "../../common/common";
 import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk } from '@mui/icons-material'
 
@@ -10,6 +12,19 @@ interface TripDetailLegProps {
 }
 
 function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
+
+    const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
+
+    const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
 
     /**
      * Returns the icon based on the mode of transport
@@ -62,7 +77,14 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                     <Typography variant="body2" sx={{ color: "#546E7A" }}>
                         {formatDateTime(leg.startTime)} - {formatDateTime(leg.endTime)}
                     </Typography>
-                    { leg.delay > 0 &&  <Chip size='small' label={`+${leg.delay} min`} color='error'/>}
+                    { leg.delayInfo.length > 0 &&
+                        <>
+                            <Chip size='small' label={`+1 min`} color='error' onClick={handleClick}/>
+                            <Popover open={open} id={id} anchorEl={anchorEl} transformOrigin={{ vertical: 'bottom', horizontal: 'left' }} anchorOrigin={{vertical: 'top', horizontal: 'right'}} onClose={handleClose}>
+                                <LegDelayTable delays={leg.delayInfo}/>
+                            </Popover>
+                        </>
+                    }
                 </Box>
 
                 {/* Transport Details */}

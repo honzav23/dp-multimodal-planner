@@ -6,19 +6,25 @@ import PositionSelection from './components/PositionSelection';
 import TransferStopsSelection from './components/TransferStopsSelection';
 import TripRequestForm from './components/TripRequestForm';
 import TripsSummary from './components/TripsSummary';
-import { useAppSelector, useAppDispatch } from "./store/hooks";
+import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 import {TransportMode} from "../../types/TransportMode";
 
 import '../i18n.ts'
 import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
 import useIsMobile from './hooks/useIsMobile';
+import {useState} from "react";
 
 function App() {
-    const trips = useAppSelector((state) => state.trip.tripResults.outboundTrips)
-    const decodedRoutes = useAppSelector((state) => state.trip.decodedRoutes)
+    const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
+    const { outboundDecodedRoutes, returnDecodedRoutes } = useAppSelector((state) => state.trip.routes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showCollapse = selectedTrip !== -1
+
+    const [tabValue, setTabValue] = useState('outbound');
+
+    const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
+    const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
 
     const isMobile = useIsMobile()
 
@@ -45,6 +51,10 @@ function App() {
         }
     }
 
+    const handleSwitchRoutes = (tabValue: string) => {
+        setTabValue(tabValue)
+    }
+
     return (
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
@@ -60,7 +70,7 @@ function App() {
                 zIndex: 1000
             }}>
 
-                { isMobile ? (trips.length === 0 &&
+                { isMobile ? (outboundTrips.length === 0 &&
                         <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
                             <Box sx={{
                                 pointerEvents: 'auto',
@@ -88,7 +98,7 @@ function App() {
                     </div>                
                 }
 
-                { isMobile ? (trips.length > 0 &&
+                { isMobile ? (outboundTrips.length > 0 &&
                     <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
                         <Box id="summary" sx={{
                             fontSize: '1em',
@@ -97,7 +107,7 @@ function App() {
                             display:'flex',
                             flexDirection: 'column',
                         }}>
-                            <TripsSummary changeHeight={changeHeight}/>
+                            <TripsSummary switchRoutes={handleSwitchRoutes} changeHeight={changeHeight}/>
                         </Box>
                     </Drawer>)
                     :
@@ -105,13 +115,16 @@ function App() {
                         style={{
                             backgroundColor: "rgba(255, 255, 255, 0.8)",
                             fontSize: '1em',
-                            maxHeight: '45vh',
+                            maxHeight: '40vh',
                             pointerEvents: 'auto',
                             display: 'flex',
+                            flexDirection: 'column',
                             width: showCollapse ? '100%' : '50%',
-                            padding: '0'
+                            padding: '0',
                         }}>
-                        <TripsSummary/>
+                        <div style={{ display: 'flex', flexDirection: 'row', pointerEvents: 'auto', overflow: 'auto' }}>
+                            <TripsSummary switchRoutes={handleSwitchRoutes}/>
+                        </div>
                     </div>
                 }
 
@@ -124,12 +137,12 @@ function App() {
                 <PositionSelection/>
                 <TransferStopsSelection/>
 
-                {trips.length > 0 && selectedTrip !== -1 && decodedRoutes[selectedTrip].map((leg, i) => {
+                {tripsToShow.length > 0 && selectedTrip !== -1 && routesToShow[selectedTrip].map((leg, i) => {
                     return (
                             <Polyline key={i} positions={leg.route}
                                 pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : "0 0"}>
                                 <Popup closeOnClick={true}>
-                                    <TripDetailLeg leg={trips[selectedTrip].legs[i]} idx={i} totalLegs={trips[selectedTrip].legs.length}/>
+                                    <TripDetailLeg leg={tripsToShow[selectedTrip].legs[i]} idx={i} totalLegs={tripsToShow[selectedTrip].legs.length}/>
                                 </Popup>
                             </Polyline>
                     )

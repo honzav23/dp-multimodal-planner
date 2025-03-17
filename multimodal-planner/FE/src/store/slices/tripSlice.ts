@@ -7,7 +7,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
-import type { TripResult, TripResponse } from "../../../../types/TripResult";
+import type { TripResponse } from "../../../../types/TripResult";
 import useIsMobile from '../../hooks/useIsMobile';
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
@@ -21,7 +21,10 @@ export interface TripSliceState {
     snackbarMessage: string;
 
     // Decoded routes for each leg of each trip
-    decodedRoutes:{mode: TransportMode, route: LatLngTuple[]}[][];
+    routes: {
+        outboundDecodedRoutes: {mode: TransportMode, route: LatLngTuple[]}[][],
+        returnDecodedRoutes: {mode: TransportMode, route: LatLngTuple[]}[][]
+    }
     selectedTrip: number
 }
 
@@ -46,7 +49,10 @@ const initialState: TripSliceState = {
         outboundTrips: [],
         returnTrips: [],
     },
-    decodedRoutes: [],
+    routes: {
+        outboundDecodedRoutes: [],
+        returnDecodedRoutes: [],
+    },
     selectedTrip: -1,
     isLoading: false,
     openSnackbar: false,
@@ -119,7 +125,8 @@ const tripSlice = createSlice({
         clearTripsAndRoutes(state) {
             state.tripResults.outboundTrips = []
             state.tripResults.returnTrips = []
-            state.decodedRoutes = []
+            state.routes.outboundDecodedRoutes = []
+            state.routes.returnDecodedRoutes = []
         },
         clearComingBackDateTime(state) {
           state.tripRequest.preferences.comingBack = null
@@ -150,7 +157,8 @@ const tripSlice = createSlice({
             state.isLoading = false;
 
             // Clear the routes array from previous loads
-            state.decodedRoutes = []
+            state.routes.outboundDecodedRoutes = []
+            state.routes.returnDecodedRoutes = []
             state.tripResults = action.payload;
             if (state.tripResults.outboundTrips.length === 0) {
                 state.openSnackbar = true;
@@ -164,7 +172,17 @@ const tripSlice = createSlice({
                         route: polyLine.decode(leg.route) as LatLngTuple[]
                     }
                 ));
-                state.decodedRoutes.push(legs)
+                state.routes.outboundDecodedRoutes.push(legs)
+            }
+
+            for (const tripResult of state.tripResults.returnTrips) {
+                const legs = tripResult.legs.map((leg) => (
+                    {
+                        mode: leg.modeOfTransport as TransportMode,
+                        route: polyLine.decode(leg.route) as LatLngTuple[]
+                    }
+                ));
+                state.routes.returnDecodedRoutes.push(legs)
             }
         })
         builder.addCase(getTrips.rejected, (state, action) => {
