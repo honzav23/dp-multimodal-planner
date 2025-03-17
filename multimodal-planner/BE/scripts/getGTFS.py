@@ -43,7 +43,7 @@ def findNearestParkingLot(row, length):
     processed += 1
     print(f"{processed}/{length} complete")
 
-    return len(result.ways) > 0 ? "1" : "0"
+    return "1" if len(result.ways) > 0 else "0"
 
 def get_available_parking_lots():
     transferPoints = pd.read_csv('../transferStops/transferPoints.csv', delimiter=';', encoding='utf-8')
@@ -53,13 +53,13 @@ def get_available_parking_lots():
 
 if __name__ == "__main__":
 
-    # print("Getting GTFS...", end='')
-    # get_GTFS_files()
-    # print("Done")
-
-    # print("Converting GTFS to DB...", end='')
-    # subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///gtfs.db", "../../../GTFS.zip"])
-    # print("Done")
+#     print("Getting GTFS...", end='')
+#     get_GTFS_files()
+#     print("Done")
+#
+#     print("Converting GTFS to DB...", end='')
+#     subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfs.db", "../../../GTFS.zip"])
+#     print("Done")
     print("Fetching possible transfer stops... ", end='')
     fetch_possible_transfer_stops()
     print("Done")
