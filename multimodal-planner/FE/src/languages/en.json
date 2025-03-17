@@ -40,5 +40,7 @@
         "rail": "Train",
         "tram": "Tram",
         "trolleybus": "Trolleybus"
-    }
+    },
+    "outbound": "Outbound trips",
+    "return": "Return trips"
 }
