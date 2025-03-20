@@ -56,7 +56,7 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
     }
     const dateResponseJson = await dateResponse.json();
     const endDate = dateResponseJson.end
-    const startDate = dateResponseJson.end - oneDayMilis * 3
+    const startDate = dateResponseJson.end - oneDayMilis * 1
 
     const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${startDate},${endDate}]]`, {
         method: "GET",

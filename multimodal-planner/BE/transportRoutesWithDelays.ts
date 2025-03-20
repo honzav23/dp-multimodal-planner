@@ -53,11 +53,13 @@ async function getDelaysForLeg(tripId: number, endingStopIndex: number): Promise
     const delayInfo: DelayInfo[] = []
     if (Object.keys(data).length > 0) {
         for (const key of Object.keys(data)) {
-            console.log(key)
             const endSegmentDelay = findNearestDelay(data[key.toString()], endingStopIndex)
             const maxKey = Math.max(...Object.keys(endSegmentDelay).map(Number))
             delayInfo.push({ delayDate: parseInt(key), delay: endSegmentDelay[maxKey.toString()] })
         }
+    }
+    if (delayInfo.length > 0) {
+        delayInfo.sort((a: DelayInfo, b: DelayInfo) => a.delayDate - b.delayDate);
     }
     return delayInfo
 }
@@ -84,6 +86,9 @@ function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: n
                     nearestDelay = delaysForTrip[key]
                 }
             }
+        }
+        if (nearestDelay === null) {
+            return "0"
         }
         return nearestDelay
     }
@@ -142,6 +147,7 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
                 legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
                 continue
             }
+            // Flatten the array of coords so the total distance can be calculated easily
             const routeCoordsFlatten = routeCoords.slice(beginningStopIndex, endingStopIndex).flat()
             const distance = getTotalDistance(routeCoordsFlatten)
 

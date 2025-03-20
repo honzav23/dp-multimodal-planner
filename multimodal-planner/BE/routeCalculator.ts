@@ -2,7 +2,7 @@ import { getRouteByCar, getPublicTransportTrip, calculateDistance, addMinutes } 
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
 import type { TripRequest } from "./types/TripRequest.ts";
-import type { TripResult, TripResponse } from "../types/TripResult.ts";
+import type { TripResult, TripResponse, DelayInfo } from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops, availableTripsByLines } from "./api.ts";
 import { getLegsRoutesAndDelays } from "./transportRoutesWithDelays.ts";
@@ -25,7 +25,7 @@ function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDi
         }
     });
     const distanceFromOriginToDestination = calculateDistance(tripRequest.origin[0], tripRequest.origin[1], tripRequest.destination[0], tripRequest.destination[1]) / 1000;
-    const candidateTransferPoints = transferPointsWithDistance.filter((transferPoint) => transferPoint.distanceFromOrigin <= distanceFromOriginToDestination / 2);
+    const candidateTransferPoints = transferPointsWithDistance.filter((transferPoint) => transferPoint.distanceFromOrigin <= distanceFromOriginToDestination);
 
     return candidateTransferPoints;
 }
@@ -47,7 +47,8 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
                 distance: leg.distance,
                 line: leg.line?.publicCode ?? '',
                 route: leg.pointsOnLink.points,
-                delayInfo: []
+                delayInfo: [],
+                averageDelay: 0
             })),
             totalTransfers
         } as TripResult;
@@ -55,6 +56,11 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
     const legRoutesAndDelays = await getLegsRoutesAndDelays(trip)
     const totalDistance = legRoutesAndDelays.some(leg => leg.distance === 0) ? trip.distance :
         legRoutesAndDelays.reduce((acc, leg) => acc + leg.distance, 0)
+
+    const calculateAverageDelay = (delayInfo: DelayInfo[]): number => {
+        const totalDelay = delayInfo.reduce((acc, v) => acc + v.delay, 0)
+        return Math.round(totalDelay / delayInfo.length)
+    }
 
     return {
         totalTime: trip.duration,
@@ -70,7 +76,8 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
             distance: legRoutesAndDelays[idx].distance,
             line: leg.line?.publicCode ?? '',
             route: legRoutesAndDelays[idx].route,
-            delayInfo: legRoutesAndDelays[idx].delayInfo
+            delayInfo: legRoutesAndDelays[idx].delayInfo,
+            averageDelay: calculateAverageDelay(legRoutesAndDelays[idx].delayInfo)
         })),
         totalTransfers
     } as TripResult;
@@ -157,6 +164,7 @@ async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tripReque
     )
     const returnTripResponses: OTPGraphQLData[] = await Promise.all(returnTripPromises)
 
+    // For each trip set the destination name to the transfer stop name
     for (let i = 0; i < returnTripResponses.length; i++) {
         for (let j = 0; j < returnTripResponses[i].trip.tripPatterns.length; j++) {
             const legsLen = returnTripResponses[i].trip.tripPatterns[j].legs.length
