@@ -1,7 +1,7 @@
 import {List, Collapse, ListItemText, Typography, IconButton, Divider, Box, ListItem, Tabs, Tab} from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
 import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice";
-import {useEffect, useState, SyntheticEvent} from "react";
+import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap, Minimize} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
@@ -23,6 +23,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     const dispatch = useAppDispatch();
 
     const [tabValue, setTabValue] = useState('outbound');
+    const scrollRef = useRef(null)
     const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
 
     useEffect(() => {
@@ -30,6 +31,13 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
             dispatch(setSelectedTrip(0))
         }
     }, [outboundTrips]);
+
+    useEffect(() => {
+        if (scrollRef && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
+        }
+    }, [selectedTrip])
+
     const showCollapse = selectedTrip !== -1
 
     const [minimized, setMinimized] = useState(false);
@@ -115,10 +123,13 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
             }
             <Divider/>
             <div style={{width: showCollapse ? '50%' : '100%', overflow: 'auto', scrollbarWidth: 'thin', padding: '0 10px', display: (showCollapse && isMobile) ? 'none' : 'block'  }}>
-                <Tabs value={tabValue} centered color='error' onChange={handleTabChange}>
-                    <Tab value='outbound' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('outbound')} />
-                    <Tab value='return' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('return')}/>
-                </Tabs>
+                {/* Tabs for changing between outbound trips and return trips */}
+                { returnTrips.length > 0 && 
+                    <Tabs value={tabValue} centered color='error' onChange={handleTabChange}>
+                        <Tab value='outbound' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('outbound')} />
+                        <Tab value='return' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('return')}/>
+                    </Tabs>
+                }
                 <List component="nav">
                 { tripsToShow.map((trip, idx) => {
                     return (
@@ -147,7 +158,8 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                 }) }
                 </List>
             </div>
-                <Collapse in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
+                {/* Show the trip detail when clicking at one of the trips */}
+                <Collapse ref={scrollRef} sx={{ overflow: 'auto', scrollbarWidth: 'thin', maxWidth: '50%' }} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
                         <TripDetail trip={tripsToShow[selectedTrip] ?? null}/>
                 </Collapse>
         </>

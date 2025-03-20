@@ -104,6 +104,8 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                 {t('preferences.headline')}
             </DialogTitle>
             {/* https://mui.com/material-ui/react-dialog/#customization */}
+
+             {/* Close dialog button */}
             <IconButton
                 aria-label="close"
                 onClick={closeDialog}

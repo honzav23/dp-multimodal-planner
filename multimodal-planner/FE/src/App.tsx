@@ -1,6 +1,6 @@
 import './App.css';
 import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
-import {Drawer, Box} from "@mui/material";
+import {Drawer, Box, IconButton} from "@mui/material";
 import 'leaflet/dist/leaflet.css'
 import PositionSelection from './components/PositionSelection';
 import TransferStopsSelection from './components/TransferStopsSelection';
@@ -9,7 +9,7 @@ import TripsSummary from './components/TripsSummary';
 import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 import {TransportMode} from "../../types/TransportMode";
-
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
 import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
 import useIsMobile from './hooks/useIsMobile';
@@ -69,7 +69,7 @@ function App() {
                 pointerEvents: 'none',
                 zIndex: 1000
             }}>
-
+                {/* Mobile view for the request form */}
                 { isMobile ? (outboundTrips.length === 0 &&
                         <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
                             <Box sx={{
@@ -98,6 +98,7 @@ function App() {
                     </div>                
                 }
 
+                 {/* Mobile view for the trips summary */}
                 { isMobile ? (outboundTrips.length > 0 &&
                     <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
                         <Box id="summary" sx={{
@@ -128,6 +129,18 @@ function App() {
                     </div>
                 }
 
+            </div>
+            <div style={{
+                position: 'absolute',
+                bottom: "5%",
+                right: "1%",
+                backgroundColor: 'rgba(255, 255, 255, 1.0)',
+                borderRadius: '10px 10px 10px 10px',
+                zIndex: 1000
+            }}>
+                <IconButton color='primary'>
+                    <InfoOutlinedIcon/>
+                </IconButton>
             </div>
             <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
                 <TileLayer

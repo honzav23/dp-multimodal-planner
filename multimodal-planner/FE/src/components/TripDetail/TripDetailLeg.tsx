@@ -1,9 +1,10 @@
 import { ListItem, Stack, Typography, Icon, Box, Chip, Popover } from '@mui/material'
 import { useState, MouseEvent } from 'react'
 import { TripLeg } from '../../../../types/TripResult'
-import LegDelayTable from "../LegDelayTable";
+import LegDelayTable from "./LegDelayTable";
 import { formatDateTime } from "../../common/common";
 import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk } from '@mui/icons-material'
+import TrolleybusIcon from '../../img/TrolleybusIcon';
 
 interface TripDetailLegProps {
     leg: TripLeg,
@@ -43,7 +44,8 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                 return Tram
             case "foot":
                 return DirectionsWalk
-            // TODO add trolleybus and perhaps other icons
+            case "trolleybus":
+                return TrolleybusIcon 
             default:
                 return QuestionMark;
         }
@@ -58,6 +60,7 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
         }
         return `(${line})`
     }
+
 
     return (
         <ListItem
@@ -79,7 +82,7 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                     </Typography>
                     { leg.delayInfo.length > 0 &&
                         <>
-                            <Chip size='small' label={`+1 min`} color='error' onClick={handleClick}/>
+                            <Chip size='small' label={`+${leg.averageDelay} min`} color={leg.averageDelay > 0 ? 'error' : 'success'} onClick={handleClick}/>
                             <Popover open={open} id={id} anchorEl={anchorEl} transformOrigin={{ vertical: 'bottom', horizontal: 'left' }} anchorOrigin={{vertical: 'top', horizontal: 'right'}} onClose={handleClose}>
                                 <LegDelayTable delays={leg.delayInfo}/>
                             </Popover>

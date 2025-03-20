@@ -127,6 +127,7 @@ const tripSlice = createSlice({
             state.tripResults.returnTrips = []
             state.routes.outboundDecodedRoutes = []
             state.routes.returnDecodedRoutes = []
+            state.selectedTrip = -1
         },
         clearComingBackDateTime(state) {
           state.tripRequest.preferences.comingBack = null

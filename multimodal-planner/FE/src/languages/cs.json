@@ -6,7 +6,8 @@
         "departureDate": "Datum odjezdu",
         "departureTime": "Čas odjezdu",
         "show": "Ukázat trasy",
-        "switch": "Prohodit počátek a cíl"
+        "switch": "Prohodit počátek a cíl",
+        "showPreferences": "Zobrazit rozšířená nastavení"
     },
     "feedback": {
         "error": "Nepodařilo se načíst trasy",
@@ -42,5 +43,7 @@
         "trolleybus": "Trolejbus"
     },
     "outbound": "Cesty tam",
-    "return": "Cesty zpět"
+    "return": "Cesty zpět",
+    "date": "Datum",
+    "delay": "Zpoždění"
 }

@@ -10,13 +10,11 @@ import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/mat
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-import CloseIcon from '@mui/icons-material/Close';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
-import TuneIcon from '@mui/icons-material/Tune';
+import { Close, SwapVert, Tune, InfoOutlined } from '@mui/icons-material'
 
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip } from '../store/slices/tripSlice';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTripsAndRoutes } from '../store/slices/tripSlice';
 import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/slices/addressSlice';
 import { getTransferStops } from '../store/slices/transferStopSlice';
 import { useEffect, useState } from 'react';
@@ -119,9 +117,11 @@ export function TripRequestForm() {
     return (
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
-                <TuneIcon />
-            </IconButton>
+            <Tooltip arrow placement='right' title={t('form.showPreferences')}>
+                <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
+                    <Tune/>
+                </IconButton>
+            </Tooltip>
             <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: 'translateX(-5%)' }}>
                 {t('form.plan')}
             </h2>
@@ -135,16 +135,16 @@ export function TripRequestForm() {
             endAdornment:
             <InputAdornment position='end'>
                 <IconButton edge='end' onClick={() => clearInput('start')}>
-                <CloseIcon/>
+                    <Close/>
                 </IconButton>
             </InputAdornment>}}}
             size="small" value={startInputValue} placeholder='Start' type='text'
             onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
-        <Tooltip title={t('form.switch')}>
-        <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
-            <SwapVertIcon fontSize='inherit'/>
-        </IconButton>
+        <Tooltip placement='right' title={t('form.switch')}>
+            <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
+                <SwapVert fontSize='inherit'/>
+            </IconButton>
         </Tooltip>
         
 
@@ -155,7 +155,7 @@ export function TripRequestForm() {
             endAdornment:
             <InputAdornment position='end'>
                 <IconButton edge='end' onClick={() => clearInput('end')}>
-                    <CloseIcon/>
+                    <Close/>
                 </IconButton>
             </InputAdornment>}}}
         size="small" value={endInputValue} placeholder={t('form.end')} type='text'
@@ -172,8 +172,9 @@ export function TripRequestForm() {
         </div>
         <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={() => setDialogOpen(false)}/>
 
+        {/* Get routes button */}
         <Button disabled={!inputValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
-                onClick={() => dispatch(getTrips())}>
+                onClick={() => {dispatch(clearTripsAndRoutes());dispatch(getTrips())}}>
             {t('form.show')}
         </Button>
     </>

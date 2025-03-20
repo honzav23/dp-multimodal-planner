@@ -1,13 +1,18 @@
 import {Box} from "@mui/material";
-import {DelayInfo} from "../../../types/TripResult.ts";
+import {DelayInfo} from "../../../../types/TripResult.ts";
+import { useTranslation } from "react-i18next";
 
 interface LegDelayTableProps {
     delays: DelayInfo[]
 }
 
 function LegDelayTable({ delays }: LegDelayTableProps) {
+    const { t } = useTranslation() 
 
-    const sortedDelays = delays.sort((a: DelayInfo, b: DelayInfo) => a.delayDate - b.delayDate);
+    const unixMilisToDate = (milis: number): string => {
+        const date = new Date(milis)
+        return `${date.toLocaleDateString()}`
+    }
 
     return (
         <Box sx={{ padding: '0 10px' }}>
@@ -27,7 +32,7 @@ function LegDelayTable({ delays }: LegDelayTableProps) {
                             textAlign: "left",
                         }}
                     >
-                        Datum
+                        {t('date')}
                     </th>
                     <th
                         style={{
@@ -36,15 +41,15 @@ function LegDelayTable({ delays }: LegDelayTableProps) {
                             textAlign: "left",
                         }}
                     >
-                        Zpoždění
+                        {t('delay')}
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 { delays.map((delay, idx) => (
-                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
-                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ delay.delayDate }</td>
-                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ delay.delay } min</td>
+                    <tr key={delay.delayDate} style={{ backgroundColor: idx % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
+                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ unixMilisToDate(delay.delayDate) }</td>
+                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}><strong>{ delay.delay } min</strong></td>
                     </tr>
                 )) }
                 </tbody>
