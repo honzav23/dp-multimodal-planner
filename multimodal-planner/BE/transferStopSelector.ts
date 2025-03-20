@@ -16,9 +16,9 @@ const TRAIN_EMISSIONS = 35
  * Index 4: Number of transfers
 */
 const comparisonMatrixForCriteria = [
-    [1, 3, 7, 5, 3],
+    [1, 3, 1, 5, 3],
     [1/3, 1, 1/3, 1/3, 1/5],
-    [1/7, 3, 1, 1/3, 5],
+    [1, 3, 1, 1/3, 5],
     [1/5, 3, 3, 1, 7],
     [1/3, 5, 1/5, 1/7, 1]
 ]
@@ -76,7 +76,7 @@ function getTotalEmissions(trip: TripResult): number {
 //     return optimalTrips
 // }
 
-function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
+export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
     let optimalTrips: TripDecision[] = [];
 
     for (const trip of trips) {
