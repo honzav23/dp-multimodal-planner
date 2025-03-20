@@ -16,6 +16,7 @@ export type TripLeg = {
     distance: number,
     line: string,
     route: string,
+    averageDelay: number,
     delayInfo: DelayInfo[]
 }
 

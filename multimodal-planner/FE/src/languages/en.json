@@ -6,7 +6,8 @@
         "departureDate": "Departure date",
         "departureTime": "Departure time",
         "show": "Show routes",
-        "switch": "Switch start and end"
+        "switch": "Switch start and end",
+        "showPreferences": "Show additional preferences"
     },
     "feedback": {
         "error": "Unable to fetch trips",
@@ -42,5 +43,7 @@
         "trolleybus": "Trolleybus"
     },
     "outbound": "Outbound trips",
-    "return": "Return trips"
+    "return": "Return trips",
+    "date": "Date",
+    "delay": "Delay"
 }
