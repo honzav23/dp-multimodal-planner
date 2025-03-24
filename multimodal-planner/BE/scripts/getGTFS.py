@@ -3,6 +3,7 @@ import subprocess
 import sqlite3
 import pandas as pd
 import overpy
+import zipfile
 
 processed = 0
 
@@ -14,18 +15,32 @@ def get_GTFS_files():
             f.write(response.content)
 
 def fetch_possible_transfer_stops():
-    con = sqlite3.connect('../../../gtfs.db')
-    df = pd.read_sql_query("""
-       SELECT s.stop_name, s.stop_lat, s.stop_lon, s.stop_id
-       FROM stops s
-       JOIN stop_times st ON s.stop_id = st.stop_id
-       JOIN trips t ON st.trip_id = t.trip_id
-       JOIN routes r ON t.route_id = r.route_id
-       WHERE r.route_type = 2 OR s.stop_name LIKE '%nádr.%' OR s.stop_name LIKE '%nádraží%' OR s.stop_name LIKE '%aut. st.%' OR s.stop_name LIKE '%aut.st.%'
-       GROUP BY s.stop_name ORDER BY s.stop_name ASC
-   """, con)
+    extracted_gtfs_dir = "../../../GTFS"
+    with zipfile.ZipFile("../../../GTFS.zip", 'r') as zip_ref:
+        zip_ref.extractall(extracted_gtfs_dir)
 
-    df.to_csv('../transferStops/transferPoints.csv', index=False, sep=';')
+    stops_df = pd.read_csv(f'{extracted_gtfs_dir}/stops.txt', sep=',', encoding='utf-8')
+    stop_times_df = pd.read_csv(f'{extracted_gtfs_dir}/stop_times.txt', sep=',', encoding='utf-8')
+    trips_df = pd.read_csv(f'{extracted_gtfs_dir}/trips.txt', sep=',')
+    routes_df = pd.read_csv(f'{extracted_gtfs_dir}/routes.txt', sep=',')
+
+    merged_df = stops_df.merge(stop_times_df, on='stop_id') \
+        .merge(trips_df, on='trip_id') \
+        .merge(routes_df, on='route_id')
+
+    filtered_df = merged_df[
+        (merged_df['route_type'] == 2) |
+        (merged_df['stop_name'].str.contains('nádr\\.', case=False, na=False)) |
+        (merged_df['stop_name'].str.contains('nádraží', case=False, na=False)) |
+        (merged_df['stop_name'].str.contains('aut\\. st\\.', case=False, na=False)) |
+        (merged_df['stop_name'].str.contains('aut\\.st', case=False, na=False))
+        ]
+
+    # Step 3: Select required columns
+    result_df = filtered_df[['stop_name', 'stop_lat', 'stop_lon', 'stop_id']]
+    result_df = result_df.drop_duplicates(subset='stop_name').sort_values(by='stop_name')
+
+    result_df.to_csv('../transferStops/transferPoints.csv', index=False, sep=';')
 
 def findNearestParkingLot(row, length):
     api = overpy.Overpass()
@@ -58,15 +73,15 @@ if __name__ == "__main__":
 #     print("Done")
 #
 #     print("Converting GTFS to DB...", end='')
-#     subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfs.db", "../../../GTFS.zip"])
+#     subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfsPID.db", "../../../PID_GTFS.zip"])
 #     print("Done")
     print("Fetching possible transfer stops... ", end='')
     fetch_possible_transfer_stops()
     print("Done")
 
-    print("Getting available parking lots for transfer stops... ")
-    get_available_parking_lots()
-    print("Done")
+    # print("Getting available parking lots for transfer stops... ")
+    # get_available_parking_lots()
+    # print("Done")
 
 
 

@@ -31,10 +31,10 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     // The data from OTP are returned in order so this can be done
     for (let i = 0; i < csvData.length; i++) {
         const transferStop: TransferStop = {
-            stopId: data.quays[i]?.stopPlace.id ?? csvData[i].stop_id,
-            stopName: data.quays[i]?.stopPlace.name ?? csvData[i].stop_name,
-            stopCoords: [data.quays[i]?.stopPlace.latitude ?? parseFloat(csvData[i].stop_lat), 
-                data.quays[i]?.stopPlace.longitude ?? parseFloat(csvData[i].stop_lon)],
+            stopId: data.quays[i]?.stopPlace?.id ?? csvData[i].stop_id,
+            stopName: data.quays[i]?.stopPlace?.name ?? csvData[i].stop_name,
+            stopCoords: [data.quays[i]?.stopPlace?.latitude ?? parseFloat(csvData[i].stop_lat),
+                data.quays[i]?.stopPlace?.longitude ?? parseFloat(csvData[i].stop_lon)],
             hasParking: csvData[i].has_parking === "1",
         }
         transferPoints.push(transferStop)
