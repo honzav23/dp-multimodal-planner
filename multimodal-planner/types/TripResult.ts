@@ -4,7 +4,8 @@ export type TripResult = {
     startTime: string,
     endTime: string,
     legs: TripLeg[],
-    totalTransfers: number
+    totalTransfers: number,
+    via: string
 }
 
 export type TripLeg = {

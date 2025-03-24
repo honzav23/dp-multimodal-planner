@@ -9,7 +9,7 @@ import { getLegsRoutesAndDelays } from "./transportRoutesWithDelays.ts";
 import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
-
+import { fetchTripsBackToTransferPoints } from "./returnTrips.ts";
 
 /**
  * Retrieves the candidate transfer stops for a trip request that are too far from the destination.
@@ -30,9 +30,9 @@ function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDi
     return candidateTransferPoints;
 }
 
-async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
+export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
     const totalTransfers = calculateTotalNumberOfTransfers(trip)
-   if (availableTripsByLines.length === 0) {
+  if (availableTripsByLines.length === 0) {
         return {
             totalTime: trip.duration,
             totalDistance: trip.distance,
@@ -48,17 +48,21 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
                 line: leg.line?.publicCode ?? '',
                 route: leg.pointsOnLink.points,
                 delayInfo: [],
-                averageDelay: 0
+                averageDelay: 0,
             })),
-            totalTransfers
+            totalTransfers,
+            via: ''
         } as TripResult;
-    }
+   }
     const legRoutesAndDelays = await getLegsRoutesAndDelays(trip)
     const totalDistance = legRoutesAndDelays.some(leg => leg.distance === 0) ? trip.distance :
         legRoutesAndDelays.reduce((acc, leg) => acc + leg.distance, 0)
 
     const calculateAverageDelay = (delayInfo: DelayInfo[]): number => {
         const totalDelay = delayInfo.reduce((acc, v) => acc + v.delay, 0)
+        if (delayInfo.length === 0) {
+            return  0
+        }
         return Math.round(totalDelay / delayInfo.length)
     }
 
@@ -79,7 +83,8 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
             delayInfo: legRoutesAndDelays[idx].delayInfo,
             averageDelay: calculateAverageDelay(legRoutesAndDelays[idx].delayInfo)
         })),
-        totalTransfers
+        totalTransfers,
+        via: ''
     } as TripResult;
 }
 
@@ -113,74 +118,22 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
         endTime: publicTransport.endTime,
         legs: [...car.legs, ...publicTransport.legs],
         totalTransfers: 1 + publicTransport.totalTransfers,
+        via: car.legs[0].to
     }
     return mergedResult
 }
-function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): TripResult {
+export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): TripResult {
     const mergedResult: TripResult = {
         totalTime: finalTrip.totalTime + car.totalTime + (Date.parse(car.startTime) - Date.parse(finalTrip.endTime)) / 1000,
         totalDistance: finalTrip.totalDistance + car.totalDistance,
         startTime: finalTrip.startTime,
         endTime: car.endTime,
         legs: [...finalTrip.legs, ...car.legs],
-        totalTransfers: finalTrip.totalTransfers + 1
-
+        totalTransfers: finalTrip.totalTransfers + 1,
+        via: car.legs[0].from
     }
     
     return mergedResult
-}
-
-async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tripRequest: TripRequest) {
-    const transferStopsUsedInTrips: {name: string, coords: [number, number]}[] = []
-    for (const trip of bestTrips) {
-
-        // Car was not used so the transfer point is the origin of the trip
-        if (trip.legs[0].modeOfTransport !== "car") {
-            if (!transferStopsUsedInTrips.find((t) => t.name === trip.legs[0].from)) {
-                transferStopsUsedInTrips.push({name: trip.legs[0].from, coords: [1000, 1000]})
-            }
-        }
-        else {
-            if (!transferStopsUsedInTrips.find((t) => t.name === trip.legs[0].to)) {
-                transferStopsUsedInTrips.push({name: trip.legs[0].to, coords: [1000, 1000]})
-            }
-        }
-    }
-    // Finding transfer stops coordinates
-    for (let i = 0; i < transferStopsUsedInTrips.length; i++) {
-        if (transferStopsUsedInTrips[i].name === "Origin") {
-            transferStopsUsedInTrips[i].coords = tripRequest.origin
-        }
-        else {
-            const foundTransferStop = transferStops.find((t) => t.stopName === transferStopsUsedInTrips[i].name)
-            if (foundTransferStop) {
-                transferStopsUsedInTrips[i].coords = foundTransferStop.stopCoords
-            }
-        }
-    }
-    // Make OTP requests to fetch the trip for public transport
-    const returnTripPromises = transferStopsUsedInTrips.map((trip) => getPublicTransportTrip(tripRequest.destination, trip.coords,
-        tripRequest.preferences.comingBack!.returnDateTime, tripRequest.preferences.modeOfTransport, 5)
-    )
-    const returnTripResponses: OTPGraphQLData[] = await Promise.all(returnTripPromises)
-
-    // For each trip set the destination name to the transfer stop name
-    for (let i = 0; i < returnTripResponses.length; i++) {
-        for (let j = 0; j < returnTripResponses[i].trip.tripPatterns.length; j++) {
-            const legsLen = returnTripResponses[i].trip.tripPatterns[j].legs.length
-            returnTripResponses[i].trip.tripPatterns[j].legs[legsLen-1].toPlace.name = transferStopsUsedInTrips[i].name
-        }
-    }
-
-    let tripPatterns: OTPTripPattern[] = []
-    for (const trip of returnTripResponses) {
-        tripPatterns = [...tripPatterns, ...trip.trip.tripPatterns]
-    }
-
-    const returnTripResultsPromises = tripPatterns.map((trip) => convertOTPDataToTripResult(trip))
-    const returnTripResults = await Promise.all(returnTripResultsPromises)
-
-    return returnTripResults
 }
 
 async function getFromPickupPointToDestination(trip: TripResult, tripRequest: TripRequest): Promise<TripResult> {
@@ -213,9 +166,13 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
         candidateTransferPoints = await getRepresentativeTransferStops(candidateTransferPoints)
     }
     console.time()
+
+    // Make OTP requests for car from start to all transfer points
     const carPromises = candidateTransferPoints.map((c) => getRouteByCar(origin, c.stopCoords, departureDateTime))
     const carResponses = await Promise.all(carPromises)
-    const candidateAndCar: { candidate: TransferStop, car:  TripResult}[] = []
+
+
+    const candidateAndCar: { candidate: TransferStop, car: TripResult}[] = []
     for (let i = 0; i < candidateTransferPoints.length; i++) {
         if (carResponses[i].trip.tripPatterns.length === 0) {
             continue

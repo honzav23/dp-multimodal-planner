@@ -65,17 +65,6 @@ function getTotalEmissions(trip: TripResult): number {
     return totalEmissions
 }
 
-// function getParetoOptimalTrips(trips: TripDecision[]) {
-//     let optimalTrips: TripDecision[] = []
-//     for (const trip of trips) {
-//         optimalTrips = optimalTrips.filter(val => {
-//             return val.totalTime > trip.totalTime || val.totalEmissions > trip.totalEmissions || val.totalTransfers > trip.totalTransfers
-//         })
-//         optimalTrips.push(trip)
-//     }
-//     return optimalTrips
-// }
-
 export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
     let optimalTrips: TripDecision[] = [];
 
@@ -98,14 +87,15 @@ export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
 function dominates(a: TripDecision, b: TripDecision): boolean {
     let betterInAtLeastOne = false;
 
-    if (a.totalTime > b.totalTime) return false;
-    if (a.totalEmissions > b.totalEmissions) return false;
-    if (a.totalTransfers > b.totalTransfers) return false;
+    // Trip A is worse in at least one parameter
+    if (a.totalTime > b.totalTime || a.totalEmissions > b.totalEmissions || a.totalTransfers > b.totalTransfers) {
+        return false
+    }
 
     // At least one metric must be strictly better
-    if (a.totalTime < b.totalTime) betterInAtLeastOne = true;
-    if (a.totalEmissions < b.totalEmissions) betterInAtLeastOne = true;
-    if (a.totalTransfers < b.totalTransfers) betterInAtLeastOne = true;
+    if (a.totalTime < b.totalTime || a.totalEmissions < b.totalEmissions || a.totalTransfers < a.totalTransfers) {
+        betterInAtLeastOne = true;
+    }
 
     return betterInAtLeastOne;
 }
@@ -115,6 +105,7 @@ function normalizeCriteria(tripRankings: TripDecision[]) {
     const sortByTotalTime = [...tripRankings].sort((a, b) => a.totalTime - b.totalTime)
     const sortByTransfers = [...tripRankings].sort((a, b) => a.totalTransfers - b.totalTransfers)
     const sortByEmissions = [...tripRankings].sort((a, b) => a.totalEmissions - b.totalEmissions)
+    const sortByDelay = [...tripRankings].sort((a, b) => a.totalDelay - b.totalDelay)
 
     const minTime = sortByTotalTime[0].totalTime
     const maxTime = sortByTotalTime[len - 1].totalTime
@@ -125,10 +116,14 @@ function normalizeCriteria(tripRankings: TripDecision[]) {
     const minEmissions = sortByEmissions[0].totalEmissions
     const maxEmissions = sortByEmissions[len - 1].totalEmissions
 
+    const minDelay = sortByDelay[0].totalDelay
+    const maxDelay = sortByDelay[len - 1].totalDelay
+
     for (let i = 0; i < len; i++) {
         tripRankings[i].totalTimeNormalized = (tripRankings[i].totalTime - minTime) / (maxTime - minTime)
         tripRankings[i].totalTransfersNormalized = (tripRankings[i].totalTransfers - minTransfers) / (maxTransfers - minTransfers)
         tripRankings[i].totalEmissionsNormalized = (tripRankings[i].totalEmissions - minEmissions) / (maxEmissions - minEmissions)
+        tripRankings[i].totalDelayNormalized = (tripRankings[i].totalDelay - minDelay) / (maxDelay - minDelay)
     }
 }
 
@@ -140,15 +135,18 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     
     let tripRankings: TripDecision[] = []
     for (let i = 0; i < trips.length; i++) {
+        const delaySum = trips[i].legs.reduce((acc, leg) => acc + leg.averageDelay, 0)
         tripRankings.push(
             {
                 tripIndex: i,
                 totalTime: trips[i].totalTime / 60,
                 totalTransfers: trips[i].totalTransfers,
                 totalEmissions: getTotalEmissions(trips[i]),
+                totalDelay: delaySum,
                 totalTimeNormalized: 0,
                 totalTransfersNormalized: 0,
-                totalEmissionsNormalized: 0
+                totalEmissionsNormalized: 0,
+                totalDelayNormalized: 0
             } as TripDecision
         )
     }
@@ -157,7 +155,7 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     tripsWithScores = tripRankings.map((val) => (
         { 
             trip: val, 
-            score: val.totalTimeNormalized * weights[0] +  val.totalEmissionsNormalized * weights[2] + val.totalTransfersNormalized * weights[4]
+            score: val.totalTimeNormalized * weights[0] + val.totalEmissionsNormalized * weights[2] + val.totalDelayNormalized * weights[3] + val.totalTransfersNormalized * weights[4]
         }))
 
     tripsWithScores.sort((a, b) => a.score - b.score)

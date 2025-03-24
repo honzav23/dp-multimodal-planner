@@ -3,7 +3,9 @@ export type TripDecision = {
     totalTime: number,
     totalTransfers: number,
     totalEmissions: number,
+    totalDelay: number,
     totalTimeNormalized: number,
     totalEmissionsNormalized: number,
-    totalTransfersNormalized: number
+    totalTransfersNormalized: number,
+    totalDelayNormalized: number
 }
