@@ -10,7 +10,7 @@ import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/mat
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-import { Close, SwapVert, Tune, InfoOutlined } from '@mui/icons-material'
+import { Close, SwapVert, Tune } from '@mui/icons-material'
 
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { setFocus } from '../store/slices/inputsFocusSlice';
@@ -18,10 +18,12 @@ import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTr
 import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/slices/addressSlice';
 import { getTransferStops } from '../store/slices/transferStopSlice';
 import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
+import dayjs, {Dayjs} from 'dayjs';
 import AdditionalPreferences from './AdditionalPreferences';
+import type { ResultStatus } from "../../../types/ResultStatus.ts";
 
 import { useTranslation } from 'react-i18next';
+import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
 
 export function TripRequestForm() {
     const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
@@ -39,7 +41,13 @@ export function TripRequestForm() {
     const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
     const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
 
-    const inputValid = startAddress !== null && endAddress !== null
+    const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
+    const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
+    const [comingBackDateValid, setComingBackDateValid] = useState(true)
+    const [comingBackTimeValid, setComingBackTimeValid] = useState(true)
+
+    const inputValid = startAddress !== null && endAddress !== null && !dateError.error && !timeError.error && comingBackDateValid && comingBackTimeValid
+
     const dispatch = useAppDispatch()
 
 
@@ -51,6 +59,36 @@ export function TripRequestForm() {
       dispatch(getTransferStops())
     }, [])
 
+    const handleDateError = (error: DateValidationError, date: Dayjs | null) => {
+        if (error === null && date !== null) {
+            setDateError({error: false, message: ''})
+        }
+        else {
+            setDateError({error: true, message: t('form.validation.invalidDate')})
+        }
+    }
+    const handleTimeError = (error: TimeValidationError, time: Dayjs | null) => {
+        if (error === null && time !== null) {
+            setTimeError({error: false, message: ''})
+        }
+        else {
+            setTimeError({error: true, message: t('form.validation.invalidTime')})
+        }
+    }
+
+    const handleDateChange = (date: Dayjs | null) => {
+        if (date !== null ) {
+            setDateError({error: false, message: ''})
+            dispatch(setDepartureDate({year: date.year(), month: date.month(), day: date.date()}))
+        }
+    }
+
+    const handleTimeChange = (time: Dayjs | null) => {
+        if (time !== null ) {
+            setTimeError({error: false, message: ''})
+            dispatch(setDepartureTime(time.$d.toLocaleTimeString()))
+        }
+    }
 
     /**
     * Changes the cursor style based on the input focus
@@ -114,6 +152,23 @@ export function TripRequestForm() {
         }
     }
 
+    const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
+        setDialogOpen(false)
+        if (!comingBackDateValid) {
+            setComingBackDateValid(false)
+        }
+        else {
+            setComingBackDateValid(true)
+        }
+
+        if (!comingBackTimeValid) {
+            setComingBackTimeValid(false)
+        }
+        else {
+            setComingBackTimeValid(true)
+        }
+    }
+
     return (
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -165,12 +220,26 @@ export function TripRequestForm() {
 
         <div style={{ display: 'flex', gap: '10px'}}>
             {/* Select date */}
-            <DatePicker label={t('form.departureDate')} sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())} onChange={(date) => dispatch(setDepartureDate({year: date.year(), month: date.month(), day: date.date()}))}/>
+            <DatePicker label={t('form.departureDate')} sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())}
+                        onError={(err, val) => handleDateError(err, val)}
+                        slotProps={{
+                            textField: {
+                                helperText: dateError.message
+                            }
+                        }}
+                        onChange={(date) => handleDateChange(date)}/>
 
             {/* Select time */}
-            <TimePicker label={t('form.departureTime')} sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())} onChange={(time) => dispatch(setDepartureTime(time.$d.toLocaleTimeString()))}/>
+            <TimePicker label={t('form.departureTime')} sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())}
+                        onError={(err, val) => handleTimeError(err, val)}
+                        slotProps={{
+                            textField: {
+                                helperText: timeError.message
+                            }
+                        }}
+                        onChange={(time) => handleTimeChange(time)}/>
         </div>
-        <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={() => setDialogOpen(false)}/>
+        <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={(dateValid, timeValid) => handleDialogClosed(dateValid, timeValid)}/>
 
         {/* Get routes button */}
         <Button disabled={!inputValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'

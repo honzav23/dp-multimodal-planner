@@ -18,26 +18,26 @@ import {
     setFindBestTrip,
     initialCoords,
     setPickupCoords,
-    setDepartureDate, setDepartureTime,
     clearComingBackDateTime,
     setComingBackDate,
-    setComingBackTime
+    setComingBackTime,
 } from "../store/slices/tripSlice";
 import { availableLanguages } from "../../i18n";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
 import { clearPickupAddress } from "../store/slices/addressSlice";
 import { setFocus } from "../store/slices/inputsFocusSlice";
-
 import { useTranslation } from "react-i18next";
 import {useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import {TimePicker} from "@mui/x-date-pickers/TimePicker";
+import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
+import type {ResultStatus} from "../../../types/ResultStatus.ts";
 
 interface AdditionalPreferencesProps {
     dialogOpen: boolean
-    closeDialog: () => void
+    closeDialog: (dateValid: boolean, timeValid: boolean) => void
 }
 
 function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreferencesProps) {
@@ -50,6 +50,8 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
 
     const [returnDateTimeShown, setReturnDateTimeShown] = useState(false)
+    const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
+    const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
     const defaultDate = dayjs(Date.now())
     
     const pickupInputValue = pickupAddress === null ? '' : (pickupAddress === '' ? `${pickupCoords[0].toFixed(3)} ${pickupCoords[1].toFixed(3)}` : pickupAddress)
@@ -59,7 +61,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const icon = <CheckBoxOutlineBlank fontSize="small" />;
     const checkedIcon = <CheckBox fontSize="small" />;
 
-    const options: TransportMode[] = ["bus", "rail", "tram", "trolleybus"]
+    const options: TransportMode[] = ["bus", "rail", "tram", "trolleybus", "metro"]
 
     const dispatch = useAppDispatch()
 
@@ -96,6 +98,39 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
             dispatch(clearComingBackDateTime())
             setReturnDateTimeShown(false)
         }
+        setDateError({error: false, message: ''})
+        setTimeError({error: false, message: ''})
+    }
+
+    const handleDateError = (error: DateValidationError, date: Dayjs | null) => {
+        if (error === null && date !== null) {
+            setDateError({error: false, message: ''})
+        }
+        else {
+            setDateError({error: true, message: t('form.validation.invalidDate')})
+        }
+    }
+    const handleTimeError = (error: TimeValidationError, time: Dayjs | null) => {
+        if (error === null && time !== null) {
+            setTimeError({error: false, message: ''})
+        }
+        else {
+            setTimeError({error: true, message: t('form.validation.invalidTime')})
+        }
+    }
+
+    const handleDateChange = (date: Dayjs | null) => {
+        if (date !== null ) {
+            setDateError({error: false, message: ''})
+            dispatch(setComingBackDate({year: date.year(), month: date.month(), day: date.date()}))
+        }
+    }
+
+    const handleTimeChange = (time: Dayjs | null) => {
+        if (time !== null ) {
+            setTimeError({error: false, message: ''})
+            dispatch(setComingBackTime(time.$d.toLocaleTimeString()))
+        }
     }
 
     return (
@@ -108,7 +143,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
              {/* Close dialog button */}
             <IconButton
                 aria-label="close"
-                onClick={closeDialog}
+                onClick={() => closeDialog(!dateError.error, !timeError.error)}
                 sx={(theme) => ({
                     position: 'absolute',
                     right: 8,
@@ -219,11 +254,23 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                             <>
                                 {/* Select date */}
                                 <DatePicker sx={{ backgroundColor: 'white' }} label={t('preferences.returnDate')} defaultValue={defaultDate}
-                                            onChange={(date) => dispatch(setComingBackDate({year: date.year(), month: date.month(), day: date.date()}))}/>
+                                            onError={(err, val) => handleDateError(err, val)}
+                                            slotProps={{
+                                                textField: {
+                                                    helperText: dateError.message
+                                                }
+                                            }}
+                                            onChange={(date) => handleDateChange(date)}/>
 
                                 {/* Select time */}
                                 <TimePicker sx={{ backgroundColor: 'white' }} label={t('preferences.returnTime')} defaultValue={defaultDate}
-                                            onChange={(time) => dispatch(setComingBackTime(time.$d.toLocaleTimeString()))}/>
+                                            onError={(err, val) => handleTimeError(err, val)}
+                                            slotProps={{
+                                                textField: {
+                                                    helperText: timeError.message
+                                                }
+                                            }}
+                                            onChange={(time) => handleTimeChange(time)}/>
                             </>
                         )}
                     </Box>
