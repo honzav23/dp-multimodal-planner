@@ -7,7 +7,11 @@
         "departureTime": "Departure time",
         "show": "Show routes",
         "switch": "Switch start and end",
-        "showPreferences": "Show additional preferences"
+        "showPreferences": "Show additional preferences",
+        "validation": {
+            "invalidDate": "Invalid date",
+            "invalidTime": "Invalid time"
+        }
     },
     "feedback": {
         "error": "Unable to fetch trips",
@@ -40,10 +44,12 @@
         "bus": "Bus",
         "rail": "Train",
         "tram": "Tram",
-        "trolleybus": "Trolleybus"
+        "trolleybus": "Trolleybus",
+        "metro": "Subway"
     },
     "outbound": "Outbound trips",
     "return": "Return trips",
     "date": "Date",
-    "delay": "Delay"
+    "delay": "Delay",
+    "via": "via"
 }

@@ -7,7 +7,11 @@
         "departureTime": "Čas odjezdu",
         "show": "Ukázat trasy",
         "switch": "Prohodit počátek a cíl",
-        "showPreferences": "Zobrazit rozšířená nastavení"
+        "showPreferences": "Zobrazit rozšířená nastavení",
+        "validation": {
+            "invalidDate": "Neplatné datum",
+            "invalidTime": "Neplatný čas"
+        }
     },
     "feedback": {
         "error": "Nepodařilo se načíst trasy",
@@ -40,10 +44,12 @@
         "bus": "Autobus",
         "rail": "Vlak",
         "tram": "Tramvaj",
-        "trolleybus": "Trolejbus"
+        "trolleybus": "Trolejbus",
+        "metro": "Metro"
     },
     "outbound": "Cesty tam",
     "return": "Cesty zpět",
     "date": "Datum",
-    "delay": "Zpoždění"
+    "delay": "Zpoždění",
+    "via": "přes"
 }

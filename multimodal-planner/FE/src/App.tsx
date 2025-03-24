@@ -36,6 +36,7 @@ function App() {
         bus: '#00E68C',
         rail: '#800000',
         trolleybus: '#008033',
+        metro: '#000080'
     }
 
     /**

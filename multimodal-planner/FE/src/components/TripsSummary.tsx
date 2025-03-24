@@ -141,15 +141,22 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                                     </Typography>
                                 }
                                 secondary={
-                                    <>
-                                        <Typography component='span' variant="body2">
-                                            <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}
-                                        </Typography>
-                                        <br/>
-                                        <Typography component='span' variant="body2">
-                                            <LocationOn style={{ verticalAlign: "middle" }} /> {(trip.totalDistance / 1000).toFixed(1)} km
-                                        </Typography>
-                                    </>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px' }}>
+                                        <div>
+                                            <Typography component='span' variant="body2">
+                                                <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}
+                                            </Typography>
+                                            <br/>
+                                            <Typography component='span' variant="body2">
+                                                <LocationOn style={{ verticalAlign: "middle" }} /> {(trip.totalDistance / 1000).toFixed(1)} km
+                                            </Typography>
+                                        </div>
+                                        <div>
+                                            <Typography variant='body1'>
+                                                {t('via')} <strong>{trip.via}</strong>
+                                            </Typography>
+                                        </div>
+                                    </div>
                                 }
                             />
                             {selectedTrip === idx ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}

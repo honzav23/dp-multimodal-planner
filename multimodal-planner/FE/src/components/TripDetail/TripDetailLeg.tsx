@@ -3,7 +3,7 @@ import { useState, MouseEvent } from 'react'
 import { TripLeg } from '../../../../types/TripResult'
 import LegDelayTable from "./LegDelayTable";
 import { formatDateTime } from "../../common/common";
-import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk } from '@mui/icons-material'
+import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk, DirectionsSubway } from '@mui/icons-material'
 import TrolleybusIcon from '../../img/TrolleybusIcon';
 
 interface TripDetailLegProps {
@@ -45,7 +45,9 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
             case "foot":
                 return DirectionsWalk
             case "trolleybus":
-                return TrolleybusIcon 
+                return TrolleybusIcon
+            case "metro":
+                return DirectionsSubway
             default:
                 return QuestionMark;
         }
