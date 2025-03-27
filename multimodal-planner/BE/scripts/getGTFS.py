@@ -68,20 +68,20 @@ def get_available_parking_lots():
 
 if __name__ == "__main__":
 
-#     print("Getting GTFS...", end='')
-#     get_GTFS_files()
-#     print("Done")
-#
-#     print("Converting GTFS to DB...", end='')
-#     subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfsPID.db", "../../../PID_GTFS.zip"])
-#     print("Done")
+    print("Getting GTFS...", end='')
+    get_GTFS_files()
+    print("Done")
+
+    # print("Converting GTFS to DB...", end='')
+    # subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfsPID.db", "../../../PID_GTFS.zip"])
+    # print("Done")
     print("Fetching possible transfer stops... ", end='')
     fetch_possible_transfer_stops()
     print("Done")
 
-    # print("Getting available parking lots for transfer stops... ")
-    # get_available_parking_lots()
-    # print("Done")
+    print("Getting available parking lots for transfer stops... ")
+    get_available_parking_lots()
+    print("Done")
 
 
 

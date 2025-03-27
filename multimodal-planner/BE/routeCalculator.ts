@@ -51,7 +51,10 @@ export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<
                 averageDelay: 0,
             })),
             totalTransfers,
-            via: ''
+            totalEmissions: 0,
+            via: '',
+            lowestTime: false,
+            lowestEmissions: false
         } as TripResult;
    }
     const legRoutesAndDelays = await getLegsRoutesAndDelays(trip)
@@ -84,6 +87,7 @@ export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<
             averageDelay: calculateAverageDelay(legRoutesAndDelays[idx].delayInfo)
         })),
         totalTransfers,
+        totalEmissions: 0,
         via: ''
     } as TripResult;
 }
@@ -118,7 +122,10 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
         endTime: publicTransport.endTime,
         legs: [...car.legs, ...publicTransport.legs],
         totalTransfers: 1 + publicTransport.totalTransfers,
-        via: car.legs[0].to
+        via: car.legs[0].to,
+        lowestTime: false,
+        lowestEmissions: false,
+        totalEmissions: 0
     }
     return mergedResult
 }
@@ -130,7 +137,10 @@ export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): T
         endTime: car.endTime,
         legs: [...finalTrip.legs, ...car.legs],
         totalTransfers: finalTrip.totalTransfers + 1,
-        via: car.legs[0].from
+        via: car.legs[0].from,
+        lowestTime: false,
+        lowestEmissions: false,
+        totalEmissions: 0
     }
     
     return mergedResult
