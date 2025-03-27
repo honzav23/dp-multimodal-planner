@@ -62,6 +62,7 @@ function getTotalEmissions(trip: TripResult): number {
                 break
         }
     }
+    trip.totalEmissions = totalEmissions
     return totalEmissions
 }
 
@@ -102,6 +103,7 @@ function dominates(a: TripDecision, b: TripDecision): boolean {
 
 function normalizeCriteria(tripRankings: TripDecision[]) {
     const len = tripRankings.length
+
     const sortByTotalTime = [...tripRankings].sort((a, b) => a.totalTime - b.totalTime)
     const sortByTransfers = [...tripRankings].sort((a, b) => a.totalTransfers - b.totalTransfers)
     const sortByEmissions = [...tripRankings].sort((a, b) => a.totalEmissions - b.totalEmissions)
@@ -160,6 +162,14 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
 
     tripsWithScores.sort((a, b) => a.score - b.score)
 
-    // Return 10 best solutions
-    return tripsWithScores.map((val) => trips[val.trip.tripIndex]).slice(0, 10)
+    // Get 10 best solutions
+    const bestTrips = tripsWithScores.map((val) => trips[val.trip.tripIndex]).slice(0, 10)
+
+    const minTimeTrip = bestTrips.reduce((max, trip) => trip.totalTime > max.totalTime ? trip : max, bestTrips[0])
+    minTimeTrip.lowestTime = true
+
+    const minEmissionsTrip = bestTrips.reduce((max, trip) => trip.totalEmissions > max.totalEmissions ? trip : max, bestTrips[0])
+    minEmissionsTrip.lowestEmissions = true
+
+    return bestTrips
 }

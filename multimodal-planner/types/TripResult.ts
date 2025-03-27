@@ -5,7 +5,10 @@ export type TripResult = {
     endTime: string,
     legs: TripLeg[],
     totalTransfers: number,
-    via: string
+    totalEmissions: number,
+    via: string,
+    lowestTime: boolean,
+    lowestEmissions: boolean
 }
 
 export type TripLeg = {
