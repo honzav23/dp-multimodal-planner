@@ -51,5 +51,12 @@
     "return": "Return trips",
     "date": "Date",
     "delay": "Delay",
-    "via": "via"
+    "via": "via",
+    "eco": "Most eco-friendly",
+    "fastest": "Shortest travel time",
+    "sort": {
+        "default": "Default order",
+        "asc": "Sort in ascending order",
+        "desc": "Sort in descending order"
+    }
 }

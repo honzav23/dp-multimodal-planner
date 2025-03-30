@@ -14,6 +14,7 @@ app.use('/api/*', cors({
   allowMethods: ['POST', 'GET']
 }));
 
+// Main endpoint which gets the best trips based on the request
 app.post('/api/route', async (request) => {
   const body = await request.req.json();
   const inputValidationResult: ResultStatus = validateRequestInput(body);
@@ -21,6 +22,7 @@ app.post('/api/route', async (request) => {
     return request.json({ error: inputValidationResult.message }, 400);
   }
 
+  // Creating tripRequest object which then goes
   const tripRequest: TripRequest = {
     origin: body.origin,
     destination: body.destination,
@@ -45,6 +47,7 @@ app.post('/api/route', async (request) => {
   }
 });
 
+// Endpoint that gets all available transfer stops
 app.get('/api/transferStops', (request) => {
   return request.json(transferStops);
 });

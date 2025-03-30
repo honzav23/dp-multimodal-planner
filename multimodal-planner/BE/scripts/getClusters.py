@@ -8,6 +8,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(script_dir, "..", "transferStops")
 file_path = os.path.normpath(file_path)
 
+# Finds a transfer stop that is nearest to the center for each center
 def find_nearest_point(centroids, coords):
     indices = []
     for c in centroids:
@@ -33,7 +34,6 @@ def getClusters():
 
     # Find the best results
     best_index = np.argmin(davis_indices)
-    print(num_clusters[best_index])
 
     transferPoints["cluster"] = dbs[best_index].labels_
 

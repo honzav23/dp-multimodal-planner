@@ -165,10 +165,10 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     // Get 10 best solutions
     const bestTrips = tripsWithScores.map((val) => trips[val.trip.tripIndex]).slice(0, 10)
 
-    const minTimeTrip = bestTrips.reduce((max, trip) => trip.totalTime > max.totalTime ? trip : max, bestTrips[0])
+    const minTimeTrip = bestTrips.reduce((min, trip) => trip.totalTime < min.totalTime ? trip : min, bestTrips[0])
     minTimeTrip.lowestTime = true
 
-    const minEmissionsTrip = bestTrips.reduce((max, trip) => trip.totalEmissions > max.totalEmissions ? trip : max, bestTrips[0])
+    const minEmissionsTrip = bestTrips.reduce((min, trip) => trip.totalEmissions < min.totalEmissions ? trip : min, bestTrips[0])
     minEmissionsTrip.lowestEmissions = true
 
     return bestTrips

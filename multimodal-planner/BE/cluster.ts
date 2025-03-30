@@ -1,19 +1,20 @@
 import {parse, stringify} from "@std/csv"
 import type {TransferStop, TransferStopCluster} from "../types/TransferStop.ts";
 
+/**
+ * Get only the transfer stops that are centers (nearest to it)
+ * @param stops Stops that have clusters assigned to it
+ */
 function findRepresentativesFromClusters(stops: TransferStopCluster[]): TransferStopCluster[] {
-    const centerCounts = new Set<number>()
-    for (const stop of stops) {
-        centerCounts.add(stop.nearest)
-    }
-
-    const returnStops: TransferStopCluster[] = []
-    for (let center of centerCounts) {
-        returnStops.push(stops[center])
-    }
-    return returnStops
+    const uniqueCenters = new Set<number>(stops.map(s => s.nearest))
+    return Array.from(uniqueCenters).map((center) => stops[center])
 }
 
+/**
+ * Gets representative transfer stops for given transfer stops based on clustering
+ * @param transferStops Available transfer stops
+ * @returns Promise of the representative transfer stops
+ */
 export async function getRepresentativeTransferStops(transferStops: TransferStop[]): Promise<TransferStop[]> {
     const transferStopsSeparatedCoords = transferStops.map((transferStop: TransferStop) => (
         {

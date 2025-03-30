@@ -4,7 +4,12 @@ import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
 import type {OTPGraphQLData, OTPTripLeg} from "../types/OTPGraphQLData";
 import type { TransportMode } from '../../types/TransportMode'
 import { AvailableTrip } from "../types/AvailableTrip.ts";
+import {availableDates, availableTripsByLines} from "../api.ts";
 
+/**
+ * Gets available transfer stops from .csv file
+ * @returns Promise of all transfer stops
+ */
 export async function getTransferStops(): Promise<TransferStop[]> {
     const text = Deno.readTextFileSync('./transferStops/transferPointsWithParkingLots.csv');
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
@@ -28,7 +33,7 @@ export async function getTransferStops(): Promise<TransferStop[]> {
 
     const transferPoints: TransferStop[] = []
 
-    // The data from OTP are returned in order so this can be done
+    // Combine data from CSV and OTP to make an array of transfer stops
     for (let i = 0; i < csvData.length; i++) {
         const transferStop: TransferStop = {
             stopId: data.quays[i]?.stopPlace?.id ?? csvData[i].stop_id,
@@ -43,8 +48,14 @@ export async function getTransferStops(): Promise<TransferStop[]> {
     return transferPoints;
 }
 
+/**
+ * Get all trips from Lissy app which have delay information from the last 2 days
+ * @returns Promise of all available trips and dates
+ */
 export async function getTripsForLines(): Promise<{availableTripsByLines: AvailableTrip[][], availableDates: number[]}> {
     const oneDayMilis = 86400000
+
+    // Get all dates when the delay information is available
     const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
         method: "GET",
         headers: {
@@ -52,12 +63,13 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
         }
     })
     if (!dateResponse.ok) {
-        return [[], 0]
+        return {availableTripsByLines: [], availableDates: []}
     }
     const dateResponseJson = await dateResponse.json();
     const endDate = dateResponseJson.end
     const startDate = dateResponseJson.end - oneDayMilis * 1
 
+    // For given date range get all routes (lines) for which the delay data is available
     const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${startDate},${endDate}]]`, {
         method: "GET",
         headers: {
@@ -66,9 +78,10 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
     })
 
     if (!availableRoutesResponse.ok) {
-        return [[], 0]
+        return {availableTripsByLines: [], availableDates: []}
     }
 
+    // For each route (line) get all trips available
     const availableRoutesJson = await availableRoutesResponse.json() as { route_short_name: string, id: number }[]
     const availableRouteFetches = availableRoutesJson.map((ar) => {
         return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${startDate},${endDate}]]&route_id=${ar.id}`, {
@@ -84,6 +97,10 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
     return {availableTripsByLines: availableTripsJson, availableDates: [startDate, endDate]}
 }
 
+/**
+ * Returns the string that is used in GraphQL queries to get trips based on some variables
+ * @returns GraphQL string
+ */
 function getGqlQueryString(): string {
     return gql`
         query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
@@ -180,7 +197,7 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
  * @param dateTime Date and time of departure (in ISO format)
  * @param transport Modes of transport used along the way (empty array means)
  * all means of transport
- * @returns 
+ * @returns Promise of the result from OTP
  */
 export async function getPublicTransportTrip(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLData> {
     const query = getGqlQueryString()
