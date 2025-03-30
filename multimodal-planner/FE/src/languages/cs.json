@@ -51,5 +51,12 @@
     "return": "Cesty zpět",
     "date": "Datum",
     "delay": "Zpoždění",
-    "via": "přes"
+    "via": "přes",
+    "eco": "Nejekologičtější",
+    "fastest": "Nejkratší čas cesty",
+    "sort": {
+        "default": "Výchozí řazení",
+        "asc": "Seřadit vzestupně",
+        "desc": "Seřadit sestupně"
+    }
 }
