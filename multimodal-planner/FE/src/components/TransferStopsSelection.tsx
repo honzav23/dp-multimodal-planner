@@ -1,3 +1,12 @@
+/**
+ * @file TransferStopsSelection.tsx
+ * @brief Component that shows when the transfer stop on a map is clicked.
+ * Shows basic info about the transfer stop and allows the user to select or deselect it
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
 import {CircleMarker, Marker, Popup} from "react-leaflet";
 import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
