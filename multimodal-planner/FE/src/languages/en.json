@@ -58,5 +58,6 @@
         "default": "Default order",
         "asc": "Sort in ascending order",
         "desc": "Sort in descending order"
-    }
+    },
+    "about": "About"
 }

@@ -24,7 +24,7 @@ import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice"
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
-    Minimize, EnergySavingsLeaf, RocketLaunch, KeyboardArrowUp} from "@mui/icons-material";
+    Minimize, EnergySavingsLeaf, DirectionsRun, KeyboardArrowUp} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
 import SortIcon from './SortIcon'
 import useIsMobile from '../hooks/useIsMobile';
@@ -191,7 +191,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
 
                     {/* Sorting */}
                     <Box sx={{ alignSelf: 'flex-end' }}>
-                        <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "time")}  mainIcon={<RocketLaunch/>} sortInfo={sortTimeState}/>
+                        <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "time")}  mainIcon={<DirectionsRun/>} sortInfo={sortTimeState}/>
                         <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "emissions")} mainIcon={<EnergySavingsLeaf/>} sortInfo={sortEmissionsState} />
                     </Box>
                 </div>
@@ -209,7 +209,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                                         {/* Show the leaf icon when a trip is the fastest */}
                                         { trip.lowestTime &&
                                             <Tooltip title={t('fastest')} placement='right'>
-                                                <RocketLaunch sx={{ color: 'blue' }}/>
+                                                <DirectionsRun sx={{ color: 'darkBlue' }}/>
                                             </Tooltip>
                                         }
 
@@ -232,11 +232,13 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                                                 <LocationOn style={{ verticalAlign: "middle" }} /> {(trip.totalDistance / 1000).toFixed(1)} km
                                             </Typography>
                                         </div>
-                                        <div>
-                                            <Typography variant='body1'>
-                                                {t('via')} <strong>{trip.via}</strong>
-                                            </Typography>
-                                        </div>
+                                        { trip.via !== '' && 
+                                            <div>
+                                                <Typography variant='body1'>
+                                                    {t('via')} <strong>{trip.via}</strong>
+                                                </Typography>
+                                            </div>
+                                        }
                                     </div>
                                 }
                             />

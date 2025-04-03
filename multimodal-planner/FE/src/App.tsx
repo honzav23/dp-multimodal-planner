@@ -1,6 +1,6 @@
 import './App.css';
 import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
-import {Drawer, Box, IconButton} from "@mui/material";
+import {Drawer, Box, IconButton, Tooltip} from "@mui/material";
 import 'leaflet/dist/leaflet.css'
 import PositionSelection from './components/PositionSelection';
 import TransferStopsSelection from './components/TransferStopsSelection';
@@ -14,12 +14,15 @@ import '../i18n.ts'
 import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
 import useIsMobile from './hooks/useIsMobile';
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 
 function App() {
     const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
     const { outboundDecodedRoutes, returnDecodedRoutes } = useAppSelector((state) => state.trip.routes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showCollapse = selectedTrip !== -1
+
+    const { t } = useTranslation()
 
     const [tabValue, setTabValue] = useState('outbound');
 
@@ -139,9 +142,11 @@ function App() {
                 borderRadius: '10px 10px 10px 10px',
                 zIndex: 1000
             }}>
-                <IconButton color='primary'>
-                    <InfoOutlinedIcon/>
-                </IconButton>
+                <Tooltip title={t('about')}>
+                    <IconButton color='primary'>
+                        <InfoOutlinedIcon/>
+                    </IconButton>
+                </Tooltip>
             </div>
             <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
                 <TileLayer
