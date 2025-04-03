@@ -11,7 +11,7 @@ import {availableDates, availableTripsByLines} from "../api.ts";
  * @returns Promise of all transfer stops
  */
 export async function getTransferStops(): Promise<TransferStop[]> {
-    const text = Deno.readTextFileSync('./transferStops/transferPointsWithParkingLots.csv');
+    const text = Deno.readTextFileSync('./transferStops/transferStopsWithParkingLots.csv');
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
     const variables = {
@@ -67,22 +67,26 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
     }
     const dateResponseJson = await dateResponse.json();
     const endDate = dateResponseJson.end
-    const startDate = dateResponseJson.end - oneDayMilis * 1
-
+    const startDate =  endDate// dateResponseJson.end - oneDayMilis * 6
+    
+   // endDate = '2025-2-25'
     // For given date range get all routes (lines) for which the delay data is available
-    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[[${startDate},${endDate}]]`, {
+    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[["${endDate}","${endDate}"]]`, {
         method: "GET",
         headers: {
             "Authorization": Deno.env.get("LISSY_API_KEY")
         }
     })
-
     if (!availableRoutesResponse.ok) {
         return {availableTripsByLines: [], availableDates: []}
     }
-
+    
     // For each route (line) get all trips available
     const availableRoutesJson = await availableRoutesResponse.json() as { route_short_name: string, id: number }[]
+    // console.log(availableRoutesJson)
+    if (Object.keys(availableRoutesJson).length === 0) {
+        return {availableTripsByLines: [], availableDates: []}
+    }
     const availableRouteFetches = availableRoutesJson.map((ar) => {
         return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${startDate},${endDate}]]&route_id=${ar.id}`, {
             method: "GET",
