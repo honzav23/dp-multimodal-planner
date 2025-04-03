@@ -40,7 +40,7 @@ def fetch_possible_transfer_stops():
     result_df = filtered_df[['stop_name', 'stop_lat', 'stop_lon', 'stop_id']]
     result_df = result_df.drop_duplicates(subset='stop_name').sort_values(by='stop_name')
 
-    result_df.to_csv('../transferStops/transferPoints.csv', index=False, sep=';')
+    return result_df
 
 def findNearestParkingLot(row, length):
     api = overpy.Overpass()
@@ -60,11 +60,12 @@ def findNearestParkingLot(row, length):
 
     return "1" if len(result.ways) > 0 else "0"
 
-def get_available_parking_lots():
+def get_available_parking_lots(transfer_points_df):
     transferPoints = pd.read_csv('../transferStops/transferPoints.csv', delimiter=';', encoding='utf-8')
-    transferPointsLen = len(transferPoints)
-    transferPoints["has_parking"] = transferPoints.apply(lambda row: findNearestParkingLot(row, transferPointsLen), axis=1)
-    transferPoints.to_csv('../transferStops//transferPointsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
+    transferPointsLen = len(transfer_points_df)
+    transfer_points_df["has_parking"] = False
+    transfer_points_df["has_parking"] = transfer_points_df.apply(lambda row: findNearestParkingLot(row, transferPointsLen), axis=1)
+    transfer_points_df.to_csv('../transferStops//transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
 if __name__ == "__main__":
 
@@ -72,15 +73,12 @@ if __name__ == "__main__":
     get_GTFS_files()
     print("Done")
 
-    # print("Converting GTFS to DB...", end='')
-    # subprocess.run(["../../../../gtfsdb/bin/gtfsdb-load", "--database_url", "sqlite:///../../../gtfsPID.db", "../../../PID_GTFS.zip"])
-    # print("Done")
     print("Fetching possible transfer stops... ", end='')
-    fetch_possible_transfer_stops()
+    transfer_points_df = fetch_possible_transfer_stops()
     print("Done")
 
     print("Getting available parking lots for transfer stops... ")
-    get_available_parking_lots()
+    get_available_parking_lots(transfer_points_df)
     print("Done")
 
 
