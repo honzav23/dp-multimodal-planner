@@ -148,6 +148,8 @@ function App() {
                     </IconButton>
                 </Tooltip>
             </div>
+
+            {/* Show the OSM map */}
             <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -30,6 +30,6 @@ export type TripResponse = {
 }
 
 export type DelayInfo = {
-    delayDate: number, // Unix timestamp,
+    delayDate: string, // YYYY-MM-DD,
     delay: number, // In minutes
 }

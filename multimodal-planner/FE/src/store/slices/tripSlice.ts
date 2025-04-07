@@ -72,7 +72,7 @@ function getFormattedDate() {
  */
 export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, { getState }): Promise<TripResponse> => {
     const tripRequest = (getState() as { trip: TripSliceState }).trip.tripRequest;
-    const response = await axios.post('http://localhost:8000/api/route', tripRequest)
+    const response = await axios.post('http://localhost:8000/api/calculateTrips', tripRequest)
 
     return response.data
 });
