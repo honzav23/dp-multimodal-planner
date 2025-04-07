@@ -186,7 +186,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
                     <Tabs value={tabValue} color='error' onChange={handleTabChange}>
                         <Tab value='outbound' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('outbound')} />
-                        { returnTrips.length > 0 && <Tab value='return' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('return')}/> }
+                        <Tab value='return' disabled={returnTrips.length === 0} sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('return')}/>
                     </Tabs>
 
                     {/* Sorting */}
@@ -249,7 +249,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                 </List>
             </div>
                 {/* Show the trip detail when clicking at one of the trips */}
-                <Collapse ref={scrollRef} sx={{ overflow: 'auto', scrollbarWidth: 'thin', maxWidth: '50%' }} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
+                <Collapse ref={scrollRef} sx={{ overflow: 'auto', scrollbarWidth: 'thin', maxWidth: isMobile ? '100%' : '50%' }} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
                         <TripDetail trip={tripsToShow[selectedTrip] ?? null}/>
                 </Collapse>
         </>
