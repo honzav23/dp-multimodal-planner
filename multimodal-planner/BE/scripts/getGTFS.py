@@ -61,11 +61,14 @@ def findNearestParkingLot(row, length):
     return "1" if len(result.ways) > 0 else "0"
 
 def get_available_parking_lots(transfer_points_df):
-    transferPoints = pd.read_csv('../transferStops/transferPoints.csv', delimiter=';', encoding='utf-8')
     transferPointsLen = len(transfer_points_df)
     transfer_points_df["has_parking"] = False
-    transfer_points_df["has_parking"] = transfer_points_df.apply(lambda row: findNearestParkingLot(row, transferPointsLen), axis=1)
-    transfer_points_df.to_csv('../transferStops//transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
+    try:
+        transfer_points_df["has_parking"] = transfer_points_df.apply(lambda row: findNearestParkingLot(row, transferPointsLen), axis=1)
+    except:
+        pass
+    finally:
+        transfer_points_df.to_csv('../transferStops//transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
 if __name__ == "__main__":
 

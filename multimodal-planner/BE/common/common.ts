@@ -1,10 +1,19 @@
-import {parse, stringify} from "@std/csv"
-import type {TransferStop, TransferStopCluster} from "../../types/TransferStop";
+/**
+ * @file common.ts
+ * @brief File that contains all functions that are not relevant to other files in the backend
+ * part
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
+import {parse} from "@std/csv"
+import type {TransferStop} from "../../types/TransferStop.ts";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
-import type {OTPGraphQLData, OTPTripLeg} from "../types/OTPGraphQLData";
-import type { TransportMode } from '../../types/TransportMode'
+import type {OTPGraphQLData} from "../types/OTPGraphQLData.ts";
+import type { TransportMode } from '../../types/TransportMode.ts'
 import { AvailableTrip } from "../types/AvailableTrip.ts";
-import {availableDates, availableTripsByLines} from "../api.ts";
+import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
 
 /**
  * Gets available transfer stops from .csv file
@@ -49,56 +58,41 @@ export async function getTransferStops(): Promise<TransferStop[]> {
 }
 
 /**
+ * Go daysInHistory days in history from baseDate
+ * @param baseDate Base date in YYYY-MM-DD format
+ * @param daysInHistory How many days to go back
+ *
+ * @returns Calculated date in YYYY-MM-DD format
+ */
+function goToHistory(baseDate: string, daysInHistory: number) {
+    const dateFromString = new Date(baseDate)
+    dateFromString.setMonth(dateFromString.getMonth() + 1)
+    dateFromString.setDate(dateFromString.getDate() - daysInHistory)
+
+    return `${dateFromString.getFullYear()}-${dateFromString.getMonth()}-${dateFromString.getDate()}`
+}
+
+/**
  * Get all trips from Lissy app which have delay information from the last 2 days
  * @returns Promise of all available trips and dates
  */
-export async function getTripsForLines(): Promise<{availableTripsByLines: AvailableTrip[][], availableDates: number[]}> {
-    const oneDayMilis = 86400000
+export async function getTripsForLines(): Promise<{availableTripsByLines: AvailableTrip[][], availableDates: string[]}> {
 
-    // Get all dates when the delay information is available
-    const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
-        method: "GET",
-        headers: {
-            "Authorization": Deno.env.get("LISSY_API_KEY")
-        }
-    })
-    if (!dateResponse.ok) {
+    const availableDates = await getAvailableDatesFromLissy()
+    if (!availableDates) {
         return {availableTripsByLines: [], availableDates: []}
     }
-    const dateResponseJson = await dateResponse.json();
-    const endDate = dateResponseJson.end
-    const startDate =  endDate// dateResponseJson.end - oneDayMilis * 6
-    
-   // endDate = '2025-2-25'
-    // For given date range get all routes (lines) for which the delay data is available
-    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[["${endDate}","${endDate}"]]`, {
-        method: "GET",
-        headers: {
-            "Authorization": Deno.env.get("LISSY_API_KEY")
-        }
-    })
-    if (!availableRoutesResponse.ok) {
-        return {availableTripsByLines: [], availableDates: []}
-    }
-    
-    // For each route (line) get all trips available
-    const availableRoutesJson = await availableRoutesResponse.json() as { route_short_name: string, id: number }[]
-    // console.log(availableRoutesJson)
-    if (Object.keys(availableRoutesJson).length === 0) {
-        return {availableTripsByLines: [], availableDates: []}
-    }
-    const availableRouteFetches = availableRoutesJson.map((ar) => {
-        return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[[${startDate},${endDate}]]&route_id=${ar.id}`, {
-            method: "GET",
-            headers: {
-                "Authorization": Deno.env.get("LISSY_API_KEY")
-            }
-        })
-    })
+    const endDate = availableDates.end
+    const startDate = goToHistory(endDate, 0)
 
-    const availableTripsResponses = await Promise.all(availableRouteFetches)
-    const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json())) as AvailableTrip[][]
-    return {availableTripsByLines: availableTripsJson, availableDates: [startDate, endDate]}
+
+    const availableRoutes = await getAvailableRoutesForDates(startDate, endDate)
+    if (!availableRoutes) {
+        return {availableTripsByLines: [], availableDates: []}
+    }
+
+    const availableTrips = await getAvailableTripsForRoutes(availableRoutes, startDate, endDate)
+    return {availableTripsByLines: availableTrips, availableDates: [startDate, endDate]}
 }
 
 /**

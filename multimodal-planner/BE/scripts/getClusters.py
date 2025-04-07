@@ -18,14 +18,14 @@ def find_nearest_point(centroids, coords):
     return indices
 
 def getClusters():
-    transferPoints = pd.read_csv(f'{file_path}/candidates.csv', sep=';', encoding='utf-8')
+    candidates = pd.read_csv(f'{file_path}/candidates.csv', sep=';', encoding='utf-8')
 
-    coords = np.dstack([transferPoints["stopLat"], transferPoints["stopLon"]]).reshape(-1,2)
+    coords = np.dstack([candidates["stopLat"], candidates["stopLon"]]).reshape(-1,2)
 
     base_num_clusters = 15
     num_clusters = [base_num_clusters]
-    alternative_clusters = int(np.sqrt(len(transferPoints))) + base_num_clusters
-    if (alternative_clusters <= len(transferPoints)):
+    alternative_clusters = int(np.sqrt(len(candidates))) + base_num_clusters
+    if alternative_clusters <= len(candidates):
         num_clusters.append(alternative_clusters)
 
     dbs = [sklearn.cluster.KMeans(n_clusters=n).fit(coords) for n in num_clusters]
@@ -35,13 +35,12 @@ def getClusters():
     # Find the best results
     best_index = np.argmin(davis_indices)
 
-    transferPoints["cluster"] = dbs[best_index].labels_
-
     nearest_points = find_nearest_point(dbs[best_index].cluster_centers_, coords)
 
-    transferPoints["nearest"] = transferPoints.apply(lambda row: nearest_points[row["cluster"]], axis=1).astype(int)
+    center_transfer_points = candidates.iloc[nearest_points]
+    print(center_transfer_points)
 
-    transferPoints.to_csv(f'{file_path}/candidatesClusters.csv', sep=';', encoding='utf-8', index=False)
+    center_transfer_points.to_csv(f'{file_path}/candidatesClusters.csv', sep=';', encoding='utf-8', index=False)
 
 
 if __name__ == "__main__":

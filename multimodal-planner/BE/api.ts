@@ -1,3 +1,12 @@
+/**
+ * @file api.ts
+ * @brief Entrypoint for backend, api endpoints and things that run
+ * when the server starts, are defined here
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
 import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
@@ -15,7 +24,7 @@ app.use('/api/*', cors({
 }));
 
 // Main endpoint which gets the best trips based on the request
-app.post('/api/route', async (request) => {
+app.post('/api/calculateTrips', async (request) => {
   const body = await request.req.json();
   const inputValidationResult: ResultStatus = validateRequestInput(body);
   if (inputValidationResult.error) {
@@ -43,7 +52,7 @@ app.post('/api/route', async (request) => {
   }
   catch (error) {
     console.log(error);
-    return request.json([], 500);
+    return request.json({ outboundTrips: [], returnTrips: [] }, 500);
   }
 });
 
@@ -56,6 +65,7 @@ app.notFound((request) => {
   return request.json({ error: 'Not Found' }, 404);
 })
 
+// Get all transfer stops and trips that include delay information when the server starts
 export const transferStops = await getTransferStops();
 export const {availableTripsByLines, availableDates} = await getTripsForLines()
 
