@@ -1,14 +1,13 @@
-import {parse, stringify} from "@std/csv"
-import type {TransferStop, TransferStopCluster} from "../types/TransferStop.ts";
-
 /**
- * Get only the transfer stops that are centers (nearest to it)
- * @param stops Stops that have clusters assigned to it
+ * @file cluster.ts
+ * @brief File that handles the clustering part of the algorithm
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
  */
-function findRepresentativesFromClusters(stops: TransferStopCluster[]): TransferStopCluster[] {
-    const uniqueCenters = new Set<number>(stops.map(s => s.nearest))
-    return Array.from(uniqueCenters).map((center) => stops[center])
-}
+
+import {parse, stringify} from "@std/csv"
+import type {TransferStop} from "../types/TransferStop.ts";
 
 /**
  * Gets representative transfer stops for given transfer stops based on clustering
@@ -35,16 +34,14 @@ export async function getRepresentativeTransferStops(transferStops: TransferStop
     const text = Deno.readTextFileSync('./transferStops/candidatesClusters.csv');
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
-    const candidatesWithClusters: TransferStopCluster[] = csvData.map((row) => (
+    const centersTransferStops: TransferStop[] = csvData.map((row) => (
         {
             stopId: row.stopId,
             stopName: row.stopName,
             stopCoords: [parseFloat(row.stopLat), parseFloat(row.stopLon)],
             hasParking: row.hasParking === "1",
-            cluster: parseInt(row.cluster),
-            nearest: parseInt(row.nearest),
         }
     ));
 
-    return findRepresentativesFromClusters(candidatesWithClusters);
+    return centersTransferStops
 }

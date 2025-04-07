@@ -1,21 +1,21 @@
 import type {OTPTripLeg, OTPTripPattern} from "./types/OTPGraphQLData.ts";
 import {calculateDistance} from "./common/common.ts";
 import { availableTripsByLines, availableDates } from "./api.ts";
+import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
 import polyline from 'polyline'
 import {DelayInfo} from "../types/TripResult.ts";
 
+/**
+ * Calculate the total distance of a line given that the points form a line
+ * @param coords The array of points (a line)
+ * @returns The total distance
+ */
 export function getTotalDistance(coords: [number, number][]): number {
     let distance = 0
     for (let i = 0; i < coords.length - 1; i++) {
         distance += calculateDistance(coords[i][0], coords[i][1], coords[i+1][0], coords[i+1][1])
     }
     return distance
-}
-
-export function convertStringTimeToUnix(tripLeg: OTPTripLeg): number {
-    const [hours, minutes] = tripLeg.serviceJourney.passingTimes[0].departure.time.split(":").map(Number)
-    const date = new Date(1970, 0, 1, hours, minutes)
-    return date.valueOf()
 }
 
 /**
@@ -33,33 +33,29 @@ function findCorrespondingTrips(lineFrom: string, lineTo: string) {
     return []
 }
 
-async function fetchShapes(correspondingTrips: any[]) {
-    const requests = correspondingTrips.map((trip) =>
-        fetch(`${Deno.env.get("LISSY_API_URL")}/shapes/getShape?shape_id=${trip.shape_id}`, {
-            method: "GET",
-            headers: { "Authorization": Deno.env.get("LISSY_API_KEY") }
-        })
-    )
-    const responses = await Promise.all(requests)
-    return Promise.all(responses.map((res) => res.json()))
-}
-
+/**
+ * Gets the delay information for a leg
+ * @param tripId Id of the trip the delay should be fetched for
+ * @param endingStopIndex Index of the end stop in a leg so that delays for further stops are not fetched
+ *
+ * @returns Promise of the delay information
+ */
 async function getDelaysForLeg(tripId: number, endingStopIndex: number): Promise<DelayInfo[]> {
-    const response = await fetch(`${Deno.env.get('LISSY_API_URL')}/delayTrips/getTripData?dates=[[${availableDates[0]},${availableDates[1]}]]&trip_id=${tripId}`, {
-        method: "GET",
-        headers: { "Authorization": Deno.env.get("LISSY_API_KEY") }
-    })
-    const data = await response.json()
+    const delayData = await getDelaysFromLissy(tripId, availableDates)
     const delayInfo: DelayInfo[] = []
-    if (Object.keys(data).length > 0) {
-        for (const key of Object.keys(data)) {
-            const endSegmentDelay = findNearestDelay(data[key.toString()], endingStopIndex)
+    if (delayData) {
+        for (const dateKey of Object.keys(delayData)) {
+            const endSegmentDelay = findNearestDelay(delayData[dateKey], endingStopIndex)
+
+            // Need to find the delay closest to the end stop
             const maxKey = Math.max(...Object.keys(endSegmentDelay).map(Number))
-            delayInfo.push({ delayDate: parseInt(key), delay: endSegmentDelay[maxKey.toString()] })
+            delayInfo.push({ delayDate: dateKey, delay: endSegmentDelay[maxKey.toString()] })
         }
     }
     if (delayInfo.length > 0) {
-        delayInfo.sort((a: DelayInfo, b: DelayInfo) => a.delayDate - b.delayDate);
+        delayInfo.sort((a: DelayInfo, b: DelayInfo) => {
+           return new Date(a.delayDate).valueOf() - new Date(b.delayDate).valueOf()
+        });
     }
     return delayInfo
 }
@@ -71,7 +67,7 @@ async function getDelaysForLeg(tripId: number, endingStopIndex: number): Promise
  * @param endingStopIndex Index of a stop for which delay is needed
  * @returns The nearest delay information
  */
-function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: number): string {
+function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: number): Record<string, number> {
     const possibleDelay = delaysForTrip[(endingStopIndex - 1).toString()]
     let nearestDelay = null
     let minDistance = Infinity
@@ -88,13 +84,19 @@ function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: n
             }
         }
         if (nearestDelay === null) {
-            return "0"
+            return {"0": 0}
         }
         return nearestDelay
     }
     return possibleDelay
 }
 
+/**
+ * Gets the routes and delays for trip legs inside of a trip
+ * @param trip Trip to get the information about
+ *
+ * @returns An object for each trip leg containing information about the route, total distance and delay information
+ */
 export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
     const legRoutes: {route: string, distance: number, delayInfo: DelayInfo[]}[] = []
     for (const leg of trip.legs) {
@@ -114,7 +116,7 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
         }
-        const tripJsons = await fetchShapes(correspondingTrips)
+        const tripJsons = await getShapesFromLissy(correspondingTrips)
 
         let validTripRoute = {}
         let validCorrespondingTrip = {}
@@ -132,7 +134,7 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
         const beginningStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.fromPlace.quay.id)
         const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id)
 
-        const firstStopTimeOfDeparture = convertStringTimeToUnix(leg)
+        const firstStopTimeOfDeparture = leg.serviceJourney.passingTimes[0].departure.time
         if (Object.keys(validCorrespondingTrip).length > 0) {
 
             // Find a trip with the correct departure time

@@ -1,3 +1,11 @@
+/**
+ * @file transferStopSelector.ts
+ * @brief
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
 import type { TripResult } from "../types/TripResult.ts";
 import type { TripDecision } from "./types/TripDecision.ts";
 
@@ -10,14 +18,12 @@ const TRAIN_EMISSIONS = 35
 /**
  * Comparison matrix for criteria using AHP method
  * Index 0: Time of arrival
- * Index 1: Time of departure
- * Index 2: Total amount of emissions
- * Index 3: Delay
- * Index 4: Number of transfers
+ * Index 1: Total amount of emissions
+ * Index 2: Delay
+ * Index 3: Number of transfers
 */
 const comparisonMatrixForCriteria = [
     [1, 3, 1, 5, 3],
-    [1/3, 1, 1/3, 1/3, 1/5],
     [1, 3, 1, 1/3, 5],
     [1/5, 3, 3, 1, 7],
     [1/3, 5, 1/5, 1/7, 1]
@@ -66,6 +72,12 @@ function getTotalEmissions(trip: TripResult): number {
     return totalEmissions
 }
 
+/**
+ * Find pareto optimal trips
+ * @param trips Array to find the pareto optimal trips from
+ *
+ * @returns Pareto optimal trips
+ */
 export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
     let optimalTrips: TripDecision[] = [];
 
@@ -84,23 +96,31 @@ export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
     return optimalTrips;
 }
 
-// Helper function to check if trip A dominates trip B
-function dominates(a: TripDecision, b: TripDecision): boolean {
+/**
+ * Helper function that checks if tripA dominates tripB
+ * @param tripA
+ * @param tripB
+ */
+function dominates(tripA: TripDecision, tripB: TripDecision): boolean {
     let betterInAtLeastOne = false;
 
     // Trip A is worse in at least one parameter
-    if (a.totalTime > b.totalTime || a.totalEmissions > b.totalEmissions || a.totalTransfers > b.totalTransfers) {
+    if (tripA.totalTime > tripB.totalTime || tripA.totalEmissions > tripB.totalEmissions || tripA.totalTransfers > tripB.totalTransfers) {
         return false
     }
 
     // At least one metric must be strictly better
-    if (a.totalTime < b.totalTime || a.totalEmissions < b.totalEmissions || a.totalTransfers < a.totalTransfers) {
+    if (tripA.totalTime < tripB.totalTime || tripA.totalEmissions < tripB.totalEmissions || tripA.totalTransfers < tripB.totalTransfers) {
         betterInAtLeastOne = true;
     }
 
     return betterInAtLeastOne;
 }
 
+/**
+ *
+ * @param tripRankings
+ */
 function normalizeCriteria(tripRankings: TripDecision[]) {
     const len = tripRankings.length
 

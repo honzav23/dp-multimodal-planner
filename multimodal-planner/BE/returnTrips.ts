@@ -1,3 +1,12 @@
+/**
+ * @file returnTrips.ts
+ * @brief This file deals with the case when the user specifies
+ * that he wants to go back (from destination to start) on certain date
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ * @date
+ */
+
 import type {TripResult} from "../types/TripResult.ts";
 import type {TripRequest} from "./types/TripRequest.ts";
 import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
@@ -90,7 +99,7 @@ export async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tr
     setDestinationNamesForReturnTrips(returnTripResponses, transferStopsUsedInTrips)
 
     // For each transfer stop have a few trip patterns
-    let tripPatternsForTransferStops: OTPTripPattern[][] = returnTripResponses.map((trip) => trip.trip.tripPatterns)
+    const tripPatternsForTransferStops: OTPTripPattern[][] = returnTripResponses.map((trip) => trip.trip.tripPatterns)
 
     // Convert all the trip patterns to TripResult type
     const tripResultsForTransferStops = await Promise.all(tripPatternsForTransferStops.map(async (tripPatternsForStop) => {

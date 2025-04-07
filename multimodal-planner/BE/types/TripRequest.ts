@@ -1,5 +1,5 @@
-import type { TransferStop } from "../../types/TransferStop";
-import type { TransportMode } from "../../types/TransportMode"
+import type { TransferStop } from "../../types/TransferStop.ts";
+import type { TransportMode } from "../../types/TransportMode.ts"
 
 export type TripRequest = {
     origin: [number, number];

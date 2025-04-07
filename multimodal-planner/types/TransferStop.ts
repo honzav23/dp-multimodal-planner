@@ -4,5 +4,3 @@ export type TransferStop = {
     stopCoords: [number, number];
     hasParking: boolean;
 };
-
-export type TransferStopCluster = TransferStop & { cluster: number, nearest: number };
