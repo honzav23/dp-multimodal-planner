@@ -72,6 +72,8 @@ function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: n
     let nearestDelay = null
     let minDistance = Infinity
 
+    // Didn't find the delay for ending stop so find the delay for the nearest stop
+    // before the end stop
     if (!possibleDelay) {
         for (const key of Object.keys(delaysForTrip)) {
             const numericKey = Number(key)
@@ -116,15 +118,16 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
         }
-        const tripJsons = await getShapesFromLissy(correspondingTrips)
+        const tripShapes = await getShapesFromLissy(correspondingTrips)
 
         let validTripRoute = {}
         let validCorrespondingTrip = {}
 
         // Find the correct trip based on the total number of stops they include
-        for (let i = 0; i < tripJsons.length; i++) {
-            if (tripJsons[i].stops.length === leg.serviceJourney.quays.length) {
-                validTripRoute = tripJsons[i]
+        // console.log(tripShapes.length)
+        for (let i = 0; i < tripShapes.length; i++) {
+            if (tripShapes[i].stops.length === leg.serviceJourney.quays.length) {
+                validTripRoute = tripShapes[i]
                 validCorrespondingTrip = correspondingTrips[i]
                 break
             }
