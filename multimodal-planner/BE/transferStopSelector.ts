@@ -16,17 +16,17 @@ const BUS_EMISSIONS = 68
 const TRAIN_EMISSIONS = 35
 
 /**
- * Comparison matrix for criteria using AHP method
+ * Comparison matrix for criteria using AHP method (https://backend.orbit.dtu.dk/ws/portalfiles/portal/104276012/DTU_Transport_Compendium_Part_2_MCDA_.pdf)
  * Index 0: Time of arrival
  * Index 1: Total amount of emissions
  * Index 2: Delay
  * Index 3: Number of transfers
 */
 const comparisonMatrixForCriteria = [
-    [1, 3, 1, 5, 3],
-    [1, 3, 1, 1/3, 5],
-    [1/5, 3, 3, 1, 7],
-    [1/3, 5, 1/5, 1/7, 1]
+    [1, 1, 5, 9],
+    [1, 1, 1/3, 5],
+    [1/5, 3, 1, 7],
+    [1/9, 1/5, 1/7, 1]
 ]
 
 function calculateWeights(): number[] {
@@ -118,30 +118,30 @@ function dominates(tripA: TripDecision, tripB: TripDecision): boolean {
 }
 
 /**
+ * Gets min and max value from array by selected prop
+ * @param tripRankings Array to get the values from
+ * @param prop Property by which to get the min and max
+ * @returns [minVal, maxVal]
+ */
+function getMinAndMaxByProperty(tripRankings: TripDecision[], prop: 'totalTime' | 'totalTransfers' | 'totalEmissions' | 'totalDelay'): [number, number] {
+    return tripRankings.reduce((acc, val) => {
+        return [Math.min(acc[0], val[prop]), Math.max(acc[1], val[prop])]
+    }, [tripRankings[0][prop], tripRankings[1][prop]])
+}
+
+/**
  *
  * @param tripRankings
  */
 function normalizeCriteria(tripRankings: TripDecision[]) {
-    const len = tripRankings.length
 
-    const sortByTotalTime = [...tripRankings].sort((a, b) => a.totalTime - b.totalTime)
-    const sortByTransfers = [...tripRankings].sort((a, b) => a.totalTransfers - b.totalTransfers)
-    const sortByEmissions = [...tripRankings].sort((a, b) => a.totalEmissions - b.totalEmissions)
-    const sortByDelay = [...tripRankings].sort((a, b) => a.totalDelay - b.totalDelay)
+    const [minTime, maxTime] = getMinAndMaxByProperty(tripRankings, "totalTime")
+    const [minTransfers, maxTransfers] = getMinAndMaxByProperty(tripRankings, "totalTransfers")
+    const [minEmissions, maxEmissions] = getMinAndMaxByProperty(tripRankings, "totalEmissions")
+    const [minDelay, maxDelay] = getMinAndMaxByProperty(tripRankings, "totalDelay")
 
-    const minTime = sortByTotalTime[0].totalTime
-    const maxTime = sortByTotalTime[len - 1].totalTime
 
-    const minTransfers = sortByTransfers[0].totalTransfers
-    const maxTransfers = sortByTransfers[len - 1].totalTransfers
-
-    const minEmissions = sortByEmissions[0].totalEmissions
-    const maxEmissions = sortByEmissions[len - 1].totalEmissions
-
-    const minDelay = sortByDelay[0].totalDelay
-    const maxDelay = sortByDelay[len - 1].totalDelay
-
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i < tripRankings.length; i++) {
         tripRankings[i].totalTimeNormalized = (tripRankings[i].totalTime - minTime) / (maxTime - minTime)
         tripRankings[i].totalTransfersNormalized = (tripRankings[i].totalTransfers - minTransfers) / (maxTransfers - minTransfers)
         tripRankings[i].totalEmissionsNormalized = (tripRankings[i].totalEmissions - minEmissions) / (maxEmissions - minEmissions)
@@ -177,7 +177,7 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     tripsWithScores = tripRankings.map((val) => (
         { 
             trip: val, 
-            score: val.totalTimeNormalized * weights[0] + val.totalEmissionsNormalized * weights[2] + val.totalDelayNormalized * weights[3] + val.totalTransfersNormalized * weights[4]
+            score: val.totalTimeNormalized * weights[0] + val.totalEmissionsNormalized * weights[1] + val.totalDelayNormalized * weights[2] + val.totalTransfersNormalized * weights[3]
         }))
 
     tripsWithScores.sort((a, b) => a.score - b.score)
@@ -190,6 +190,11 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
 
     const minEmissionsTrip = bestTrips.reduce((min, trip) => trip.totalEmissions < min.totalEmissions ? trip : min, bestTrips[0])
     minEmissionsTrip.lowestEmissions = true
+
+    // for (const t of tripsWithScores) {
+    //     console.log(t.score)
+    // }
+    console.log(weights)
 
     return bestTrips
 }
