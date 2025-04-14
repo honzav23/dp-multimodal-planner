@@ -1,0 +1,1 @@
+export type AboutAppTabValue = 'overview' | 'usage' | 'contact'

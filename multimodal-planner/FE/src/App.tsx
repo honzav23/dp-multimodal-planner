@@ -1,46 +1,29 @@
 import './App.css';
-import {MapContainer, TileLayer, Polyline, Popup} from 'react-leaflet';
-import {Drawer, Box, IconButton, Tooltip} from "@mui/material";
-import 'leaflet/dist/leaflet.css'
-import PositionSelection from './components/PositionSelection';
-import TransferStopsSelection from './components/TransferStopsSelection';
+import {Drawer, Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent} from "@mui/material";
 import TripRequestForm from './components/TripRequestForm';
 import TripsSummary from './components/TripsSummary';
 import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
-import {TransportMode} from "../../types/TransportMode";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
-import TripDetailLeg from './components/TripDetail/TripDetailLeg.tsx';
 import useIsMobile from './hooks/useIsMobile';
 import {useState} from "react";
 import { useTranslation } from 'react-i18next';
+import AboutApp from "./components/AboutApp";
+import {availableLanguages} from "../i18n.ts";
+import MapWrapper from "./MapWrapper.tsx";
 
 function App() {
-    const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
-    const { outboundDecodedRoutes, returnDecodedRoutes } = useAppSelector((state) => state.trip.routes)
+    const { outboundTrips } = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showCollapse = selectedTrip !== -1
 
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
 
     const [tabValue, setTabValue] = useState('outbound');
-
-    const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
-    const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
+    const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
 
     const isMobile = useIsMobile()
-
-    // Route colors based on the current means of transport
-    const routeColors: Record<TransportMode, string> = {
-        foot: '#009eda',
-        car: '#FF0000',
-        tram: '#A05A2C',
-        bus: '#00E68C',
-        rail: '#800000',
-        trolleybus: '#008033',
-        metro: '#000080'
-    }
 
     /**
      * Change the drawer height based on if it is minimized or not
@@ -57,6 +40,14 @@ function App() {
 
     const handleSwitchRoutes = (tabValue: string) => {
         setTabValue(tabValue)
+    }
+
+    /**
+     * Change the language of the application based on lang parameter
+     * @param e Event containing the selected language value
+     */
+    const changeLanguage = async (e: SelectChangeEvent) => {
+        await i18n.changeLanguage(e.target.value)
     }
 
     return (
@@ -142,34 +133,30 @@ function App() {
                 borderRadius: '10px 10px 10px 10px',
                 zIndex: 1000
             }}>
-                <Tooltip title={t('about')}>
-                    <IconButton color='primary'>
-                        <InfoOutlinedIcon/>
+                <Tooltip title={t('about.title')}>
+                    <IconButton size='large' color='primary' onClick={() => setAboutAppDialogOpen(true)}>
+                        <InfoOutlinedIcon sx={{ width: '2rem', height: 'auto' }}/>
                     </IconButton>
                 </Tooltip>
             </div>
 
-            {/* Show the OSM map */}
-            <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <PositionSelection/>
-                <TransferStopsSelection/>
+            <div style={{
+                position: 'absolute',
+                top: "5%",
+                right: "1%",
+                backgroundColor: 'rgba(255, 255, 255, 1.0)',
+                borderRadius: '10px 10px 10px 10px',
+                zIndex: 1000
+            }}>
+                <Select size='small' sx={{ border: '1px solid black', fontSize: '1.5rem', backgroundColor: '#f3f3f3' }} value={i18n.language} onChange={changeLanguage}>
+                    { availableLanguages.map(lang => (
+                        <MenuItem value={lang}>{t(`language.${lang}`)}</MenuItem>
+                    )) }
+                </Select>
+            </div>
 
-                {tripsToShow.length > 0 && selectedTrip !== -1 && routesToShow[selectedTrip].map((leg, i) => {
-                    return (
-                            <Polyline key={i} positions={leg.route}
-                                pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : "0 0"}>
-                                <Popup closeOnClick={true}>
-                                    <TripDetailLeg leg={tripsToShow[selectedTrip].legs[i]} idx={i} totalLegs={tripsToShow[selectedTrip].legs.length}/>
-                                </Popup>
-                            </Polyline>
-                    )
-                })}
-
-            </MapContainer>
+            <AboutApp dialogOpen={aboutAppDialogOpen} closeDialog={() => setAboutAppDialogOpen(false)}/>
+            <MapWrapper tabValue={tabValue}/>
             <ActionFeedback/>
         </div>
     );
