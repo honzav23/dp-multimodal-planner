@@ -1,7 +1,8 @@
-import type {OTPTripLeg, OTPTripPattern} from "./types/OTPGraphQLData.ts";
+import type { OTPTripPattern} from "./types/OTPGraphQLData.ts";
 import {calculateDistance} from "./common/common.ts";
 import { availableTripsByLines, availableDates } from "./api.ts";
 import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
+import type { LissyAvailableTrip } from "./types/LissyTypes.ts";
 import polyline from 'polyline'
 import {DelayInfo} from "../types/TripResult.ts";
 
@@ -118,22 +119,26 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
         }
-        const tripShapes = await getShapesFromLissy(correspondingTrips)
 
-        let validTripRoute = {}
-        let validCorrespondingTrip = {}
+        let validCorrespondingTrip: LissyAvailableTrip = {shape_id: -1, stops: '', trips: [], stopOrder: []}
 
         // Find the correct trip based on the total number of stops they include
-        // console.log(tripShapes.length)
-        for (let i = 0; i < tripShapes.length; i++) {
-            if (tripShapes[i].stops.length === leg.serviceJourney.quays.length) {
-                validTripRoute = tripShapes[i]
-                validCorrespondingTrip = correspondingTrips[i]
+        for (const trip of correspondingTrips) {
+            if (trip.stopOrder.length === leg.serviceJourney.quays.length) {
+                validCorrespondingTrip = trip
                 break
             }
         }
+        if (validCorrespondingTrip.shape_id === -1) {
+            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            continue
+        }
+        const tripShape = await getShapesFromLissy(validCorrespondingTrip.shape_id)
+        if (tripShape === null) {
+            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            continue
+        }
 
-        const routeCoords = validTripRoute.coords as [number, number][][]
         const beginningStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.fromPlace.quay.id)
         const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id)
 
@@ -153,7 +158,8 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
                 continue
             }
             // Flatten the array of coords so the total distance can be calculated easily
-            const routeCoordsFlatten = routeCoords.slice(beginningStopIndex, endingStopIndex).flat()
+            //console.log(tripShape.coords.length, beginningStopIndex, endingStopIndex)
+            const routeCoordsFlatten = tripShape.coords.slice(beginningStopIndex, endingStopIndex).flat()
             const distance = getTotalDistance(routeCoordsFlatten)
 
             if (distance === 0) {

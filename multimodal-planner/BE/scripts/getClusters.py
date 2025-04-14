@@ -38,7 +38,6 @@ def getClusters():
     nearest_points = find_nearest_point(dbs[best_index].cluster_centers_, coords)
 
     center_transfer_points = candidates.iloc[nearest_points]
-    print(center_transfer_points)
 
     center_transfer_points.to_csv(f'{file_path}/candidatesClusters.csv', sep=';', encoding='utf-8', index=False)
 

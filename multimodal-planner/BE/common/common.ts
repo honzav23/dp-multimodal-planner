@@ -12,8 +12,8 @@ import type {TransferStop} from "../../types/TransferStop.ts";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
 import type {OTPGraphQLData} from "../types/OTPGraphQLData.ts";
 import type { TransportMode } from '../../types/TransportMode.ts'
-import { AvailableTrip } from "../types/AvailableTrip.ts";
 import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
+import {LissyAvailableTrip} from "../types/LissyTypes.ts";
 
 /**
  * Gets available transfer stops from .csv file
@@ -53,7 +53,6 @@ export async function getTransferStops(): Promise<TransferStop[]> {
         }
         transferPoints.push(transferStop)
     }
-
     return transferPoints;
 }
 
@@ -76,14 +75,14 @@ function goToHistory(baseDate: string, daysInHistory: number) {
  * Get all trips from Lissy app which have delay information from the last 2 days
  * @returns Promise of all available trips and dates
  */
-export async function getTripsForLines(): Promise<{availableTripsByLines: AvailableTrip[][], availableDates: string[]}> {
+export async function getTripsForLines(): Promise<{availableTripsByLines: LissyAvailableTrip[][], availableDates: string[]}> {
 
     const availableDates = await getAvailableDatesFromLissy()
     if (!availableDates) {
         return {availableTripsByLines: [], availableDates: []}
     }
     const endDate = availableDates.end
-    const startDate = goToHistory(endDate, 0)
+    const startDate = goToHistory(endDate, 1)
 
 
     const availableRoutes = await getAvailableRoutesForDates(startDate, endDate)
@@ -92,6 +91,9 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: Availa
     }
 
     const availableTrips = await getAvailableTripsForRoutes(availableRoutes, startDate, endDate)
+    if (!availableTrips) {
+        return {availableTripsByLines: [], availableDates: []}
+    }
     return {availableTripsByLines: availableTrips, availableDates: [startDate, endDate]}
 }
 
