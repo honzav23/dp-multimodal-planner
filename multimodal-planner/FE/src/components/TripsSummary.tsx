@@ -31,6 +31,7 @@ import useIsMobile from '../hooks/useIsMobile';
 
 import { useTranslation } from "react-i18next";
 import {SortState, SortInfo} from "../types/SortState.ts";
+import '../css/tabStyle.css'
 
 interface TripSummaryProps {
     changeHeight?: (minimize: boolean) => void;
@@ -185,8 +186,8 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                 {/* Tabs for changing between outbound trips and return trips */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
                     <Tabs value={tabValue} color='error' onChange={handleTabChange}>
-                        <Tab value='outbound' sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('outbound')} />
-                        <Tab value='return' disabled={returnTrips.length === 0} sx={{ fontWeight: 'bold', fontSize: '1rem', textTransform: 'none' }} label={t('return')}/>
+                        <Tab className='tab' value='outbound' label={t('outbound')} />
+                        <Tab className='tab' value='return' disabled={returnTrips.length === 0} label={t('return')}/>
                     </Tabs>
 
                     {/* Sorting */}

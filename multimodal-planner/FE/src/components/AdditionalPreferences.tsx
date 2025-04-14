@@ -22,7 +22,6 @@ import {
     setComingBackDate,
     setComingBackTime,
 } from "../store/slices/tripSlice";
-import { availableLanguages } from "../../i18n";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
 import { clearPickupAddress } from "../store/slices/addressSlice";
@@ -64,19 +63,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const options: TransportMode[] = ["bus", "rail", "tram", "trolleybus", "metro"]
 
     const dispatch = useAppDispatch()
-
-    /**
-     * Change the language of the application based on lang parameter
-     * @param lang Selected language
-     */
-    const changeLanguage = async (lang: string | null) => {
-        if (lang === null) {
-            await i18n.changeLanguage('en')
-        }
-        else {
-            await i18n.changeLanguage(lang)
-        }
-    }
 
     const clearPickupInput = () => {
         dispatch(setPickupCoords(initialCoords))
@@ -157,24 +143,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
             <DialogContent sx={{ backgroundColor: '#f3f3f3' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '10px'}}>
                     <Box sx={{ marginLeft: { md: '5%', sm: 0 }, display: 'flex', gap: '15px', flexDirection: 'column', width: { md: '30%', sm: '100%' } }}>
-
-                        {/* Select language */}
-                        <Autocomplete size='small' sx={{ backgroundColor: 'white' }}
-                                      options={availableLanguages}
-                                      getOptionLabel={(option) => t(`language.${option}`)}
-                                      value={i18n.language}
-                                      onChange={(_, value: string | null) => changeLanguage(value)}
-                                      renderInput={(params) =>
-                                          <TextField label={t('language.select')} {...params}/>
-                                      }
-                                      renderOption={(props, option) => {
-                                          return (
-                                              <ListItem {...props} key={option} divider={option !== 'en'}>
-                                                  <ListItemText primary={t(`language.${option}`)}/>
-                                              </ListItem>
-                                          )
-                                      }}
-                        />
                         {/* Select transfer stop */}
                         <Autocomplete size='small' sx={{ backgroundColor: 'white' }} value={selectedTransferStop}
                                       getOptionLabel={(op) => op.stopName} options={transferStops}
