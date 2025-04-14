@@ -62,9 +62,10 @@ def findNearestParkingLot(row, length):
 
 def get_available_parking_lots(transfer_points_df):
     transferPointsLen = len(transfer_points_df)
-    transfer_points_df["has_parking"] = False
+    transfer_points_df["has_parking"] = "0"
     try:
-        transfer_points_df["has_parking"] = transfer_points_df.apply(lambda row: findNearestParkingLot(row, transferPointsLen), axis=1)
+        for i, row in transfer_points_df.iterrows():
+            transfer_points_df.at[i, 'has_parking'] = findNearestParkingLot(row, transferPointsLen)
     except:
         pass
     finally:

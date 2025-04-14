@@ -78,8 +78,11 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
         return car.map((c) => c.trip.tripPatterns[0])
     })
 
+    // Set the name of the place of departure for car as the name of the trasnfer stop
     for (let i = 0; i < transferStopsInTrips.length; i++) {
-        carPatternForStops[i][0].legs[0].fromPlace.name = transferStopsInTrips[i].name
+        for (let j = 0; j < carPatternForStops[i].length; j++) {
+            carPatternForStops[i][j].legs[0].fromPlace.name = transferStopsInTrips[i].name
+        }
     }
 
     const carPatternForStopsFlatten = carPatternForStops.flat()
@@ -92,7 +95,7 @@ export async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tr
 
     // Make OTP requests to fetch the public transport trips for each transfer stop
     const returnTripPromises = transferStopsUsedInTrips.map((trip) => getPublicTransportTrip(tripRequest.destination, trip.coords,
-        tripRequest.preferences.comingBack!.returnDateTime, tripRequest.preferences.modeOfTransport, 1)
+        tripRequest.preferences.comingBack!.returnDateTime, tripRequest.preferences.modeOfTransport, 5)
     )
     const returnTripResponses: OTPGraphQLData[] = await Promise.all(returnTripPromises)
 

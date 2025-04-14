@@ -23,20 +23,21 @@ const TRAIN_EMISSIONS = 35
  * Index 3: Number of transfers
 */
 const comparisonMatrixForCriteria = [
-    [1, 1, 5, 9],
-    [1, 1, 1/3, 5],
-    [1/5, 3, 1, 7],
-    [1/9, 1/5, 1/7, 1]
+    [1, 5, 3, 7],
+    [1/5, 1, 1/5, 3],
+    [1/3, 5, 1, 7],
+    [1/7, 1/3, 1/7, 1]
 ]
 
 function calculateWeights(): number[] {
+    // Calculate geometric mean of the matrix rows
     const products = comparisonMatrixForCriteria.map(row => {
         return row.reduce((a, b) => a * b)
     })
     const rawWeights = products.map((product) => Math.pow(product, 1 / comparisonMatrixForCriteria.length))
-    
-    const weightSum = rawWeights.reduce((a, b) => a + b)
 
+    // Normalize weights
+    const weightSum = rawWeights.reduce((a, b) => a + b)
     const normalizedWeights = rawWeights.map((weight) => weight / weightSum)
     return normalizedWeights
 }
@@ -190,11 +191,6 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
 
     const minEmissionsTrip = bestTrips.reduce((min, trip) => trip.totalEmissions < min.totalEmissions ? trip : min, bestTrips[0])
     minEmissionsTrip.lowestEmissions = true
-
-    // for (const t of tripsWithScores) {
-    //     console.log(t.score)
-    // }
-    console.log(weights)
 
     return bestTrips
 }
