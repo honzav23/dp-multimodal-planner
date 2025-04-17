@@ -15,7 +15,10 @@ import type {
 } from "../types/LissyTypes.ts";
 
 function getHeaders() {
-    return { "Authorization": Deno.env.get("LISSY_API_KEY") }
+    const apiKey = Deno.env.get("LISSY_API_KEY")
+    return new Headers({
+        "Authorization": apiKey!
+    })
 }
 
 /**
@@ -62,7 +65,6 @@ export async function getAvailableTripsForRoutes(availableRoutes: LissyAvailable
     })
     const availableTripsResponses = await Promise.all(availableTripsFetches)
     const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json()))
-    // console.log(availableTripsJson)
 
     return availableTripsJson
 }
