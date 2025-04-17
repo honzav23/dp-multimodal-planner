@@ -9,9 +9,7 @@ COPY FE/package*.json .
 RUN npm install
 
 # Copy frontend files
-COPY . .
-
-#npm run build
+COPY ./FE .
 
 # Expose frontend port
 EXPOSE 5173

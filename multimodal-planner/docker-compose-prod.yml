@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      dockerfile: ./BE/Dockerfile.prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./types:/app/types  # Shared files
+    command: ./api
+
+  frontend:
+    build:
+      dockerfile: ./FE/Dockerfile.prod
+    ports:
+      - "80:80"
+    volumes:
+      - /app/FE/node_modules
+    depends_on:
+      - backend
