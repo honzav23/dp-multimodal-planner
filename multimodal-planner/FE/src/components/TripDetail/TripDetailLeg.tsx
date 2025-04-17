@@ -5,6 +5,8 @@ import LegDelayTable from "./LegDelayTable";
 import { formatDateTime } from "../../common/common";
 import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk, DirectionsSubway } from '@mui/icons-material'
 import TrolleybusIcon from '../../img/TrolleybusIcon';
+import { routeColors } from '../../common/common';
+import { TransportMode } from '../../../../types/TransportMode';
 
 interface TripDetailLegProps {
     leg: TripLeg,
@@ -71,6 +73,8 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
             divider={idx !== totalLegs - 1}
             sx={{
                 bgcolor: "#FFFFFF",
+                // Change the color and appearance of the left border depending on the mode of transport used
+                borderLeft: `4px ${leg.modeOfTransport === 'car' ? 'dashed' : 'solid'} ${routeColors[leg.modeOfTransport as TransportMode]}`,
                 borderRadius: 2,
                 p: 1.5,
                 boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)"

@@ -8,7 +8,7 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResponse } from "../../../../types/TripResult";
-import useIsMobile from '../../hooks/useIsMobile';
+// @ts-ignore
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";

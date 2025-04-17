@@ -7,12 +7,12 @@
  */
 
 import {MapContainer, Polyline, Popup, TileLayer} from "react-leaflet";
-import PositionSelection from "./components/PositionSelection.tsx";
-import TransferStopsSelection from "./components/TransferStopsSelection.tsx";
-import TripDetailLeg from "./components/TripDetail/TripDetailLeg.tsx";
-import {useAppSelector} from "./store/hooks.ts";
+import PositionSelection from "./PositionSelection.tsx";
+import TransferStopsSelection from "./TransferStopsSelection.tsx";
+import TripDetailLeg from "./TripDetail/TripDetailLeg.tsx";
+import {useAppSelector} from "../store/hooks.ts";
 import 'leaflet/dist/leaflet.css'
-import type { TransportMode } from "../../types/TransportMode.ts";
+import { routeColors } from "../common/common.ts";
 
 interface MapWrapperProps {
     tabValue: string;
@@ -25,17 +25,6 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
 
     const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
     const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
-
-    // Route colors based on the current means of transport
-    const routeColors: Record<TransportMode, string> = {
-        foot: '#009eda',
-        car: '#FF0000',
-        tram: '#A05A2C',
-        bus: '#00E68C',
-        rail: '#800000',
-        trolleybus: '#008033',
-        metro: '#000080'
-    }
 
     return (
         <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>

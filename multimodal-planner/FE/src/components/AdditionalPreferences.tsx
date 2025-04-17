@@ -115,7 +115,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const handleTimeChange = (time: Dayjs | null) => {
         if (time !== null ) {
             setTimeError({error: false, message: ''})
-            dispatch(setComingBackTime(time.$d.toLocaleTimeString()))
+            dispatch(setComingBackTime(time.toDate().toLocaleTimeString()))
         }
     }
 
@@ -176,7 +176,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                             </IconButton>
                                         </InputAdornment>}}}
                                    size="small" value={pickupInputValue} label={t('preferences.pickup')} type='text'
-                                   onFocus={() => {dispatch(setFocus({origin: "pickup", focused: true}));closeDialog()}}
+                                   onFocus={() => {dispatch(setFocus({origin: "pickup", focused: true}));closeDialog(!dateError.error, !timeError.error)}}
                         />
 
 

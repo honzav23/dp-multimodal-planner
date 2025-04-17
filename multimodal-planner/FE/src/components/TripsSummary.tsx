@@ -75,7 +75,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     // When a new trip is selected scroll to the top
     useEffect(() => {
         if (scrollRef && scrollRef.current) {
-            scrollRef.current.scrollTop = 0
+            (scrollRef.current as HTMLElement).scrollTop = 0
         }
     }, [selectedTrip])
 

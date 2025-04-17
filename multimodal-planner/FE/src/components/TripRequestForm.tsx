@@ -86,7 +86,7 @@ export function TripRequestForm() {
     const handleTimeChange = (time: Dayjs | null) => {
         if (time !== null ) {
             setTimeError({error: false, message: ''})
-            dispatch(setDepartureTime(time.$d.toLocaleTimeString()))
+            dispatch(setDepartureTime(time.toDate().toLocaleTimeString()))
         }
     }
 
@@ -102,7 +102,7 @@ export function TripRequestForm() {
       }
 
       for (let element of elements) {
-        element.style.cursor = cursorStyle
+        (element as HTMLElement).style.cursor = cursorStyle
         cursorStyle = "crosshair"
       }
     }
