@@ -105,8 +105,8 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
     for (const leg of trip.legs) {
         let legDelays: DelayInfo[] = []
 
-        // Skip car and foot (route automatic, no delay)
-        if (leg.mode === 'car' || leg.mode === 'foot') {
+        // Skip car and foot (route automatic, no delay) and the case wheren no trips are available
+        if (leg.mode === 'car' || leg.mode === 'foot' || availableTripsByLines.length === 0) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
         }

@@ -38,7 +38,12 @@ export async function getTransferStops(): Promise<TransferStop[]> {
             }
         }
     `;
-    const data = await request(Deno.env.get("OTP_URL"), query, variables)
+    const otpUrl = Deno.env.get('OTP_URL')
+    
+    if (!otpUrl) {
+        return []
+    }
+    const data = await request(otpUrl, query, variables)
 
     const transferPoints: TransferStop[] = []
 
@@ -82,7 +87,7 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: LissyA
         return {availableTripsByLines: [], availableDates: []}
     }
     const endDate = availableDates.end
-    const startDate = goToHistory(endDate, 1)
+    const startDate = goToHistory(endDate, 0)
 
 
     const availableRoutes = await getAvailableRoutesForDates(startDate, endDate)
@@ -103,12 +108,11 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: LissyA
  */
 function getGqlQueryString(): string {
     return gql`
-        query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $arriveBy: Boolean, $dateTime: DateTime, $modes: Modes) {
+        query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $dateTime: DateTime, $modes: Modes) {
           trip(
             from: $from
             to: $to
             numTripPatterns: $numTripPatterns
-            arriveBy: $arriveBy
             dateTime: $dateTime
             modes: $modes
           ) {
@@ -186,7 +190,16 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
             directMode: "car"
         }
     }
-    const carRoute = await request(Deno.env.get("OTP_URL"), query, variables)
+    const otpUrl = Deno.env.get('OTP_URL')
+    
+    if (!otpUrl) {
+        return {
+            trip: {
+                tripPatterns: []
+            }
+        }
+    }
+    const carRoute = await request(otpUrl, query, variables)
     return carRoute
 }
 
@@ -229,7 +242,17 @@ export async function getPublicTransportTrip(from: [number, number], to: [number
         }
         variables.modes.transportModes = modes
     }
-    const publicTransportRoute = await request(Deno.env.get("OTP_URL"), query, variables)
+
+    const otpUrl = Deno.env.get('OTP_URL')
+    
+    if (!otpUrl) {
+        return {
+            trip: {
+                tripPatterns: []
+            }
+        }
+    }
+    const publicTransportRoute = await request(otpUrl, query, variables) as OTPGraphQLData
     return publicTransportRoute
 }
 
