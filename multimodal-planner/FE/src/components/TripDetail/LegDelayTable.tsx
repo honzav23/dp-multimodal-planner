@@ -9,8 +9,13 @@ interface LegDelayTableProps {
 function LegDelayTable({ delays }: LegDelayTableProps) {
     const { t } = useTranslation() 
 
-    const unixMilisToDate = (milis: number): string => {
-        const date = new Date(milis)
+    /**
+     * Convert date to locale string
+     * @param d Date in format YY-MM-DD
+     * @returns 
+     */
+    const toLocaleDate = (d: string): string => {
+        const date = new Date(d)
         return `${date.toLocaleDateString()}`
     }
 
@@ -48,7 +53,7 @@ function LegDelayTable({ delays }: LegDelayTableProps) {
                 <tbody>
                 { delays.map((delay, idx) => (
                     <tr key={delay.delayDate} style={{ backgroundColor: idx % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
-                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ unixMilisToDate(delay.delayDate) }</td>
+                        <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ toLocaleDate(delay.delayDate) }</td>
                         <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}><strong>{ delay.delay } min</strong></td>
                     </tr>
                 )) }

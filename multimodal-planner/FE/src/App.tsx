@@ -11,7 +11,7 @@ import {useState} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
 import {availableLanguages} from "../i18n.ts";
-import MapWrapper from "./MapWrapper.tsx";
+import MapWrapper from "./components/MapWrapper.tsx";
 
 function App() {
     const { outboundTrips } = useAppSelector((state) => state.trip.tripResults)
@@ -31,10 +31,10 @@ function App() {
      */
     const changeHeight = (minimize: boolean) => {
         if (minimize) {
-            document.getElementById('summary').style.maxHeight = '5vh'
+            document.getElementById('summary')!.style.maxHeight = '5vh'
         }
         else {
-            document.getElementById('summary').style.maxHeight = '60vh'
+            document.getElementById('summary')!.style.maxHeight = '60vh'
         }
     }
 
