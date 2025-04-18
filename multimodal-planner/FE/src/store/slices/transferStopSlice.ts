@@ -16,7 +16,9 @@ const initialState: TransferStopState = {
 export const getTransferStops = createAsyncThunk(
     'transferStops/getTransferStops',
     async () => {
-        const response = await axios.get<TransferStop[]>('http://localhost:8000/api/transferStops');
+        const apiUrl = import.meta.env.VITE_BACKEND_URL;
+        console.log(apiUrl)
+        const response = await axios.get<TransferStop[]>(`${apiUrl}/transferStops`);
         return response.data;
     }
 );
@@ -30,10 +32,6 @@ const transferStopSlice = createSlice({
             .addCase(getTransferStops.fulfilled, (state, action) => {
                 state.transferStops = action.payload;
             })
-            // .addCase(fetchTransferStops.rejected, (state, action) => {
-            //     state.loading = false;
-            //     state.error = action.error.message || 'Failed to fetch transfer stops';
-            // });
     },
 });
 

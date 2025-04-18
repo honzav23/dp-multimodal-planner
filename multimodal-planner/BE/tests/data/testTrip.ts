@@ -8,7 +8,6 @@ export const trip: Record<string, any> = {
     departureTime: "14:10:00",
     preferences: {
         modeOfTransport: [],
-        minimizeTransfers: false,
         findBestTrip: false,
         transferStop: null,
         pickupCoords: [49.1848, 16.37228],

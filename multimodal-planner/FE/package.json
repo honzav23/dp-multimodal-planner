@@ -38,8 +38,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "vite --host 0.0.0.0",
-    "build": "tsc && vite build",
+    "start": "vite --host 0.0.0.0 --mode dev",
+    "build": "tsc && vite build --mode prod",
     "serve": "vite preview"
   },
   "eslintConfig": {

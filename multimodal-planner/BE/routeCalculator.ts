@@ -130,7 +130,6 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
     return mergedResult
 }
 export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): TripResult {
-    // console.log(car)
     const mergedResult: TripResult = {
         totalTime: finalTrip.totalTime + car.totalTime + (Date.parse(car.startTime) - Date.parse(finalTrip.endTime)) / 1000,
         totalDistance: finalTrip.totalDistance + car.totalDistance,

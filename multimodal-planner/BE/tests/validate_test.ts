@@ -60,7 +60,6 @@ describe("Validate trip request", () => {
 
   it("Validates trip preferences", () => {
     let preferences: Record<string, any> = {
-      minimizeTransfers: true,
       findBestTrip: true
     }
     let result = validatePreferences(preferences);
@@ -69,7 +68,6 @@ describe("Validate trip request", () => {
 
     preferences = {...trip.preferences};
 
-    preferences.minimizeTransfers = 29;
     preferences.findBestTrip = "string";
     result = validatePreferences(preferences);
     expect(result.error).toBe(true);

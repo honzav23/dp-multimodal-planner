@@ -10,7 +10,6 @@ export type TripRequest = {
     preferences: {
         modeOfTransport: TransportMode[];
         transferStop: TransferStop | null;
-        minimizeTransfers: boolean;
         findBestTrip: boolean;
         pickupCoords: LatLngTuple
         comingBack: {

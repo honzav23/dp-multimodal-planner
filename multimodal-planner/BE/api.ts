@@ -39,7 +39,6 @@ app.post('/api/calculateTrips', async (request) => {
     preferences: {
       modeOfTransport: body.preferences.modeOfTransport,
       transferStop: body.preferences.transferStop,
-      minimizeTransfers: body.preferences.minimizeTransfers,
       findBestTrip: body.preferences.findBestTrip,
       pickupCoords: body.preferences.pickupCoords,
       comingBack: body.preferences.comingBack === null ? null :

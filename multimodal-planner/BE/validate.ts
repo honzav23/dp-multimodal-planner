@@ -123,14 +123,14 @@ export function validateComingBackFields(comingBackFields: Record<string, any> |
 
 export function validatePreferences(preferences: Record<string, any>): ResultStatus {
     let result: ResultStatus = { error: false, message: '' };
-    if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("minimizeTransfers" in preferences) 
-        || !("findBestTrip" in preferences) || !("pickupCoords" in preferences) || !("comingBack" in preferences)) {
+    if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("findBestTrip" in preferences)
+        || !("pickupCoords" in preferences) || !("comingBack" in preferences)) {
         result.error = true;
         result.message = 'Missing required fields for preferences';
         return result
     }
 
-    if (typeof preferences.minimizeTransfers !== 'boolean' || typeof preferences.findBestTrip !== "boolean" || !Array.isArray(preferences.modeOfTransport)) {
+    if (typeof preferences.findBestTrip !== "boolean" || !Array.isArray(preferences.modeOfTransport)) {
         result.error = true;
         result.message = 'Invalid type of one or more trip preferences';
         return result

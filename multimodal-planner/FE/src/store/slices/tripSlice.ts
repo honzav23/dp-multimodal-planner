@@ -39,7 +39,6 @@ const initialState: TripSliceState = {
         preferences: {
             modeOfTransport: [],
             transferStop: null,
-            minimizeTransfers: false,
             findBestTrip: false,
             pickupCoords: initialCoords,
             comingBack: null,
@@ -72,7 +71,8 @@ function getFormattedDate() {
  */
 export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, { getState }): Promise<TripResponse> => {
     const tripRequest = (getState() as { trip: TripSliceState }).trip.tripRequest;
-    const response = await axios.post('http://localhost:8000/api/calculateTrips', tripRequest)
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+    const response = await axios.post(`${apiUrl}/calculateTrips`, tripRequest)
 
     return response.data
 });
