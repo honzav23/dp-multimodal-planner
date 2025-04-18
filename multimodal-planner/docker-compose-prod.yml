@@ -4,7 +4,6 @@ services:
       dockerfile: ./BE/Dockerfile.prod
     ports:
       - "8000:8000"
-    command: ./api
 
   frontend:
     build:
