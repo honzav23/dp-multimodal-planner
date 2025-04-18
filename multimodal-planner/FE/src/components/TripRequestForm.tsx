@@ -10,7 +10,7 @@ import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/mat
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-import { Close, SwapVert, Tune } from '@mui/icons-material'
+import {Close, Minimize, SwapVert, Tune, ZoomOutMap} from '@mui/icons-material'
 
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { setFocus } from '../store/slices/inputsFocusSlice';
@@ -24,8 +24,13 @@ import type { ResultStatus } from "../../../types/ResultStatus.ts";
 
 import { useTranslation } from 'react-i18next';
 import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
+import useIsMobile from "../hooks/useIsMobile.ts";
 
-export function TripRequestForm() {
+interface TripRequestFormProps {
+    changeHeight?: (minimize: boolean, origin: string) => void;
+}
+
+export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
     const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
 
     const startAddress = useAppSelector((state) => state.address.startAddress)
@@ -34,6 +39,9 @@ export function TripRequestForm() {
     const startCoords = useAppSelector((state) => state.trip.tripRequest.origin)
     const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
     const isLoading = useAppSelector((state) => state.trip.isLoading)
+
+    const isMobile = useIsMobile()
+    const [minimized, setMinimized] = useState(false);
 
     const [dialogOpen, setDialogOpen] = useState(false)
     const { t } = useTranslation()
@@ -152,6 +160,17 @@ export function TripRequestForm() {
         }
     }
 
+    /**
+     * Changes the height of summary component when in mobile mode
+     * @param minimize Whether to minimize the component or not
+     */
+    const changeRequestFormHeight = (minimize: boolean) => {
+        setMinimized(minimize)
+        if (changeHeight) {
+            changeHeight(minimize, "form")
+        }
+    }
+
     const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
         setDialogOpen(false)
         if (!comingBackDateValid) {
@@ -177,9 +196,20 @@ export function TripRequestForm() {
                     <Tune/>
                 </IconButton>
             </Tooltip>
-            <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: 'translateX(-5%)' }}>
+            <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: `translateX(${isMobile ? '0' : '-5%'})` }}>
                 {t('form.plan')}
             </h2>
+            {
+                isMobile && (minimized ?
+                    <IconButton onClick={() => changeRequestFormHeight(false)} color='primary' edge='start'>
+                        <ZoomOutMap/>
+                    </IconButton>
+                    :
+                    <IconButton onClick={() => changeRequestFormHeight(true)} color='primary' edge='start'>
+                        <Minimize/>
+                    </IconButton>
+                )
+            }
         </div>
 
 

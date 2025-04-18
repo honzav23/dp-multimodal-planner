@@ -29,12 +29,12 @@ function App() {
      * Change the drawer height based on if it is minimized or not
      * @param minimize If the drawer is minimized
      */
-    const changeHeight = (minimize: boolean) => {
+    const changeHeight = (minimize: boolean, origin: string) => {
         if (minimize) {
-            document.getElementById('summary')!.style.maxHeight = '5vh'
+            document.getElementById(origin)!.style.maxHeight = '5vh'
         }
         else {
-            document.getElementById('summary')!.style.maxHeight = '60vh'
+            document.getElementById(origin)!.style.maxHeight = '60vh'
         }
     }
 
@@ -67,14 +67,14 @@ function App() {
                 {/* Mobile view for the request form */}
                 { isMobile ? (outboundTrips.length === 0 &&
                         <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
-                            <Box sx={{
+                            <Box id='form' sx={{
                                 pointerEvents: 'auto',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '10px',
                                 m: 1
                             }}>
-                                <TripRequestForm/>
+                                <TripRequestForm changeHeight={changeHeight} />
                             </Box>
                         </Drawer>
                 )

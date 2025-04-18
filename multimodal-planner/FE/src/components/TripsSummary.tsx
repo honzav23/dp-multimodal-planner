@@ -34,7 +34,7 @@ import {SortState, SortInfo} from "../types/SortState.ts";
 import '../css/tabStyle.css'
 
 interface TripSummaryProps {
-    changeHeight?: (minimize: boolean) => void;
+    changeHeight?: (minimize: boolean, origin: string) => void;
     switchRoutes: (value: string) => void;
 }
 
@@ -122,7 +122,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     const changeSummaryHeight = (minimize: boolean) => {
        setMinimized(minimize)
         if (changeHeight) {
-            changeHeight(minimize)
+            changeHeight(minimize, "summary")
         }
     }
 
