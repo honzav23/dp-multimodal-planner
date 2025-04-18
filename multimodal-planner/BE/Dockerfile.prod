@@ -1,5 +1,5 @@
 # Use official Deno image
-FROM denoland/deno:latest AS BE
+FROM denoland/deno:latest AS be
 
 # Set working directory
 WORKDIR /app/BE
@@ -17,7 +17,7 @@ WORKDIR /app/BE
 RUN apt-get update && apt-get install -y python3 python3-pip \
     && pip install -r requirements.txt --break-system-packages
 
-RUN deno compile --no-check --allow-read --allow-write --allow-net --allow-env --allow-import --env-file=.env.prod api.ts
+RUN deno compile --no-check --allow-all --env-file=.env.prod api.ts
 
 # Expose backend port
 EXPOSE 8000

@@ -1,5 +1,5 @@
 # Use Node.js image for building
-FROM node:20 AS FE
+FROM node:20 AS fe
 
 # Set working directory
 WORKDIR /app/FE
@@ -11,7 +11,10 @@ RUN npm install
 # Copy frontend files
 COPY ./FE .
 
-# Expose frontend port
-EXPOSE 5173
+WORKDIR /app/
+
+COPY ./types ./types
+
+WORKDIR /app/FE
 
 CMD ["npm", "start"]
