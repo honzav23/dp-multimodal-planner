@@ -31,7 +31,7 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
 
     return (
         <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth='lg'>
-            <div style={{ display: "flex", justifyContent: 'center', alignItems: "center", backgroundColor: "#f3f3f3" }}>
+            <div style={{ display: "flex", justifyContent: 'center', alignItems: "center", backgroundColor: "#f3f3f3", flexWrap: "wrap" }}>
                 <DialogTitle variant='h4'>
                     {t('about.title')}
                 </DialogTitle>
@@ -45,20 +45,23 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
             onClick={closeDialog}
             sx={(theme) => ({
                 position: 'absolute',
-                right: 8,
-                top: 8,
+                right: 4,
+                top: 4,
                 color: theme.palette.grey[500],
             })}
         >
             <CloseIcon />
         </IconButton>
         <Divider/>
-        <Tabs variant='fullWidth' value={tabValue} centered onChange={handleTabChange} sx={{ backgroundColor: '#f3f3f3' }}>
-            <Tab className='tab' value='overview' label={t('about.basicInfoTitle')} />
-            <Tab className='tab' value='usage' label={t('about.usageTitle')} />
-            <Tab className='tab' value='contact' label={t('about.contactTitle')} />
-        </Tabs>
-            <Divider/>
+            <div>
+                <Tabs variant='fullWidth' value={tabValue} centered onChange={handleTabChange} sx={{ backgroundColor: '#f3f3f3' }}>
+                    <Tab className='tab' value='overview' label={t('about.basicInfoTitle')} />
+                    <Tab className='tab' value='usage' label={t('about.usageTitle')} />
+                    <Tab className='tab' value='contact' label={t('about.contactTitle')} />
+                </Tabs>
+            </div>
+        <Divider/>
+
         <DialogContent sx={{ backgroundColor: '#f3f3f3' }}>
             {tabValue === 'overview' &&
                 <Typography variant='body1'>{t('about.basicInfo')}</Typography>
@@ -99,7 +102,7 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
             { tabValue === 'contact' &&
                 <>
                     <h2>{t('about.contact.contactTitle')}</h2>
-                    <p><strong>{t('about.contact.author')}</strong> Jan Václavík (xvacla35@stud.fit.vutbr.cz)</p>
+                    <p><strong>{t('about.contact.author')}:</strong> Jan Václavík (xvacla35@stud.fit.vutbr.cz)</p>
                 </>
             }
         </DialogContent>

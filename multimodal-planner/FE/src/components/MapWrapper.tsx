@@ -13,6 +13,7 @@ import TripDetailLeg from "./TripDetail/TripDetailLeg.tsx";
 import {useAppSelector} from "../store/hooks.ts";
 import 'leaflet/dist/leaflet.css'
 import { routeColors } from "../common/common.ts";
+import useIsMobile from '../hooks/useIsMobile'
 
 interface MapWrapperProps {
     tabValue: string;
@@ -26,8 +27,10 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
     const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
     const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
 
+    const isMobile = useIsMobile()
+
     return (
-        <MapContainer center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
+        <MapContainer zoomControl={!isMobile} center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

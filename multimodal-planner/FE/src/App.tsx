@@ -125,35 +125,31 @@ function App() {
                 }
 
             </div>
-            <div style={{
+            <Box sx={{
                 position: 'absolute',
-                bottom: "5%",
                 right: "1%",
-                backgroundColor: 'rgba(255, 255, 255, 1.0)',
-                borderRadius: '10px 10px 10px 10px',
+                mt: isMobile ? 1 : 5,
+                display: 'flex',
+                height:  isMobile ? 'auto' : '95%',
+                gap: isMobile ? '10px': 0,
+                flexDirection: isMobile ? 'row' : 'column',
+                justifyContent: 'space-between',
                 zIndex: 1000
             }}>
-                <Tooltip title={t('about.title')}>
-                    <IconButton size='large' color='primary' onClick={() => setAboutAppDialogOpen(true)}>
-                        <InfoOutlinedIcon sx={{ width: '2rem', height: 'auto' }}/>
-                    </IconButton>
-                </Tooltip>
-            </div>
-
-            <div style={{
-                position: 'absolute',
-                top: "5%",
-                right: "1%",
-                backgroundColor: 'rgba(255, 255, 255, 1.0)',
-                borderRadius: '10px 10px 10px 10px',
-                zIndex: 1000
-            }}>
-                <Select size='small' sx={{ border: '1px solid black', fontSize: '1.5rem', backgroundColor: '#f3f3f3' }} value={i18n.language} onChange={changeLanguage}>
+                <Select size='small' sx={{ border: '1px solid black', fontSize: '1.5rem',
+                    backgroundColor: '#f3f3f3' }} value={i18n.language} onChange={changeLanguage}>
                     { availableLanguages.map(lang => (
                         <MenuItem value={lang}>{t(`language.${lang}`)}</MenuItem>
                     )) }
                 </Select>
-            </div>
+                <Box sx={{ backgroundColor: 'white', borderRadius: '10px 10px 10px 10px', display: 'flex', justifyContent: 'center' }}>
+                    <Tooltip title={t('about.title')}>
+                        <IconButton size='large' color='primary' onClick={() => setAboutAppDialogOpen(true)}>
+                            <InfoOutlinedIcon sx={{ width: '2rem', height: 'auto' }}/>
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </Box>
 
             <AboutApp dialogOpen={aboutAppDialogOpen} closeDialog={() => setAboutAppDialogOpen(false)}/>
             <MapWrapper tabValue={tabValue}/>
