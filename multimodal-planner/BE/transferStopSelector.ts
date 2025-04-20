@@ -131,6 +131,19 @@ function getMinAndMaxByProperty(tripRankings: TripDecision[], prop: 'totalTime' 
 }
 
 /**
+ * Performs MinMax normalization
+ * @param currentValue Value to calculate normalized value for
+ * @param min Minimal value
+ * @param max Maximal value
+ */
+function minMaxNormalization(currentValue: number, min: number, max: number): number {
+    if (min === max) {
+        return 0
+    }
+    return (currentValue - min) / (max - min)
+}
+
+/**
  *
  * @param tripRankings
  */
@@ -143,10 +156,10 @@ function normalizeCriteria(tripRankings: TripDecision[]) {
 
 
     for (let i = 0; i < tripRankings.length; i++) {
-        tripRankings[i].totalTimeNormalized = (tripRankings[i].totalTime - minTime) / (maxTime - minTime)
-        tripRankings[i].totalTransfersNormalized = (tripRankings[i].totalTransfers - minTransfers) / (maxTransfers - minTransfers)
-        tripRankings[i].totalEmissionsNormalized = (tripRankings[i].totalEmissions - minEmissions) / (maxEmissions - minEmissions)
-        tripRankings[i].totalDelayNormalized = (tripRankings[i].totalDelay - minDelay) / (maxDelay - minDelay)
+        tripRankings[i].totalTimeNormalized = minMaxNormalization(tripRankings[i].totalTime, minTime, maxTime)
+        tripRankings[i].totalTransfersNormalized = minMaxNormalization(tripRankings[i].totalTransfers, minTransfers, maxTransfers)
+        tripRankings[i].totalEmissionsNormalized = minMaxNormalization(tripRankings[i].totalEmissions, minEmissions, maxEmissions)
+        tripRankings[i].totalDelayNormalized = minMaxNormalization(tripRankings[i].totalDelay, minDelay, maxDelay)
     }
 }
 
@@ -182,7 +195,6 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
         }))
 
     tripsWithScores.sort((a, b) => a.score - b.score)
-
     // Get 10 best solutions
     const bestTrips = tripsWithScores.map((val) => trips[val.trip.tripIndex]).slice(0, 10)
 

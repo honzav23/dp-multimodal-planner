@@ -15,6 +15,14 @@ import type { TransportMode } from '../../types/TransportMode.ts'
 import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
 import {LissyAvailableTrip} from "../types/LissyTypes.ts";
 import { rootDir } from "../api.ts";
+import { parseArgs } from "args";
+
+function parseArguments(): boolean {
+    const flags = parseArgs(Deno.args, {
+        boolean: ["external-gtfs"],
+    })
+    return !!flags["external-gtfs"]
+}
 
 /**
  * Gets available transfer stops from .csv file
@@ -82,6 +90,11 @@ function goToHistory(baseDate: string, daysInHistory: number) {
  * @returns Promise of all available trips and dates
  */
 export async function getTripsForLines(): Promise<{availableTripsByLines: LissyAvailableTrip[][], availableDates: string[]}> {
+
+    const externalGTFS = parseArguments()
+    if (externalGTFS) {
+        return {availableTripsByLines: [], availableDates: []}
+    }
 
     const availableDates = await getAvailableDatesFromLissy()
     if (!availableDates) {
