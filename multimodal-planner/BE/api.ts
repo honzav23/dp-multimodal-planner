@@ -15,6 +15,8 @@ import { TripRequest } from "./types/TripRequest.ts";
 import { ResultStatus } from "../types/ResultStatus.ts";
 import { getTransferStops, getTripsForLines } from "./common/common.ts";
 
+export const rootDir = import.meta.dirname;
+
 const app = new Hono();
 
 // Define who can make requests to this server and which methods are allowed

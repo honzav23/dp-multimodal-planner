@@ -8,6 +8,7 @@
 
 import {parse, stringify} from "@std/csv"
 import type {TransferStop} from "../types/TransferStop.ts";
+import { rootDir } from "./api.ts";
 
 /**
  * Gets representative transfer stops for given transfer stops based on clustering
@@ -25,13 +26,13 @@ export async function getRepresentativeTransferStops(transferStops: TransferStop
         }
     ))
     const serializedTransferStops = stringify(transferStopsSeparatedCoords, {columns: ['stopId', 'stopName', 'stopLat', "stopLon", 'hasParking'], separator: ';'})
-    Deno.writeTextFileSync('./transferStops/candidates.csv', serializedTransferStops)
+    Deno.writeTextFileSync(`${rootDir}/transferStops/candidates.csv`, serializedTransferStops)
 
     // Call Python script to find the clusters
     const command = new Deno.Command("python3", {args: ["./scripts/getClusters.py"]})
     let { success } = await command.output()
 
-    const text = Deno.readTextFileSync('./transferStops/candidatesClusters.csv');
+    const text = Deno.readTextFileSync(`${rootDir}/transferStops/candidatesClusters.csv`);
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
     const centersTransferStops: TransferStop[] = csvData.map((row) => (

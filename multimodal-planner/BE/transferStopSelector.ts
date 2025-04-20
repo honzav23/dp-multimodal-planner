@@ -127,7 +127,7 @@ function dominates(tripA: TripDecision, tripB: TripDecision): boolean {
 function getMinAndMaxByProperty(tripRankings: TripDecision[], prop: 'totalTime' | 'totalTransfers' | 'totalEmissions' | 'totalDelay'): [number, number] {
     return tripRankings.reduce((acc, val) => {
         return [Math.min(acc[0], val[prop]), Math.max(acc[1], val[prop])]
-    }, [tripRankings[0][prop], tripRankings[1][prop]])
+    }, [tripRankings[0][prop], tripRankings[0][prop]])
 }
 
 /**

@@ -1,28 +1,27 @@
 import requests
-import subprocess
-import sqlite3
 import pandas as pd
 import overpy
 import zipfile
+import os
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
 processed = 0
 
 def get_GTFS_files():
     response = requests.get("https://www.arcgis.com/sharing/rest/content/items/379d2e9a7907460c8ca7fda1f3e84328/data")
-    file_path = "../../../GTFS.zip"
     if response.status_code == 200:
-        with open(file_path, "wb") as f:
+        with open(f'{script_dir}/GTFS.zip', "wb") as f:
             f.write(response.content)
 
 def fetch_possible_transfer_stops():
-    extracted_gtfs_dir = "../../../GTFS"
-    with zipfile.ZipFile("../../../GTFS.zip", 'r') as zip_ref:
-        zip_ref.extractall(extracted_gtfs_dir)
+    gtfs_dir = f'{script_dir}/GTFS'
 
-    stops_df = pd.read_csv(f'{extracted_gtfs_dir}/stops.txt', sep=',', encoding='utf-8')
-    stop_times_df = pd.read_csv(f'{extracted_gtfs_dir}/stop_times.txt', sep=',', encoding='utf-8')
-    trips_df = pd.read_csv(f'{extracted_gtfs_dir}/trips.txt', sep=',')
-    routes_df = pd.read_csv(f'{extracted_gtfs_dir}/routes.txt', sep=',')
+    with zipfile.ZipFile(f'{script_dir}/GTFS.zip', 'r') as zip_ref:
+        zip_ref.extractall(gtfs_dir)
+    stops_df = pd.read_csv(f'{gtfs_dir}/stops.txt', sep=',', encoding='utf-8')
+    stop_times_df = pd.read_csv(f'{gtfs_dir}/stop_times.txt', sep=',', encoding='utf-8')
+    trips_df = pd.read_csv(f'{gtfs_dir}/trips.txt', sep=',')
+    routes_df = pd.read_csv(f'{gtfs_dir}/routes.txt', sep=',')
 
     merged_df = stops_df.merge(stop_times_df, on='stop_id') \
         .merge(trips_df, on='trip_id') \
@@ -42,7 +41,7 @@ def fetch_possible_transfer_stops():
 
     return result_df
 
-def findNearestParkingLot(row, length):
+def find_nearest_parking_lot(row, length):
     api = overpy.Overpass()
     result = api.query(f"""[out:json][timeout:25];
             node(around:500, {row['stop_lat']}, {row['stop_lon']});
@@ -60,30 +59,39 @@ def findNearestParkingLot(row, length):
 
     return "1" if len(result.ways) > 0 else "0"
 
-def get_available_parking_lots(transfer_points_df):
-    transferPointsLen = len(transfer_points_df)
-    transfer_points_df["has_parking"] = "0"
+def get_available_parking_lots(transfer_stops_df):
+    transfer_stops_len = len(transfer_stops_df)
+    transfer_stops_df["has_parking"] = "0"
     try:
-        for i, row in transfer_points_df.iterrows():
-            transfer_points_df.at[i, 'has_parking'] = findNearestParkingLot(row, transferPointsLen)
+        for i, row in transfer_stops_df.iterrows():
+            transfer_stops_df.at[i, 'has_parking'] = find_nearest_parking_lot(row, transfer_stops_len)
     except:
         pass
     finally:
-        transfer_points_df.to_csv('../transferStops//transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
+        transfer_stops_dir = os.path.join(script_dir, "..", "transferStops")
+        transfer_stops_dir = os.path.normpath(transfer_stops_dir)
+        transfer_stops_df.to_csv(f'{transfer_stops_dir}/transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
-if __name__ == "__main__":
+        # Clean the GTFS files
+        os.system(f'rm {script_dir}/GTFS.zip')
+        os.system(f'rm -r {script_dir}/GTFS')
 
+
+def main():
     print("Getting GTFS...", end='')
     get_GTFS_files()
     print("Done")
 
     print("Fetching possible transfer stops... ", end='')
-    transfer_points_df = fetch_possible_transfer_stops()
+    transfer_stops_df = fetch_possible_transfer_stops()
     print("Done")
 
     print("Getting available parking lots for transfer stops... ")
-    get_available_parking_lots(transfer_points_df)
+    get_available_parking_lots(transfer_stops_df)
     print("Done")
+
+if __name__ == "__main__":
+    main()
 
 
 

@@ -14,13 +14,14 @@ import type {OTPGraphQLData} from "../types/OTPGraphQLData.ts";
 import type { TransportMode } from '../../types/TransportMode.ts'
 import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
 import {LissyAvailableTrip} from "../types/LissyTypes.ts";
+import { rootDir } from "../api.ts";
 
 /**
  * Gets available transfer stops from .csv file
  * @returns Promise of all transfer stops
  */
 export async function getTransferStops(): Promise<TransferStop[]> {
-    const text = Deno.readTextFileSync('./transferStops/transferStopsWithParkingLots.csv');
+    const text = Deno.readTextFileSync(`${rootDir}/transferStops/transferStopsWithParkingLots.csv`);
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
     const variables = {
