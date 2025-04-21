@@ -7,6 +7,7 @@ import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk
 import TrolleybusIcon from '../../img/TrolleybusIcon';
 import { routeColors } from '../../common/common';
 import { TransportMode } from '../../../../types/TransportMode';
+import { useTranslation } from 'react-i18next';
 
 interface TripDetailLegProps {
     leg: TripLeg,
@@ -17,6 +18,7 @@ interface TripDetailLegProps {
 function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
 
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
+    const { t } = useTranslation()
 
     const handleClick = (event: MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
@@ -65,6 +67,17 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
         return `(${line})`
     }
 
+    /**
+     * Translates the leg name in case the name is Origin or Destination
+     * @param legName Name of the leg to translate
+     */
+    const translateLegName = (legName: string): string =>{
+        if (legName === "Origin" || legName === "Destination") {
+            return t(`${legName.toLowerCase()}`)
+        }
+        return legName
+    }
+
 
     return (
         <ListItem
@@ -105,13 +118,13 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                     <Typography variant="subtitle2">
                         <strong>{formatLine(leg.line)}</strong>{" "}
                         <Typography component="span" variant="subtitle1" fontWeight="bold" sx={{ color: "#37474F" }}>
-                            {leg.from}
+                            {translateLegName(leg.from)}
                         </Typography>
                         <Typography component="span" variant="subtitle2" sx={{ color: "#78909C" }}>
                             {" "}→{" "}
                         </Typography>
                         <Typography component="span" variant="subtitle1" fontWeight="bold" sx={{ color: "#37474F" }}>
-                            {leg.to}
+                            {translateLegName(leg.to)}
                         </Typography>
                     </Typography>
                 </Stack>

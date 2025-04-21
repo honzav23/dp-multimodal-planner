@@ -54,6 +54,8 @@
     "via": "přes",
     "eco": "Nejekologičtější",
     "fastest": "Nejkratší čas cesty",
+    "origin": "Počátek",
+    "destination": "Cíl",
     "sort": {
         "default": "Výchozí řazení",
         "asc": "Seřadit vzestupně",

@@ -54,6 +54,8 @@
     "via": "via",
     "eco": "Most eco-friendly",
     "fastest": "Shortest travel time",
+    "origin": "Origin",
+    "destination": "Destination",
     "sort": {
         "default": "Default order",
         "asc": "Sort in ascending order",
