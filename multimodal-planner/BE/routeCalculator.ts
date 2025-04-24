@@ -11,25 +11,43 @@ import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
 import { fetchTripsBackToTransferPoints } from "./returnTrips.ts";
 
+function pickupPointSet(pickupPoint: [number, number]): boolean {
+    return pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000
+}
+
 /**
  * Retrieves the candidate transfer stops for a trip request that are too far from the destination.
  * @param tripRequest The trip request
  * @returns Candidate transfer stops
  */
 function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
-    // TODO when pickup point is set let destination be probably that pickup point
     const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
             ...row,
             distanceFromOrigin: calculateDistance(tripRequest.origin[0], tripRequest.origin[1], row.stopCoords[0], row.stopCoords[1]) / 1000,
         }
     });
-    const distanceFromOriginToDestination = calculateDistance(tripRequest.origin[0], tripRequest.origin[1], tripRequest.destination[0], tripRequest.destination[1]) / 1000;
+    let distanceFromOriginToDestination = 0
+
+    // If pickup point is set then the pickup point is the destination
+    if (pickupPointSet(tripRequest.preferences.pickupCoords)) {
+        distanceFromOriginToDestination = calculateDistance(tripRequest.origin[0], tripRequest.origin[1], 
+            tripRequest.preferences.pickupCoords[0], tripRequest.preferences.pickupCoords[1]) / 1000;
+    }
+    else {
+        distanceFromOriginToDestination = calculateDistance(tripRequest.origin[0], tripRequest.origin[1], tripRequest.destination[0], tripRequest.destination[1]) / 1000;
+    }
     const candidateTransferPoints = transferPointsWithDistance.filter((transferPoint) => transferPoint.distanceFromOrigin <= distanceFromOriginToDestination);
 
     return candidateTransferPoints;
 }
 
+/**
+ * Converts a trip from the representation returned by OTP
+ * to internal representation
+ * @param trip Raw trip returned by OTP
+ * @returns Trip converted to TripResult
+ */
 export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
     const totalTransfers = calculateTotalNumberOfTransfers(trip)
   if (availableTripsByLines.length === 0) {
@@ -61,6 +79,11 @@ export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<
     const totalDistance = legRoutesAndDelays.some(leg => leg.distance === 0) ? trip.distance :
         legRoutesAndDelays.reduce((acc, leg) => acc + leg.distance, 0)
 
+    /**
+     * Calculates the average delay for given delays
+     * @param delayInfo Delays to calculate the average value from
+     * @returns Average delay
+     */    
     const calculateAverageDelay = (delayInfo: DelayInfo[]): number => {
         const totalDelay = delayInfo.reduce((acc, v) => acc + v.delay, 0)
         if (delayInfo.length === 0) {
@@ -92,6 +115,11 @@ export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<
     } as TripResult;
 }
 
+/**
+ * Calculates the number of transfers for a public transport trip
+ * @param publicTransport Public transport trip
+ * @returns Number of transfers
+ */
 function calculateTotalNumberOfTransfers(publicTransport: OTPTripPattern): number {
     let totalNumberTransports = 0
     for (const leg of publicTransport.legs) {
@@ -105,6 +133,13 @@ function calculateTotalNumberOfTransfers(publicTransport: OTPTripPattern): numbe
     return totalNumberTransports - 1
 }
 
+/**
+ * Merges a trip from origin to transfer point with trip from transfer point to destination
+ * @param car Trip from origin to transfer point
+ * @param publicTransport Trip from transfer point to destination 
+ * @param transferStopName Transfer stop used for as a transfer point
+ * @returns Merged trip
+ */
 function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResult, transferStopName: string): TripResult {
 
     // Modify the results so that the destination name of car and starting name of public transport
@@ -122,14 +157,23 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
         endTime: publicTransport.endTime,
         legs: [...car.legs, ...publicTransport.legs],
         totalTransfers: 1 + publicTransport.totalTransfers,
-        via: car.legs[0].to,
+        via: transferStopName,
         lowestTime: false,
         lowestEmissions: false,
         totalEmissions: 0
     }
     return mergedResult
 }
-export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): TripResult {
+
+/**
+ * Merges the trip from origin to pickup point with the one from pickup point to destination
+ * or the trip from destination to transfer point and the one from transfer point to origin
+ * @param finalTrip Trip from origin to pickup point
+ * @param car Trip from pickup point to destination
+ * @param returnTrip Indication if the trip is back from destination to origin
+ * @returns Merged trip
+ */
+export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTrip: boolean): TripResult {
     const mergedResult: TripResult = {
         totalTime: finalTrip.totalTime + car.totalTime + (Date.parse(car.startTime) - Date.parse(finalTrip.endTime)) / 1000,
         totalDistance: finalTrip.totalDistance + car.totalDistance,
@@ -137,7 +181,7 @@ export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): T
         endTime: car.endTime,
         legs: [...finalTrip.legs, ...car.legs],
         totalTransfers: finalTrip.totalTransfers + 1,
-        via: car.legs[0].from,
+        via: returnTrip ? car.legs[0].from : finalTrip.legs[0].to,
         lowestTime: false,
         lowestEmissions: false,
         totalEmissions: 0
@@ -146,11 +190,31 @@ export function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult): T
     return mergedResult
 }
 
+/**
+ * Marks the Origin and Destination fields for appropriate legs as Pickup
+ * @param trips Trips to mark pickup points for
+ */
+function markPickupPoints(trip: TripResult) {
+    const legsLength = trip.legs.length
+    trip.legs[legsLength - 1].from = "Pickup",
+    trip.legs[legsLength - 2].to = "Pickup"
+}
+
+/**
+ * Creates a trip from pickup point to destination and is merged with the trip from origin to pickup point
+ * @param trip Already created trip from origin to pickup point
+ * @param tripRequest Trip request containing the pickup point coords and destination coords
+ * @returns Merged trip
+ */
 async function getFromPickupPointToDestination(trip: TripResult, tripRequest: TripRequest): Promise<TripResult> {
     const beginning = addMinutes(trip.legs[trip.legs.length - 1].endTime, 1)
     const carTrip = await getRouteByCar(tripRequest.preferences.pickupCoords, tripRequest.destination, beginning)
     const carResult = await convertOTPDataToTripResult(carTrip.trip.tripPatterns[0])
-    return mergeFinalTripWithCar(trip, carResult)
+    const mergedTrip = await mergeFinalTripWithCar(trip, carResult, false)
+
+    markPickupPoints(mergedTrip)
+
+    return mergedTrip
 }
 
 export async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> {
@@ -158,8 +222,8 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     let tripResults: TripResult[] = []
 
     const { preferences, origin, destination, departureDateTime } = tripRequest
-    const pickupPointSet = preferences.pickupCoords[0] !== 1000 && preferences.pickupCoords[1] !== 1000
-    const finalDestination =  pickupPointSet ? preferences.pickupCoords : destination
+    const pickupPointValid = pickupPointSet(preferences.pickupCoords)
+    const finalDestination =  pickupPointValid ? preferences.pickupCoords : destination
 
     candidateTransferPoints = preferences.transferStop ?
         [preferences.transferStop] : getCandidateTransferStops(tripRequest)
@@ -214,7 +278,7 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     const bestTrips = findBestTrips(tripResults)
     
     // If pickup point is set
-    if (pickupPointSet) {
+    if (pickupPointValid) {
         for (let i = 0; i < bestTrips.length; i++) {
             bestTrips[i] = await getFromPickupPointToDestination(bestTrips[i], tripRequest)
         }

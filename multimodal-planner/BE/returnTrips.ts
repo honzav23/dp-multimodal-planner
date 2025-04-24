@@ -116,7 +116,7 @@ export async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tr
 
     const returnTripResults = []
     for (let i = 0; i < carTripsResponses.length; i++) {
-        returnTripResults.push(mergeFinalTripWithCar(tripResultsForTransferStopsFlatten[i], carTripsResponses[i]))
+        returnTripResults.push(mergeFinalTripWithCar(tripResultsForTransferStopsFlatten[i], carTripsResponses[i], true))
     }
 
     return returnTripResults
