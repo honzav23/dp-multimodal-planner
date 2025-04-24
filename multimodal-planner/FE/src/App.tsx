@@ -128,7 +128,7 @@ function App() {
             <Box sx={{
                 position: 'absolute',
                 right: "1%",
-                mt: isMobile ? 1 : 5,
+                mt: 2,
                 display: 'flex',
                 height:  isMobile ? 'auto' : '95%',
                 gap: isMobile ? '10px': 0,
@@ -139,13 +139,13 @@ function App() {
                 <Select size='small' sx={{ border: '1px solid black', fontSize: '1.5rem',
                     backgroundColor: '#f3f3f3' }} value={i18n.language} onChange={changeLanguage}>
                     { availableLanguages.map(lang => (
-                        <MenuItem value={lang}>{t(`language.${lang}`)}</MenuItem>
+                        <MenuItem key={lang} value={lang}>{t(`language.${lang}`)}</MenuItem>
                     )) }
                 </Select>
                 <Box sx={{ backgroundColor: 'white', borderRadius: '10px 10px 10px 10px', display: 'flex', justifyContent: 'center' }}>
                     <Tooltip title={t('about.title')}>
                         <IconButton size='large' color='primary' onClick={() => setAboutAppDialogOpen(true)}>
-                            <InfoOutlinedIcon sx={{ width: '2rem', height: 'auto' }}/>
+                            <InfoOutlinedIcon />
                         </IconButton>
                     </Tooltip>
                 </Box>

@@ -72,7 +72,7 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
      * @param legName Name of the leg to translate
      */
     const translateLegName = (legName: string): string =>{
-        if (legName === "Origin" || legName === "Destination") {
+        if (legName === "Origin" || legName === "Destination" || legName === "Pickup") {
             return t(`${legName.toLowerCase()}`)
         }
         return legName

@@ -223,7 +223,7 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
                     <Close/>
                 </IconButton>
             </InputAdornment>}}}
-            size="small" value={startInputValue} placeholder='Start' type='text'
+            size="small" value={startInputValue} placeholder={t('form.start')} type='text'
             onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
         <Tooltip placement='right' title={t('form.switch')}>

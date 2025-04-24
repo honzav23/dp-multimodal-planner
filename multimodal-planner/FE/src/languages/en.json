@@ -1,8 +1,8 @@
 {
     "form": {
         "plan": "Plan a trip",
-        "start": "Start",
-        "end": "End",
+        "start": "Select origin from the map",
+        "end": "Select destination from the map",
         "departureDate": "Departure date",
         "departureTime": "Departure time",
         "show": "Show trips",
@@ -56,6 +56,7 @@
     "fastest": "Shortest travel time",
     "origin": "Origin",
     "destination": "Destination",
+    "pickup": "Pickup point",
     "sort": {
         "default": "Default order",
         "asc": "Sort in ascending order",

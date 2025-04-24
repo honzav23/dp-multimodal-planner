@@ -17,7 +17,6 @@ export const getTransferStops = createAsyncThunk(
     'transferStops/getTransferStops',
     async () => {
         const apiUrl = import.meta.env.VITE_BACKEND_URL;
-        console.log(apiUrl)
         const response = await axios.get<TransferStop[]>(`${apiUrl}/transferStops`);
         return response.data;
     }

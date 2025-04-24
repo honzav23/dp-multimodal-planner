@@ -13,7 +13,7 @@ import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
 
-export interface TripSliceState {
+interface TripSliceState {
     tripRequest: TripRequest;
     tripResults: TripResponse;
     isLoading: boolean;

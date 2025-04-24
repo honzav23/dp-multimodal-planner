@@ -13,7 +13,7 @@ import TripDetailLeg from "./TripDetail/TripDetailLeg.tsx";
 import {useAppSelector} from "../store/hooks.ts";
 import 'leaflet/dist/leaflet.css'
 import { routeColors } from "../common/common.ts";
-import useIsMobile from '../hooks/useIsMobile'
+import useIsMobile from '../hooks/useIsMobile.ts'
 
 interface MapWrapperProps {
     tabValue: string;
@@ -26,7 +26,6 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
 
     const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
     const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
-
     const isMobile = useIsMobile()
 
     return (
@@ -40,7 +39,7 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
 
             {tripsToShow.length > 0 && selectedTrip !== -1 && routesToShow[selectedTrip].map((leg, i) => {
                 return (
-                    <Polyline key={i} positions={leg.route}
+                    <Polyline key={leg.route[0][0]} positions={leg.route}
                               pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : "0 0"}>
                         <Popup closeOnClick={true}>
                             <TripDetailLeg leg={tripsToShow[selectedTrip].legs[i]} idx={i} totalLegs={tripsToShow[selectedTrip].legs.length}/>

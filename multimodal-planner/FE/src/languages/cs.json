@@ -1,8 +1,8 @@
 {
     "form": {
         "plan": "Plánování trasy",
-        "start": "Počátek",
-        "end": "Cíl",
+        "start": "Zvolte počátek kliknutím do mapy",
+        "end": "Zvolte cíl kliknutím do mapy",
         "departureDate": "Datum odjezdu",
         "departureTime": "Čas odjezdu",
         "show": "Ukázat trasy",
@@ -56,6 +56,7 @@
     "fastest": "Nejkratší čas cesty",
     "origin": "Počátek",
     "destination": "Cíl",
+    "pickup":"Místo vyzvednutí",
     "sort": {
         "default": "Výchozí řazení",
         "asc": "Seřadit vzestupně",
