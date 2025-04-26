@@ -21,7 +21,7 @@ const app = new Hono();
 
 // Define who can make requests to this server and which methods are allowed
 app.use('/api/*', cors({
-  origin: 'http://localhost:5173',
+  origin: Deno.env.get("CORS_ORIGIN")!,
   allowMethods: ['POST', 'GET']
 }));
 

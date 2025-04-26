@@ -28,7 +28,7 @@ def fetch_possible_transfer_stops():
         .merge(routes_df, on='route_id')
 
     filtered_df = merged_df[
-        (merged_df['route_type'] == 2) |
+        (merged_df['route_type'].isin([2, 100, 101, 102, 103, 105, 106, 107, 109, 400, 401])) |
         (merged_df['stop_name'].str.contains('nádr\\.', case=False, na=False)) |
         (merged_df['stop_name'].str.contains('nádraží', case=False, na=False)) |
         (merged_df['stop_name'].str.contains('aut\\. st\\.', case=False, na=False)) |
@@ -73,8 +73,8 @@ def get_available_parking_lots(transfer_stops_df):
         transfer_stops_df.to_csv(f'{transfer_stops_dir}/transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
         # Clean the GTFS files
-        os.system(f'rm {script_dir}/GTFS.zip')
-        os.system(f'rm -r {script_dir}/GTFS')
+#         os.system(f'rm {script_dir}/GTFS.zip')
+#         os.system(f'rm -r {script_dir}/GTFS')
 
 
 def main():
