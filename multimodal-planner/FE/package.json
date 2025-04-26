@@ -40,7 +40,8 @@
   "scripts": {
     "start": "vite --host 0.0.0.0 --mode dev",
     "build": "tsc && vite build --mode prod",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "buildDexter": "tsc && vite build --mode prod -c vite.config.dexter.ts"
   },
   "eslintConfig": {
     "extends": [
