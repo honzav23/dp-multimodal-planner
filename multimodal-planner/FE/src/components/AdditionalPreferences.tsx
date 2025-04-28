@@ -47,13 +47,14 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const findBestTripSelected = useAppSelector((state) => state.trip.tripRequest.preferences.findBestTrip)
     const pickupAddress = useAppSelector((state) => state.address.pickupAddress)
     const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
+    const preferences = useAppSelector((state) => state.trip.tripRequest.preferences)
 
     const [returnDateTimeShown, setReturnDateTimeShown] = useState(false)
     const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
     const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
     const defaultDate = dayjs(Date.now())
     
-    const pickupInputValue = pickupAddress === null ? '' : (pickupAddress === '' ? `${pickupCoords[0].toFixed(3)} ${pickupCoords[1].toFixed(3)}` : pickupAddress)
+    const pickupInputValue = pickupAddress === null ? '' : (pickupAddress === '' ? `${pickupCoords[0].toFixed(5)} ${pickupCoords[1].toFixed(5)}` : pickupAddress)
 
     const { t, i18n } = useTranslation()
 
@@ -228,6 +229,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                                     helperText: dateError.message
                                                 }
                                             }}
+                                            value={preferences.comingBack ? dayjs(preferences.comingBack.returnDate) : null}
                                             onChange={(date) => handleDateChange(date)}/>
 
                                 {/* Select time */}
@@ -238,6 +240,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                                     helperText: timeError.message
                                                 }
                                             }}
+                                            value={preferences.comingBack ? dayjs(`${preferences.comingBack.returnDate}T${preferences.comingBack.returnTime}`) : null}
                                             onChange={(time) => handleTimeChange(time)}/>
                             </>
                         )}

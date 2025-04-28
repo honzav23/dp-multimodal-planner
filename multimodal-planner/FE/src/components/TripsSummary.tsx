@@ -68,6 +68,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     // Whenever the trips are fetched, select by default the first one
     useEffect(() => {
         if (selectedTrip === -1 && !isMobile && outboundTrips.length > 0) {
+            setTabValue('outbound');
             dispatch(setSelectedTrip(0))
         }
     }, [outboundTrips]);

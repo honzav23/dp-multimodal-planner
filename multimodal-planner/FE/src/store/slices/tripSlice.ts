@@ -161,9 +161,16 @@ const tripSlice = createSlice({
             state.routes.outboundDecodedRoutes = []
             state.routes.returnDecodedRoutes = []
             state.tripResults = action.payload;
+
+            // No trips found
             if (state.tripResults.outboundTrips.length === 0) {
                 state.openSnackbar = true;
                 state.snackbarMessage = 'noTripsFound'
+            }
+
+            else if (state.tripResults.returnTrips.length === 0 && state.tripRequest.preferences.comingBack) {
+                state.openSnackbar = true;
+                state.snackbarMessage = 'noReturnTripsFound'
             }
 
             for (const tripResult of state.tripResults.outboundTrips) {

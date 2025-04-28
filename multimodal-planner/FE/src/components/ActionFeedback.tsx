@@ -26,7 +26,7 @@ function ActionFeedback() {
                   onClose={() => dispatch(closeSnackbar())}>
             <Alert
                 onClose={() => dispatch(closeSnackbar())}
-                severity="error"
+                severity={message === 'error' ? 'error' : 'warning'}
                 variant="filled"
                 sx={{width: '100%'}}
             >

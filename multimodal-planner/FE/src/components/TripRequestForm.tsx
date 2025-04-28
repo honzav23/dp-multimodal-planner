@@ -46,8 +46,8 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const { t } = useTranslation()
 
-    const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
-    const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
+    const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(5)} ${startCoords[1].toFixed(5)}` : startAddress)
+    const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(5)} ${endCoords[1].toFixed(5)}` : endAddress)
 
     const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
     const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
