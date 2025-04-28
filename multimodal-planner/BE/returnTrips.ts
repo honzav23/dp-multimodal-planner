@@ -66,17 +66,35 @@ function setDestinationNamesForReturnTrips(returnTrips: OTPGraphQLData[], transf
 
 async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripResultsForTransferStops: TripResult[][], tripRequest: TripRequest): Promise<TripResult[]> {
     const carPatternsByStopResponses: OTPGraphQLData[][] = []
+    const indicesToDelete: number[] = []
     // For each transfer stop and each trip pattern of public transport in it, create a request for car
     for (let i = 0; i < transferStopsInTrips.length; i++) {
         const carPatternsPromises = tripResultsForTransferStops[i].map((trip) => getRouteByCar(transferStopsInTrips[i].coords, tripRequest.origin, addMinutes(trip.endTime, 1)))
         const carPatternsResponses = await Promise.all(carPatternsPromises)
-        carPatternsByStopResponses.push(carPatternsResponses)
+        const carPatternsResponsesNotEmpty = carPatternsResponses.every((c) => c.trip.tripPatterns.length > 0)
+
+        // If no car trip is found for any of the results for a certain transfer stops, don't push it to responses
+        if (!carPatternsResponsesNotEmpty) {
+            indicesToDelete.push(i)
+        }
+        else {
+            carPatternsByStopResponses.push(carPatternsResponses)
+        }
+    }
+
+    // Remove all the transfer stops which don't have any car trip
+    if (indicesToDelete.length > 0) {
+        // nnnnnn, (2012, 02 24). Remove multiple elements from array in Javascript/jQuery. Stack Overflow. https://stackoverflow.com/questions/9425009/remove-multiple-elements-from-array-in-javascript-jquery
+        for (let i = indicesToDelete.length - 1; i >= 0; i--) {
+            transferStopsInTrips.splice(indicesToDelete[i], 1);
+        }
     }
 
     // Leave only one trip pattern for each
     const carPatternForStops = carPatternsByStopResponses.map((car) => {
         return car.map((c) => c.trip.tripPatterns[0])
     })
+
 
     // Set the name of the place of departure for car as the name of the trasnfer stop
     for (let i = 0; i < transferStopsInTrips.length; i++) {
@@ -109,7 +127,6 @@ export async function fetchTripsBackToTransferPoints(bestTrips: TripResult[], tr
         const tripPatternsTransferStopPromises = tripPatternsForStop.map(convertOTPDataToTripResult)
         return await Promise.all(tripPatternsTransferStopPromises)
     }))
-
     const carTripsResponses = await processCarTrips(transferStopsUsedInTrips, tripResultsForTransferStops, tripRequest);
 
     const tripResultsForTransferStopsFlatten = tripResultsForTransferStops.flat()
