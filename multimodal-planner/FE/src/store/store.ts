@@ -1,3 +1,10 @@
+/**
+ * @file store.ts
+ * @brief Definition of a redux store and all slices connected to it
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { configureStore } from '@reduxjs/toolkit';
 import addressReducer from './slices/addressSlice';
 import inputFocusReducer from './slices/inputsFocusSlice';

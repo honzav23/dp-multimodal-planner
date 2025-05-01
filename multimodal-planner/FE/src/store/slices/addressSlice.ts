@@ -4,7 +4,6 @@
  * It includes actions and asynchronous thunks for setting, clearing, and fetching addresses based on coordinates.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date 
  */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';

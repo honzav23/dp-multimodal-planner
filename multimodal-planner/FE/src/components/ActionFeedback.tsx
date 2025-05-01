@@ -3,7 +3,6 @@
  * @brief Component for showing that something went wrong during trip calculation
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { Snackbar, Alert } from "@mui/material";

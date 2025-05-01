@@ -3,7 +3,6 @@
  * @brief Redux slice for managing the focus state of input fields.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date 
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';

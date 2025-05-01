@@ -3,7 +3,6 @@
  * @brief File that handles the clustering part of the algorithm
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {parse, stringify} from "@std/csv"
@@ -29,7 +28,7 @@ export async function getRepresentativeTransferStops(transferStops: TransferStop
     Deno.writeTextFileSync(`${rootDir}/transferStops/candidates.csv`, serializedTransferStops)
 
     // Call Python script to find the clusters
-    const command = new Deno.Command("python3", {args: ["./scripts/getClusters.py"]})
+    const command = new Deno.Command("python", {args: ["./scripts/getClusters.py"]})
     let { success } = await command.output()
 
     const text = Deno.readTextFileSync(`${rootDir}/transferStops/candidatesClusters.csv`);

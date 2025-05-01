@@ -3,7 +3,6 @@
  * @brief Component for planning a trip, including input fields for start and end points, date and time pickers.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/material';

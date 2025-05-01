@@ -1,3 +1,10 @@
+/**
+ * @file hooks.ts
+ * @brief Defines basic Redux hooks
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from './store';
 

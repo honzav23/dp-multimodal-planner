@@ -3,7 +3,6 @@
  * @brief Component for handling map marker interactions, including setting start and end points on the map.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { Icon, LatLngTuple, LeafletMouseEvent } from 'leaflet';

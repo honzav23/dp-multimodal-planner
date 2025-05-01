@@ -1,4 +1,11 @@
-import './App.css';
+/**
+ * @file App.tsx
+ * @brief Main component of the application, contains all of the subcomponents either
+ * in desktop or mobile view
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import {Drawer, Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent} from "@mui/material";
 import TripRequestForm from './components/TripRequestForm';
 import TripsSummary from './components/TripsSummary';

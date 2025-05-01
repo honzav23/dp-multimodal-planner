@@ -3,7 +3,6 @@
  * @brief Component for handling additional preferences, including selecting transfer stops or minimizing transfers.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dialog, DialogTitle, 

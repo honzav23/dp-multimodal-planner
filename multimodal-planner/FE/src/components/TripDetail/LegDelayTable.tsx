@@ -1,3 +1,10 @@
+/**
+ * @file LegDelayTable.tsx
+ * @brief Component for showing the table of delays for the past dates
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import {Box} from "@mui/material";
 import {DelayInfo} from "../../../../types/TripResult.ts";
 import { useTranslation } from "react-i18next";

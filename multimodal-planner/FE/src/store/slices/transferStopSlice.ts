@@ -1,7 +1,13 @@
+/**
+ * @file transferStopSlice.ts
+ * @brief Redux slice for managing transfer stops and selected transfer stop
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { TransferStop } from '../../../../types/TransferStop';
-import { PayloadAction } from '@reduxjs/toolkit';
 
 interface TransferStopState {
     transferStops: TransferStop[];

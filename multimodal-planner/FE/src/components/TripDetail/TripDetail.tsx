@@ -1,3 +1,10 @@
+/**
+ * @file TripDetail.tsx
+ * @brief Component for showing the trip legs
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { List } from '@mui/material'
 import type {TripResult} from "../../../../types/TripResult";
 import TripDetailLeg from './TripDetailLeg';

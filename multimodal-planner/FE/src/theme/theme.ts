@@ -1,3 +1,10 @@
+/**
+ * @file theme.ts
+ * @brief Custom theme for React MUI with the definition of font and colors
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({

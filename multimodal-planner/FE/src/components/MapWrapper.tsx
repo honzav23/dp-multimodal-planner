@@ -3,7 +3,6 @@
  * @brief Component that shows the map and all geographical primitives (points, lines, ...)
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {MapContainer, Polyline, Popup, TileLayer} from "react-leaflet";
@@ -29,7 +28,7 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
     const isMobile = useIsMobile()
 
     return (
-        <MapContainer zoomControl={!isMobile} center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
+        <MapContainer key={isMobile ? 'mobile' : 'desktop'} zoomControl={!isMobile} center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

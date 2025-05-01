@@ -1,3 +1,10 @@
+/**
+ * @file transportRoutesWithDelays.ts
+ * @brief This file enriches trip legs with accurate routes and delays
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import type { OTPTripPattern} from "./types/OTPGraphQLData.ts";
 import {calculateDistance} from "./common/common.ts";
 import { availableTripsByLines, availableDates } from "./api.ts";

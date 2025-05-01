@@ -4,7 +4,6 @@
  * Shows basic info about the transfer stop and allows the user to select or deselect it
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {CircleMarker, Marker, Popup} from "react-leaflet";

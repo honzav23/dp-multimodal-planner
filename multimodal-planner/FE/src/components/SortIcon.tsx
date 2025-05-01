@@ -4,7 +4,6 @@
  * is sorted in ascending or descending order
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { type ReactNode, useState, useEffect } from "react";

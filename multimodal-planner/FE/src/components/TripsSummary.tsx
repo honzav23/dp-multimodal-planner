@@ -3,7 +3,6 @@
  * @brief Component for showing all calculated trips with summary info (time, transfers, ...).
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {

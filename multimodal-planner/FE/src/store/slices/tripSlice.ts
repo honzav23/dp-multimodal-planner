@@ -1,7 +1,7 @@
 /**
+ * @file tripSlice.ts
  * @brief Slice for managing trip requests in the application.
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @module tripRequestSlice
  */
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
