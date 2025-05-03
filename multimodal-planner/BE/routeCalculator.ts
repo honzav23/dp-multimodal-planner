@@ -247,7 +247,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     else if (candidateTransferPoints.length > 15 && !preferences.findBestTrip) {
         candidateTransferPoints = await getRepresentativeTransferStops(candidateTransferPoints)
     }
-    console.time()
 
     // Make OTP requests for car from start to all transfer points
     const carPromises = candidateTransferPoints.map((c) => getRouteByCar(origin, c.stopCoords, departureDateTime))
@@ -282,7 +281,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
             tripResults.push(mergeCarWithPublicTransport(candidate.car, trip, candidate.candidate.stopName))
         }
     }
-    console.timeEnd()
     const bestTrips = findBestTrips(tripResults)
     
     // If pickup point is set
