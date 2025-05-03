@@ -3,7 +3,6 @@
  * @brief File that handles the clustering part of the algorithm
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {parse, stringify} from "@std/csv"

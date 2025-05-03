@@ -1,4 +1,11 @@
-import './App.css';
+/**
+ * @file App.tsx
+ * @brief Main component of the application, contains all of the subcomponents either
+ * in desktop or mobile view
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import {Drawer, Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent} from "@mui/material";
 import TripRequestForm from './components/TripRequestForm';
 import TripsSummary from './components/TripsSummary';
@@ -7,7 +14,7 @@ import ActionFeedback from "./components/ActionFeedback";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
 import useIsMobile from './hooks/useIsMobile';
-import {useState} from "react";
+import {useState, useMemo} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
 import {availableLanguages} from "../i18n.ts";
@@ -23,7 +30,12 @@ function App() {
     const [tabValue, setTabValue] = useState('outbound');
     const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
 
+    const formWidth = useMemo(() => {
+        return Math.floor(window.innerWidth * 0.36)
+    }, [])
+
     const isMobile = useIsMobile()
+
 
     /**
      * Change the drawer height based on if it is minimized or not
@@ -54,7 +66,7 @@ function App() {
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
                 height: '90vh',
-                width: '36%',
+                width: `${formWidth}px`,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',

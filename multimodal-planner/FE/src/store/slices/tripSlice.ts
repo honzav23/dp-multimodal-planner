@@ -1,7 +1,7 @@
 /**
+ * @file tripSlice.ts
  * @brief Slice for managing trip requests in the application.
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @module tripRequestSlice
  */
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
@@ -161,9 +161,16 @@ const tripSlice = createSlice({
             state.routes.outboundDecodedRoutes = []
             state.routes.returnDecodedRoutes = []
             state.tripResults = action.payload;
+
+            // No trips found
             if (state.tripResults.outboundTrips.length === 0) {
                 state.openSnackbar = true;
                 state.snackbarMessage = 'noTripsFound'
+            }
+
+            else if (state.tripResults.returnTrips.length === 0 && state.tripRequest.preferences.comingBack) {
+                state.openSnackbar = true;
+                state.snackbarMessage = 'noReturnTripsFound'
             }
 
             for (const tripResult of state.tripResults.outboundTrips) {

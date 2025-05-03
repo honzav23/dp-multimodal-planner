@@ -3,7 +3,6 @@
  * @brief Component for planning a trip, including input fields for start and end points, date and time pickers.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { TextField, InputAdornment, IconButton, Button, Tooltip } from '@mui/material';
@@ -46,8 +45,8 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const { t } = useTranslation()
 
-    const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(3)} ${startCoords[1].toFixed(3)}` : startAddress)
-    const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(3)} ${endCoords[1].toFixed(3)}` : endAddress)
+    const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(5)} ${startCoords[1].toFixed(5)}` : startAddress)
+    const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(5)} ${endCoords[1].toFixed(5)}` : endAddress)
 
     const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
     const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
@@ -218,11 +217,16 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         {
             input: {
             endAdornment:
-            <InputAdornment position='end'>
-                <IconButton edge='end' onClick={() => clearInput('start')}>
-                    <Close/>
-                </IconButton>
-            </InputAdornment>}}}
+                <InputAdornment position='end'>
+                    <IconButton edge='end' onClick={() => clearInput('start')}>
+                        <Close/>
+                    </IconButton>
+                </InputAdornment>
+            },
+            htmlInput: {
+                readOnly: true
+            }
+        }}
             size="small" value={startInputValue} placeholder={t('form.start')} type='text'
             onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
@@ -237,12 +241,17 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         <TextField sx={{ backgroundColor: "white", mb: 2 }} slotProps={
         {
             input: {
-            endAdornment:
-            <InputAdornment position='end'>
-                <IconButton edge='end' onClick={() => clearInput('end')}>
-                    <Close/>
-                </IconButton>
-            </InputAdornment>}}}
+                endAdornment:
+                    <InputAdornment position='end'>
+                        <IconButton edge='end' onClick={() => clearInput('end')}>
+                            <Close/>
+                        </IconButton>
+                    </InputAdornment>
+            },
+            htmlInput: {
+                readOnly: true
+            }
+        }}
         size="small" value={endInputValue} placeholder={t('form.end')} type='text'
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
         />

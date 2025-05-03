@@ -15,7 +15,8 @@
     },
     "feedback": {
         "error": "Nepodařilo se načíst trasy",
-        "noTripsFound": "Nebyla nalezena žádná vhodná trasa"
+        "noTripsFound": "Nebyla nalezena žádná vhodná trasa",
+        "noReturnTripsFound": "Nebyly nalezeny cesty zpět"
     },
     "preferences": {
         "headline": "Rozšířená nastavení",

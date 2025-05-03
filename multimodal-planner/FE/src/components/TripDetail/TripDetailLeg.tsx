@@ -1,3 +1,11 @@
+/**
+ * @file TripDetailLeg.tsx
+ * @brief Component for showing the individual trip leg with necessary information
+ * about the leg
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { ListItem, Stack, Typography, Icon, Box, Chip, Popover } from '@mui/material'
 import { useState, MouseEvent } from 'react'
 import { TripLeg } from '../../../../types/TripResult'

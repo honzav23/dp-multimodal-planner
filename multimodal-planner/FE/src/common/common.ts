@@ -3,7 +3,6 @@
  * @brief File containing functions and variables that other components might use
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import type { TransportMode } from "../../../types/TransportMode";

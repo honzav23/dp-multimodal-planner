@@ -1,9 +1,8 @@
 /**
  * @file transferStopSelector.ts
- * @brief
+ * @brief File containing algorithms for choosing the best trips
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import type { TripResult } from "../types/TripResult.ts";

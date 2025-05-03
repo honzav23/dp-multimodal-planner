@@ -3,16 +3,18 @@
  * @brief Component for showing basic information about the app and the tutorial for using it
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
-import {DialogTitle, Divider, IconButton, Dialog, Tabs, Tab, DialogContent, Typography} from "@mui/material";
+import {DialogTitle, Divider, IconButton, Dialog, Tabs, Tab, DialogContent, Typography, Box} from "@mui/material";
 import {type SyntheticEvent, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import CarPubLogo from '../img/CarPub_logo.png'
 import { useTranslation } from 'react-i18next'
 import '../css/tabStyle.css'
-import type { AboutAppTabValue } from "../types/AboutAppTabValue.ts";
+import type { AboutAppTabValue } from "../types/AboutAppTabValue.ts"
+import dataBrnoLogo from '../img/dataBrnoLogo.svg'
+import lissyLogo from '../img/lissyLogo.svg'
+import otpLogo from '../img/otpLogo.svg'
 
 
 interface AboutAppProps {
@@ -106,7 +108,14 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
                 </>
             }
         </DialogContent>
-
+        <Divider/>
+        <footer style={{  backgroundColor: '#f3f3f3' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'baseline', flexWrap: 'wrap', mt: 1 }}>
+                <a href="https://data.brno.cz/"><img style={{height: "10vh", width: '200px'}} src={dataBrnoLogo}/></a>
+                <a href="https://pclazur.fit.vutbr.cz/lissy/"><img style={{height: "10vh"}} src={lissyLogo}/></a>
+                <a href="https://docs.opentripplanner.org/en/latest/"><img style={{height: "10vh"}} src={otpLogo}/></a>
+            </Box>
+        </footer>
         </Dialog>
     )
 }

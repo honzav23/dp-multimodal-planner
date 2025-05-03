@@ -3,7 +3,6 @@
  * @brief Component for showing all calculated trips with summary info (time, transfers, ...).
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {
@@ -68,6 +67,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     // Whenever the trips are fetched, select by default the first one
     useEffect(() => {
         if (selectedTrip === -1 && !isMobile && outboundTrips.length > 0) {
+            setTabValue('outbound');
             dispatch(setSelectedTrip(0))
         }
     }, [outboundTrips]);
@@ -201,6 +201,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                     return (
                         <ListItem key={idx} sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== tripsToShow.length - 1}>
                             <ListItemText
+                                disableTypography
                                 primary={
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <Typography variant='body1' sx={{fontWeight: 'bold'}}>
@@ -223,7 +224,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                                     </div>
                                 }
                                 secondary={
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px', color: 'rgba(0, 0, 0, 0.6)' }}>
                                         <div>
                                             <Typography component='span' variant="body2">
                                                 <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}

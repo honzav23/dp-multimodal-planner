@@ -1,3 +1,11 @@
+/**
+ * @file routeCalculator.tsx
+ * @brief Entry point for the best trips calculation, trip request comes in
+ * and the best trips come out
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { getRouteByCar, getPublicTransportTrip, calculateDistance, addMinutes } from "./common/common.ts";
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
@@ -9,7 +17,7 @@ import { getLegsRoutesAndDelays } from "./transportRoutesWithDelays.ts";
 import type { OTPGraphQLData, OTPTripPattern } from "./types/OTPGraphQLData.ts";
 import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
-import { fetchTripsBackToTransferPoints } from "./returnTrips.ts";
+import { fetchReturnTrips } from "./returnTrips.ts";
 
 function pickupPointSet(pickupPoint: [number, number]): boolean {
     return pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000
@@ -239,7 +247,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     else if (candidateTransferPoints.length > 15 && !preferences.findBestTrip) {
         candidateTransferPoints = await getRepresentativeTransferStops(candidateTransferPoints)
     }
-    console.time()
 
     // Make OTP requests for car from start to all transfer points
     const carPromises = candidateTransferPoints.map((c) => getRouteByCar(origin, c.stopCoords, departureDateTime))
@@ -274,7 +281,6 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
             tripResults.push(mergeCarWithPublicTransport(candidate.car, trip, candidate.candidate.stopName))
         }
     }
-    console.timeEnd()
     const bestTrips = findBestTrips(tripResults)
     
     // If pickup point is set
@@ -286,7 +292,7 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
 
     // Fetch also trips that go from destination to the transfer point
     if (preferences.comingBack) {
-        const returnTrips = await fetchTripsBackToTransferPoints(bestTrips, tripRequest)
+        const returnTrips = await fetchReturnTrips(bestTrips, tripRequest)
 
         // Sort the return trips by transfer stop
         returnTrips.sort((a, b) => {

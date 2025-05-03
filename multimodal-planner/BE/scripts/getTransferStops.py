@@ -73,8 +73,8 @@ def get_available_parking_lots(transfer_stops_df):
         transfer_stops_df.to_csv(f'{transfer_stops_dir}/transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
         # Clean the GTFS files
-#         os.system(f'rm {script_dir}/GTFS.zip')
-#         os.system(f'rm -r {script_dir}/GTFS')
+        os.system(f'rm {script_dir}/GTFS.zip')
+        os.system(f'rm -r {script_dir}/GTFS')
 
 
 def main():

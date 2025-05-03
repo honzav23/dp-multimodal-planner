@@ -1,3 +1,10 @@
+/**
+ * @file index.tsx
+ * @brief Main entry point for the app
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

@@ -4,7 +4,6 @@
  * when the server starts, are defined here
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import { Hono } from '@hono/hono';

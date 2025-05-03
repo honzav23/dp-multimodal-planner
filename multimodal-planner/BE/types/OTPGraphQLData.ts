@@ -1,5 +1,6 @@
 export type OTPGraphQLData = {
     trip: {
+        nextPageCursor: string | null
         tripPatterns: OTPTripPattern[]
     }
 }

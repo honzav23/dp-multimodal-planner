@@ -101,7 +101,7 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: LissyA
         return {availableTripsByLines: [], availableDates: []}
     }
     const endDate = availableDates.end
-    const startDate = goToHistory(endDate, 0)
+    const startDate = goToHistory(endDate, 1)
 
 
     const availableRoutes = await getAvailableRoutesForDates(startDate, endDate)
@@ -122,14 +122,17 @@ export async function getTripsForLines(): Promise<{availableTripsByLines: LissyA
  */
 function getGqlQueryString(): string {
     return gql`
-        query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $dateTime: DateTime, $modes: Modes) {
+        query trip($from: Location!, $to: Location!, $numTripPatterns: Int, $dateTime: DateTime, $modes: Modes, $pageCursor: String) {
           trip(
             from: $from
             to: $to
             numTripPatterns: $numTripPatterns
             dateTime: $dateTime
             modes: $modes
-          ) {
+            pageCursor: $pageCursor
+          ) 
+          {
+            nextPageCursor
             tripPatterns {
               aimedStartTime
               aimedEndTime
@@ -209,11 +212,12 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
     if (!otpUrl) {
         return {
             trip: {
+                nextPageCursor: null,
                 tripPatterns: []
             }
         }
     }
-    const carRoute = await request(otpUrl, query, variables)
+    const carRoute = await request(otpUrl, query, variables) as OTPGraphQLData
     return carRoute
 }
 
@@ -262,11 +266,16 @@ export async function getPublicTransportTrip(from: [number, number], to: [number
     if (!otpUrl) {
         return {
             trip: {
+                nextPageCursor: null,
                 tripPatterns: []
             }
         }
     }
-    const publicTransportRoute = await request(otpUrl, query, variables) as OTPGraphQLData
+    let publicTransportRoute = await request(otpUrl, query, variables) as OTPGraphQLData
+    if (publicTransportRoute.trip.tripPatterns.length === 0) {
+        variables.pageCursor = publicTransportRoute.trip.nextPageCursor
+        publicTransportRoute = await request(otpUrl, query, variables)
+    }
     return publicTransportRoute
 }
 

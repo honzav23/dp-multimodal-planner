@@ -1,3 +1,10 @@
+/**
+ * @file TrolleybusIcon.tsx
+ * @brief Contains trolleybus icon
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import SvgIcon from '@mui/material/SvgIcon';
 
 function TrolleybusIcon() {

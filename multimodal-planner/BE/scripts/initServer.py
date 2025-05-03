@@ -2,6 +2,7 @@ import schedule
 import time
 import os
 import argparse
+import subprocess
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -16,7 +17,7 @@ def run_server(dev_mode, skip):
     api_path = os.path.normpath(api_path)
 
     env_file = '.env.dev' if dev_mode else '.env.prod'
-    os.system(f'deno --allow-all --env-file={api_path}/{env_file} {api_path}/api.ts')
+    subprocess.Popen(["deno", "--allow-all", f'--env-file={api_path}/{env_file}', f'{api_path}/api.ts'])
 
 def main():
     dev_mode = True
@@ -34,7 +35,7 @@ def main():
         skip = True
 
     run_server(dev_mode, skip)
-    schedule.every().day.at("2:00").do(run_server, dev_mode, skip)
+    schedule.every().day.at("02:00").do(run_server, dev_mode, skip)
     while True:
         schedule.run_pending()
         time.sleep(30)
