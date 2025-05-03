@@ -19,13 +19,13 @@ export const rootDir = import.meta.dirname;
 const app = new Hono();
 
 // Define who can make requests to this server and which methods are allowed
-app.use('/api/*', cors({
+app.use('/carpub/api/*', cors({
   origin: Deno.env.get("CORS_ORIGIN")!,
   allowMethods: ['POST', 'GET']
 }));
 
 // Main endpoint which gets the best trips based on the request
-app.post('/api/calculateTrips', async (request) => {
+app.post('/carpub/api/calculateTrips', async (request) => {
   const body = await request.req.json();
   const inputValidationResult: ResultStatus = validateRequestInput(body);
   if (inputValidationResult.error) {
@@ -57,7 +57,7 @@ app.post('/api/calculateTrips', async (request) => {
 });
 
 // Endpoint that gets all available transfer stops
-app.get('/api/transferStops', (request) => {
+app.get('/carpub/api/transferStops', (request) => {
   return request.json(transferStops);
 });
 
