@@ -3,9 +3,11 @@
  * @brief Component for handling map marker interactions, including setting start and end points on the map.
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ *
+ * Marker dragging functionality was done with the help of ChatGPT
  */
 
-import { Icon, LatLngTuple, LeafletMouseEvent } from 'leaflet';
+import { Icon, LatLngTuple, LeafletMouseEvent, DragEndEvent, Marker as LeafletMarker } from 'leaflet';
 
 // Marker images adopted from https://github.com/pointhi/leaflet-color-markers/blob/master/
 import markerIconStart from '../img/marker-icon-green.png'
@@ -16,6 +18,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
 import { setStartCoords, setEndCoords, setPickupCoords } from '../store/slices/tripSlice';
+import { useRef, useMemo } from 'react'
 
 function PositionSelection() {
   const dispatch = useAppDispatch()
@@ -26,6 +29,9 @@ function PositionSelection() {
   const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
   const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
 
+  const startMarkerRef = useRef<LeafletMarker>(null);
+  const endMarkerRef = useRef<LeafletMarker>(null);
+  const pickupMarkerRef = useRef<LeafletMarker>(null);
   
   useMapEvents({
     /**
@@ -51,11 +57,36 @@ function PositionSelection() {
     }
   })
 
+  /**
+   * Handles marker dragging and updating the address for the new marker position
+   * @param origin Indication of which marker was dragged
+   */
+  const handleMarkerDrag = (origin: string) => {
+    if (origin === 'start' && startMarkerRef.current !== null) {
+      const coords = startMarkerRef.current.getLatLng()
+      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
+      dispatch(getAddress({coords: coordsTuple, origin}))
+      dispatch(setStartCoords(coordsTuple))
+    }
+    else if (origin === 'end' && endMarkerRef.current !== null) {
+      const coords = endMarkerRef.current.getLatLng()
+      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
+      dispatch(getAddress({coords: coordsTuple, origin}))
+      dispatch(setEndCoords(coordsTuple))
+    }
+    else if (origin === 'pickup' && pickupMarkerRef.current !== null) {
+      const coords = pickupMarkerRef.current.getLatLng()
+      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
+      dispatch(getAddress({coords: coordsTuple, origin}))
+      dispatch(setPickupCoords(coordsTuple))
+    }
+  }
+
   return (
     <div>
-      <Marker position={startCoords} icon={new Icon({iconUrl: markerIconStart, iconAnchor: [12, 41]})}/>
-      <Marker position={endCoords} icon={new Icon({iconUrl: markerIconEnd, iconAnchor: [12, 41]})}/>
-      <Marker position={pickupCoords} icon={new Icon({iconUrl: markerIconPickup, iconAnchor: [12, 41]})}/>
+      <Marker ref={startMarkerRef} draggable eventHandlers={{ dragend: () => handleMarkerDrag('start') }} position={startCoords} icon={new Icon({iconUrl: markerIconStart, iconAnchor: [12, 41]})}/>
+      <Marker ref={endMarkerRef} draggable position={endCoords} eventHandlers={{ dragend: () => handleMarkerDrag('end') }} icon={new Icon({iconUrl: markerIconEnd, iconAnchor: [12, 41]})}/>
+      <Marker ref={pickupMarkerRef} draggable position={pickupCoords} eventHandlers={{ dragend: () => handleMarkerDrag('pickup') }} icon={new Icon({iconUrl: markerIconPickup, iconAnchor: [12, 41]})}/>
     </div>
   )
 }

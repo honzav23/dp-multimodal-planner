@@ -217,11 +217,16 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         {
             input: {
             endAdornment:
-            <InputAdornment position='end'>
-                <IconButton edge='end' onClick={() => clearInput('start')}>
-                    <Close/>
-                </IconButton>
-            </InputAdornment>}}}
+                <InputAdornment position='end'>
+                    <IconButton edge='end' onClick={() => clearInput('start')}>
+                        <Close/>
+                    </IconButton>
+                </InputAdornment>
+            },
+            htmlInput: {
+                readOnly: true
+            }
+        }}
             size="small" value={startInputValue} placeholder={t('form.start')} type='text'
             onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
         />
@@ -236,12 +241,17 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         <TextField sx={{ backgroundColor: "white", mb: 2 }} slotProps={
         {
             input: {
-            endAdornment:
-            <InputAdornment position='end'>
-                <IconButton edge='end' onClick={() => clearInput('end')}>
-                    <Close/>
-                </IconButton>
-            </InputAdornment>}}}
+                endAdornment:
+                    <InputAdornment position='end'>
+                        <IconButton edge='end' onClick={() => clearInput('end')}>
+                            <Close/>
+                        </IconButton>
+                    </InputAdornment>
+            },
+            htmlInput: {
+                readOnly: true
+            }
+        }}
         size="small" value={endInputValue} placeholder={t('form.end')} type='text'
         onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
         />

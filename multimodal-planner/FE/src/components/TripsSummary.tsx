@@ -201,6 +201,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                     return (
                         <ListItem key={idx} sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== tripsToShow.length - 1}>
                             <ListItemText
+                                disableTypography
                                 primary={
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <Typography variant='body1' sx={{fontWeight: 'bold'}}>
@@ -223,7 +224,7 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                                     </div>
                                 }
                                 secondary={
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px', color: 'rgba(0, 0, 0, 0.6)' }}>
                                         <div>
                                             <Typography component='span' variant="body2">
                                                 <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}

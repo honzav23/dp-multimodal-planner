@@ -14,7 +14,7 @@ import ActionFeedback from "./components/ActionFeedback";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
 import useIsMobile from './hooks/useIsMobile';
-import {useState} from "react";
+import {useState, useMemo} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
 import {availableLanguages} from "../i18n.ts";
@@ -30,7 +30,12 @@ function App() {
     const [tabValue, setTabValue] = useState('outbound');
     const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
 
+    const formWidth = useMemo(() => {
+        return Math.floor(window.innerWidth * 0.36)
+    }, [])
+
     const isMobile = useIsMobile()
+
 
     /**
      * Change the drawer height based on if it is minimized or not
@@ -61,7 +66,7 @@ function App() {
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
                 height: '90vh',
-                width: '36%',
+                width: `${formWidth}px`,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',

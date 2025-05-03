@@ -174,7 +174,12 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                             <IconButton edge='end' onClick={() => clearPickupInput()}>
                                                 <CloseIcon/>
                                             </IconButton>
-                                        </InputAdornment>}}}
+                                        </InputAdornment>
+                                },
+                                htmlInput: {
+                                    readOnly: true
+                                }
+                            }}
                                    size="small" value={pickupInputValue} label={t('preferences.pickup')} type='text'
                                    onFocus={() => {dispatch(setFocus({origin: "pickup", focused: true}));closeDialog(!dateError.error, !timeError.error)}}
                         />
@@ -245,7 +250,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         )}
                     </Box>
                 </Box>
-
             </DialogContent>
         </Dialog>
     );
