@@ -40,6 +40,7 @@
   "scripts": {
     "start": "vite --host 0.0.0.0 --mode dev",
     "build": "tsc && vite build --mode prod",
+    "buildToSubdir": "tsc && vite build --mode prod -c vite.config.subdir.ts",
     "serve": "vite preview"
   },
   "eslintConfig": {

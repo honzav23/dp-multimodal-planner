@@ -1,0 +1,31 @@
+services:
+  carpub-backend:
+    container_name: carpub-backend
+    build:
+      dockerfile: ./BE/Dockerfile.prod
+    networks:
+      - carpubNetwork
+    environment:
+      - API_BASE_URL=/carpub
+  carpub-frontend:
+    container_name: carpub-frontend
+    build:
+      dockerfile: ./FE/Dockerfile.subdir.prod
+    depends_on:
+      - carpub-backend
+    networks:
+      - carpubNetwork
+  carpub-proxy:
+    container_name: carpub-proxy
+    image: nginx:1.19
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - carpub-frontend
+    networks:
+      - carpubNetwork
+networks:
+  carpubNetwork:
+    name: carpubNetwork
