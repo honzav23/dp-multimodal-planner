@@ -14,7 +14,7 @@ import ActionFeedback from "./components/ActionFeedback";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
 import useIsMobile from './hooks/useIsMobile';
-import {useState, useMemo} from "react";
+import {useState} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
 import {availableLanguages} from "../i18n.ts";
@@ -30,12 +30,7 @@ function App() {
     const [tabValue, setTabValue] = useState('outbound');
     const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
 
-    const formWidth = useMemo(() => {
-        return Math.floor(window.innerWidth * 0.36)
-    }, [])
-
     const isMobile = useIsMobile()
-
 
     /**
      * Change the drawer height based on if it is minimized or not
@@ -66,7 +61,8 @@ function App() {
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
                 height: '90vh',
-                width: `${formWidth}px`,
+                minWidth: '700px', // 700 px is approximately 36 % of full hd width
+                width: '36%',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -78,7 +74,7 @@ function App() {
             }}>
                 {/* Mobile view for the request form */}
                 { isMobile ? (outboundTrips.length === 0 &&
-                        <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
+                        <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: {overflow: 'hidden', boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
                             <Box id='form' sx={{
                                 pointerEvents: 'auto',
                                 display: 'flex',
@@ -107,7 +103,7 @@ function App() {
 
                  {/* Mobile view for the trips summary */}
                 { isMobile ? (outboundTrips.length > 0 &&
-                    <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: { boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
+                    <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: {overflow: 'hidden', boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
                         <Box id="summary" sx={{
                             fontSize: '1em',
                             maxHeight: '50vh',

@@ -7,7 +7,7 @@
 
 import { useMediaQuery } from "@mui/material";
 
-function useIsMobile() {
+export function useIsMobile() {
     return useMediaQuery('(max-width: 768px)')
 }
 
