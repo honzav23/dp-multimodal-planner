@@ -61,7 +61,7 @@ function App() {
         <div style={{position: "relative", width: "100%"}}>
             <div style={{
                 height: '90vh',
-                minWidth: '700px', // 700 px is approximately 36 % of full hd width
+                minWidth: isMobile ? 'auto' : '700px', // 700 px is approximately 36 % of full hd width
                 width: '36%',
                 display: 'flex',
                 flexDirection: 'column',
