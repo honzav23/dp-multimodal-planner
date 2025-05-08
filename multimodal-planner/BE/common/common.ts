@@ -311,3 +311,27 @@ export function addMinutes(isoDate: string, minutes: number): string {
 
     return date.toISOString()
 }
+
+/**
+ * Converts time from 12-hour format to 24-hour format
+ * Created with the help of ChatGPT
+ * @param time Time to convert
+ * @returns Time in 24-hour format
+ */
+export function convert12HourTo24Hour(time: string): string {
+    const [splitTime, modifier] = time.split(" ")
+    
+    if (modifier) {
+        const [hours, mins, secs] = splitTime.split(":")
+        let hoursInt = parseInt(hours)
+        if (modifier === "PM" && hours !== "12") {
+            hoursInt += 12
+        }
+        else if (modifier === "AM" && hours === "12") {
+            hoursInt = 0
+        }
+        const formattedHours = hoursInt.toString().padStart(2, '0')
+        return `${formattedHours}:${mins}:${secs}`
+    }
+    return time
+}

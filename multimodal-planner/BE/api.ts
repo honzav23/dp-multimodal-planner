@@ -12,7 +12,7 @@ import { validateRequestInput } from './validate.ts';
 import { calculateRoutes } from "./routeCalculator.ts";
 import { TripRequest } from "./types/TripRequest.ts";
 import { ResultStatus } from "../types/ResultStatus.ts";
-import { getTransferStops, getTripsForLines } from "./common/common.ts";
+import { getTransferStops, getTripsForLines, convert12HourTo24Hour } from "./common/common.ts";
 
 export const rootDir = import.meta.dirname;
 
@@ -37,18 +37,18 @@ app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
     return request.json({ error: inputValidationResult.message }, 400);
   }
 
-  // Creating tripRequest object which then goes
+  // Creating tripRequest object which is then used in calculateRoutes
   const tripRequest: TripRequest = {
     origin: body.origin,
     destination: body.destination,
-    departureDateTime: `${body.departureDate}T${body.departureTime}`,
+    departureDateTime: `${body.departureDate}T${convert12HourTo24Hour(body.departureTime)}`,
     preferences: {
       modeOfTransport: body.preferences.modeOfTransport,
       transferStop: body.preferences.transferStop,
       findBestTrip: body.preferences.findBestTrip,
       pickupCoords: body.preferences.pickupCoords,
       comingBack: body.preferences.comingBack === null ? null :
-          { returnDateTime: `${body.preferences.comingBack.returnDate}T${body.preferences.comingBack.returnTime}` },
+          { returnDateTime: `${body.preferences.comingBack.returnDate}T${convert12HourTo24Hour(body.preferences.comingBack.returnTime)}` },
     }
   }
   try {

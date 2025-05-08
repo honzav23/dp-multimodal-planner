@@ -50,6 +50,18 @@ function App() {
     }
 
     /**
+     * Returns correct language value for language selector
+     * @param langValue Language value from i18next
+     * @returns Correct language value
+     */
+    const getLanguageValue = (langValue: string) => {
+        if (langValue === 'cs' || langValue === 'cs-CZ') {
+            return 'cs'
+        }
+        return 'en'
+    }
+
+    /**
      * Change the language of the application based on lang parameter
      * @param e Event containing the selected language value
      */
@@ -145,7 +157,7 @@ function App() {
                 zIndex: 1000
             }}>
                 <Select size='small' sx={{ border: '1px solid black', fontSize: '1.5rem',
-                    backgroundColor: '#f3f3f3' }} value={i18n.language} onChange={changeLanguage}>
+                    backgroundColor: '#f3f3f3' }} value={getLanguageValue(i18n.language)} onChange={changeLanguage}>
                     { availableLanguages.map(lang => (
                         <MenuItem key={lang} value={lang}>{t(`language.${lang}`)}</MenuItem>
                     )) }

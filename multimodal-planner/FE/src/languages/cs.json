@@ -68,7 +68,7 @@
         "basicInfoTitle": "Základní informace",
         "usageTitle": "Jak používat tuto aplikaci",
         "contactTitle": "Kontakt",
-        "basicInfo": "Aplikace CarPub vznikla jako diplomová práce na Fakultě informačních technologií VUT v Brně pod vedením Ing. Jiřího Hynka, Ph.D. Jedná se o multimodální dopravní plánovač, který umožňuje vytvářet trasy, které kombinují automobilovou a hromadnou dopravu. Tato aplikace je vhodná například pro lidi, kteří dojíždí do práce, případně pro turisty. Pro výpočet tras je použita open source aplikace OpenTripPlanner 2. Data o zpožděních a cesty pro jednotlivé spoje jsou získávány z aplikace Lissy.",
+        "basicInfo": "Aplikace CarPub vznikla jako diplomová práce na Fakultě informačních technologií VUT v Brně pod vedením Ing. Jiřího Hynka, Ph.D. Jedná se o multimodální dopravní plánovač, který umožňuje vytvářet trasy, které kombinují automobilovou a hromadnou dopravu. Tato aplikace je vhodná například pro lidi, kteří dojíždějí do práce, případně pro turisty. Pro výpočet tras je použita open source aplikace OpenTripPlanner 2. Data o zpožděních a cesty pro jednotlivé spoje jsou získávány z aplikace Lissy.",
         "usage": {
             "formHeader": "Formulář pro zadání trasy",
             "formText": "Vlevo na obrazovce se nachází formulář, v němž se vyplní minimální informace důležité pro získání tras. Formulář obsahuje následující položky:",

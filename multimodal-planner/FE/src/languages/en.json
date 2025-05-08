@@ -68,7 +68,7 @@
         "basicInfoTitle": "Basic information",
         "usageTitle": "How to use this application",
         "contactTitle": "Contact",
-        "basicInfo": "The CarPub application was developed as a master thesis at the Faculty of Information Technology of Brno University of Technology under the supervision of Ing. Jiří Hynek, Ph.D. It is a multimodal transport planner that allows to create routes that combine automobile and public transport. This application is suitable, for example, for people who commute to work or for tourists. The open source application OpenTripPlanner 2 is used to calculate the routes. Data on delays and routes for individual connections are obtained from the Lissy application.",
+        "basicInfo": "The CarPub application was developed as a master thesis at the Faculty of Information Technology of Brno University of Technology under the supervision of Ing. Jiří Hynek, Ph.D. It is a multimodal transport planner that allows to create routes that combine automobile and public transport. This application is suitable, for example, for people who commute to work or for tourists. The open source application OpenTripPlanner 2 is used to calculate the routes. Delay data and routes for individual legs are obtained from the Lissy application.",
         "usage": {
             "formHeader": "Trip form",
             "formText": "On the left side of the screen, you will find a form to fill in the minimum information needed to obtain the trips. The form contains the following items:",
