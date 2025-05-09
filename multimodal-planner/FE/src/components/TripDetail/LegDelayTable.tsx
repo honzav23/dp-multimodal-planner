@@ -23,6 +23,7 @@ function LegDelayTable({ delays }: LegDelayTableProps) {
      */
     const toLocaleDate = (d: string): string => {
         const date = new Date(d)
+        date.setMonth(date.getMonth() + 1) // Need to add +1 because months are indexed from 0
         return `${date.toLocaleDateString()}`
     }
 
