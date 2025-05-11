@@ -18,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
 import { setStartCoords, setEndCoords, setPickupCoords } from '../store/slices/tripSlice';
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 
 function PositionSelection() {
   const dispatch = useAppDispatch()

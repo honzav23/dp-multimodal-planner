@@ -14,7 +14,7 @@ import ActionFeedback from "./components/ActionFeedback";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import '../i18n.ts'
 import useIsMobile from './hooks/useIsMobile';
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
 import {availableLanguages} from "../i18n.ts";
@@ -23,6 +23,9 @@ import MapWrapper from "./components/MapWrapper.tsx";
 function App() {
     const { outboundTrips } = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
+
+    const { startInputFocused, endInputFocused } = useAppSelector((state) => state.focus)
+
     const showCollapse = selectedTrip !== -1
 
     const { t, i18n } = useTranslation()
@@ -32,9 +35,24 @@ function App() {
 
     const isMobile = useIsMobile()
 
+    useEffect(() => {
+        // Minimize the request form in mobile view when selecting a point
+        if (isMobile) {
+            if (startInputFocused || endInputFocused) {
+                changeHeight(true, "form")
+            }
+            else {
+                if (document.getElementById("form")) {
+                    changeHeight(false, "form")
+                }
+            }
+        }
+    }, [startInputFocused, endInputFocused, isMobile]);
+
     /**
      * Change the drawer height based on if it is minimized or not
      * @param minimize If the drawer is minimized
+     * @param origin The component which called the function
      */
     const changeHeight = (minimize: boolean, origin: string) => {
         if (minimize) {
