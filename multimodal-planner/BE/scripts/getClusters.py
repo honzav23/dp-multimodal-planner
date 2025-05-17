@@ -24,11 +24,13 @@ def getClusters():
 
     base_num_clusters = 15
     num_clusters = [base_num_clusters]
-    alternative_clusters = int(np.sqrt(len(candidates))) + base_num_clusters
+    alternative_num_clusters = int(np.sqrt(len(candidates))) + base_num_clusters
     if alternative_clusters <= len(candidates):
         num_clusters.append(alternative_clusters)
 
+    # Create the clusters using KMeans method
     dbs = [sklearn.cluster.KMeans(n_clusters=n).fit(coords) for n in num_clusters]
+    
     # Count Davies-Bouldin index for each result
     davis_indices = [sklearn.metrics.davies_bouldin_score(coords, db.labels_) for db in dbs]
 

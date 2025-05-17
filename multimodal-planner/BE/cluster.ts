@@ -29,7 +29,7 @@ export async function getRepresentativeTransferStops(transferStops: TransferStop
 
     // Call Python script to find the clusters
     const command = new Deno.Command("python3", {args: ["./scripts/getClusters.py"]})
-    let { success } = await command.output()
+    await command.output()
 
     const text = Deno.readTextFileSync(`${rootDir}/transferStops/candidatesClusters.csv`);
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});

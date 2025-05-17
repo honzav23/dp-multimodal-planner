@@ -1,3 +1,10 @@
+/**
+ * @file paretoOptimality_test.ts
+ * @brief This file deals with testing pareto optimality
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { describe, it } from "jsr:@std/testing/bdd"
 import { expect } from "jsr:@std/expect";
 import { getParetoOptimalTrips } from "../transferStopSelector.ts";

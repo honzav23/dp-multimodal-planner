@@ -1,3 +1,11 @@
+/**
+ * @file OTPGraphQLData.ts
+ * @brief File that contains all types for data that OTP returns for particular
+ * backend requests
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 export type OTPGraphQLData = {
     trip: {
         nextPageCursor: string | null

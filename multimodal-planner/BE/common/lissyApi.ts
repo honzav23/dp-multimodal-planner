@@ -3,7 +3,6 @@
  * @brief File that contains all functions that call the API from Lissy app
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import type {

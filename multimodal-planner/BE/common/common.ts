@@ -4,7 +4,6 @@
  * part
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
- * @date
  */
 
 import {parse} from "@std/csv"

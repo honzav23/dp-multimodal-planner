@@ -1,9 +1,15 @@
+/**
+ * @file validate_test.ts
+ * @brief This file includes tests for backend validation
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import { describe, it } from "jsr:@std/testing/bdd"
 import { expect } from "jsr:@std/expect";
 import { validateRequestInput, validateCoordinates, validateDateAndTime, validatePreferences, validateTransferStop,
          validatePickupPoint, validateComingBackFields } from "../validate.ts";
 import { trip, transferStop } from "./data/testTrip.ts";
-import {TransferStop} from "../../types/TransferStop.ts";
 
 describe("Validate trip request", () => {
   it("Doesn't throw when request is correct", () => {

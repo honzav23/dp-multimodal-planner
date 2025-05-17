@@ -7,13 +7,21 @@ import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
 processed = 0
 
+
 def get_GTFS_files():
+    '''
+    Download the GTFS files and store them on disk
+    '''
     response = requests.get("https://www.arcgis.com/sharing/rest/content/items/379d2e9a7907460c8ca7fda1f3e84328/data")
     if response.status_code == 200:
         with open(f'{script_dir}/GTFS.zip', "wb") as f:
             f.write(response.content)
 
 def fetch_possible_transfer_stops():
+    '''
+    Extract the transfer stops from GTFS files
+    :return: DataFrame containing all possible transfer stops
+    '''
     gtfs_dir = f'{script_dir}/GTFS'
 
     with zipfile.ZipFile(f'{script_dir}/GTFS.zip', 'r') as zip_ref:
@@ -42,6 +50,12 @@ def fetch_possible_transfer_stops():
     return result_df
 
 def find_nearest_parking_lot(row, length):
+    '''
+    Find the nearest parking lot for given transfer stop
+    :param row: Transfer stop
+    :param length: Total number of transfer stops (for printing progress)
+    :return: 1 if parking lot is near the transfer stop, 0 if not
+    '''
     api = overpy.Overpass()
     result = api.query(f"""[out:json][timeout:25];
             node(around:500, {row['stop_lat']}, {row['stop_lon']});
@@ -60,6 +74,11 @@ def find_nearest_parking_lot(row, length):
     return "1" if len(result.ways) > 0 else "0"
 
 def get_available_parking_lots(transfer_stops_df):
+    '''
+    Enrich the transfer stops with information about parking lots nearby
+    and store this DataFrame to disk
+    :param transfer_stops_df: Transfer stops DataFrame
+    '''
     transfer_stops_len = len(transfer_stops_df)
     transfer_stops_df["has_parking"] = "0"
     try:

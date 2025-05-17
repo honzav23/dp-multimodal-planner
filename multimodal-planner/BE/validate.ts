@@ -1,5 +1,12 @@
+/**
+ * @file validate.ts
+ * @brief File that validates the trip request coming from
+ * the frontend part
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 import type { ResultStatus } from "../types/ResultStatus.ts";
-import type { TransferStop } from "../types/TransferStop.ts";
 
 /**
  * Validate the format and range of coordinates

@@ -7,6 +7,13 @@ import subprocess
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 def run_server(dev_mode, skip):
+    '''
+    Function that runs the script for getting the transfer stops
+    and then runs the backend server
+    :param dev_mode: Development mode used
+    :param skip: Skip getting the transfer stops
+    :return:
+    '''
     os.system("pkill -f deno")
 
     # First get all the transfer stops
@@ -35,6 +42,8 @@ def main():
         skip = True
 
     run_server(dev_mode, skip)
+
+    # Refetch the transfer stops every day at 2:00
     schedule.every().day.at("02:00").do(run_server, dev_mode, skip)
     while True:
         schedule.run_pending()

@@ -1,3 +1,10 @@
+/**
+ * @file LissyTypes.ts
+ * @brief File that contains all types of data that are fetched from Lissy
+ *
+ * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
+ */
+
 export type LissyAvailableDates = {
     start: string,
     disabled: [string],
