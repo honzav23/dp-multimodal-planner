@@ -33,11 +33,12 @@ import {SortState, SortInfo} from "../types/SortState.ts";
 import '../css/tabStyle.css'
 
 interface TripSummaryProps {
-    changeHeight?: (minimize: boolean, origin: string) => void;
+    minimize?: (origin: string) => void;
+    maximize?: (origin: string) => void;
     switchRoutes: (value: string) => void;
 }
 
-function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
+function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
 
     const isMobile = useIsMobile()
     const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
@@ -116,19 +117,28 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
     }
 
     /**
-     * Changes the height of summary component when in mobile mode
-     * @param minimize Whether to minimize the component or not
+     * Minimize only if the function is defined
      */
-    const changeSummaryHeight = (minimize: boolean) => {
-       setMinimized(minimize)
-        if (changeHeight) {
-            changeHeight(minimize, "summary")
+    const conditionalMinimize = () => {
+        if (minimize) {
+            setMinimized(true)
+            minimize("summary")
+        }
+    }
+
+    /**
+     * Maximize only if the function is defined
+     */
+    const conditionalMaximize = () => {
+        if (maximize) {
+            setMinimized(false)
+            maximize("summary")
         }
     }
 
     const backToTrips = () => {
         setMinimized(false);
-        changeSummaryHeight(false)
+        conditionalMaximize()
         // Go from trip detail to trip summary
         if (selectedTrip !== -1) {
             dispatch(setSelectedTrip(-1))
@@ -171,11 +181,11 @@ function TripsSummary({ changeHeight, switchRoutes }: TripSummaryProps) {
                     </IconButton>
                     {
                         minimized ?
-                            <IconButton onClick={() => changeSummaryHeight(false)} color='primary' edge='start'>
+                            <IconButton onClick={conditionalMaximize} color='primary' edge='start'>
                                 <ZoomOutMap/>
                             </IconButton>
                             :
-                            <IconButton onClick={() => changeSummaryHeight(true)} color='primary' edge='start'>
+                            <IconButton onClick={conditionalMinimize} color='primary' edge='start'>
                                 <Minimize/>
                             </IconButton>
                     }

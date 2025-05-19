@@ -8,14 +8,16 @@
 import { Snackbar, Alert } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { closeSnackbar } from "../store/slices/tripSlice";
-import { isMobile } from "react-device-detect";
 
 import { useTranslation } from "react-i18next";
+import useIsMobile from "../hooks/useIsMobile";
 
 function ActionFeedback() {
     const dispatch = useAppDispatch();
     const snackbarOpen = useAppSelector((state) => state.trip.openSnackbar);
     const message = useAppSelector((state) => state.trip.snackbarMessage);
+
+    const isMobile = useIsMobile()
 
     const { t } = useTranslation();
 

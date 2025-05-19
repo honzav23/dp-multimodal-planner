@@ -26,10 +26,11 @@ import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
 import useIsMobile from "../hooks/useIsMobile.ts";
 
 interface TripRequestFormProps {
-    changeHeight?: (minimize: boolean, origin: string) => void;
+    minimize?: (origin: string) => void;
+    maximize?: (origin: string) => void;
 }
 
-export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
+export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
 
     const startAddress = useAppSelector((state) => state.address.startAddress)
@@ -159,17 +160,6 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         }
     }
 
-    /**
-     * Changes the height of summary component when in mobile mode
-     * @param minimize Whether to minimize the component or not
-     */
-    const changeRequestFormHeight = (minimize: boolean) => {
-        setMinimized(minimize)
-        if (changeHeight) {
-            changeHeight(minimize, "form")
-        }
-    }
-
     const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
         setDialogOpen(false)
         if (!comingBackDateValid) {
@@ -187,6 +177,26 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
         }
     }
 
+    /**
+     * Minimize only if the function is defined
+     */
+    const conditionalMinimize = () => {
+        if (minimize) {
+            setMinimized(true)
+            minimize("form")
+        }
+    }
+
+    /**
+     * Maximize only if the function is defined
+     */
+    const conditionalMaximize = () => {
+        if (maximize) {
+            setMinimized(false)
+            maximize("form")
+        }
+    }
+
     return (
         <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -200,11 +210,11 @@ export function TripRequestForm({ changeHeight }: TripRequestFormProps) {
             </h2>
             {
                 isMobile && (minimized ?
-                    <IconButton onClick={() => changeRequestFormHeight(false)} color='primary' edge='start'>
+                    <IconButton onClick={conditionalMaximize} color='primary' edge='start'>
                         <ZoomOutMap/>
                     </IconButton>
                     :
-                    <IconButton onClick={() => changeRequestFormHeight(true)} color='primary' edge='start'>
+                    <IconButton onClick={conditionalMinimize} color='primary' edge='start'>
                         <Minimize/>
                     </IconButton>
                 )

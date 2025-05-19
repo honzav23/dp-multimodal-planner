@@ -39,28 +39,31 @@ function App() {
         // Minimize the request form in mobile view when selecting a point
         if (isMobile) {
             if (startInputFocused || endInputFocused) {
-                changeHeight(true, "form")
+                minimize("form")
+
             }
             else {
                 if (document.getElementById("form")) {
-                    changeHeight(false, "form")
+                    maximize("form")
                 }
             }
         }
     }, [startInputFocused, endInputFocused, isMobile]);
 
     /**
-     * Change the drawer height based on if it is minimized or not
-     * @param minimize If the drawer is minimized
-     * @param origin The component which called the function
+     * Minimize the content
+     * @param origin Element id to minimize
      */
-    const changeHeight = (minimize: boolean, origin: string) => {
-        if (minimize) {
-            document.getElementById(origin)!.style.maxHeight = '5vh'
-        }
-        else {
-            document.getElementById(origin)!.style.maxHeight = '60vh'
-        }
+    const minimize = (origin: string) => {
+        document.getElementById(origin)!.style.maxHeight = '5vh'
+    }
+
+    /**
+     * Maximize the content
+     * @param origin Element id to maximize
+     */
+    const maximize = (origin: string) => {
+        document.getElementById(origin)!.style.maxHeight = '60vh'
     }
 
     const handleSwitchRoutes = (tabValue: string) => {
@@ -112,7 +115,7 @@ function App() {
                                 gap: '10px',
                                 m: 1
                             }}>
-                                <TripRequestForm changeHeight={changeHeight} />
+                                <TripRequestForm minimize={minimize} maximize={maximize} />
                             </Box>
                         </Drawer>
                 )
@@ -141,7 +144,7 @@ function App() {
                             display:'flex',
                             flexDirection: 'column',
                         }}>
-                            <TripsSummary switchRoutes={handleSwitchRoutes} changeHeight={changeHeight}/>
+                            <TripsSummary switchRoutes={handleSwitchRoutes} minimize={minimize} maximize={maximize}/>
                         </Box>
                     </Drawer>)
                     :
