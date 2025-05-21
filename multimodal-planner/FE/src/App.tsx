@@ -50,6 +50,10 @@ function App() {
         }
     }, [startInputFocused, endInputFocused, isMobile]);
 
+    useEffect(() => {
+        setTabValue("outbound");
+    }, [outboundTrips]);
+
     /**
      * Minimize the content
      * @param origin Element id to minimize
