@@ -11,6 +11,7 @@ import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { setTransferStop, initialCoords } from "../store/slices/tripSlice";
+import { getParkingLotsNearby } from "../store/slices/transferStopSlice";
 import { WarningAmber } from "@mui/icons-material";
 
 import markerIconTransfer from '../img/marker-icon-orange.png'
@@ -20,6 +21,7 @@ import { useTranslation } from "react-i18next";
 function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
+    const parkingLotsLoading = useAppSelector((state) => state.transferStop.parkingLotsLoading);
 
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -57,8 +59,8 @@ function TransferStopsSelection() {
             { transferStops.map((stop) =>
                     <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
                         <Popup closeOnClick={true}>
-                            <Stack direction='column' sx={{alignItems: 'center'}}>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
+                            <Stack direction='column' sx={{alignItems: 'center', gap: '5px'}}>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                     <h2 style={{ textAlign: 'center' }}>{stop.stopName}</h2>
                                     { !stop.hasParking &&
                                         <Tooltip sx={{ alignSelf: 'center' }} title={t('preferences.noParkingLots')} placement='right'>
@@ -69,6 +71,10 @@ function TransferStopsSelection() {
                                 {
                                     getSelectionButton(stop)
                                 }
+                                <Button onClick={() => dispatch(getParkingLotsNearby(stop.stopId))}
+                                        color='secondary' size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained' loading={parkingLotsLoading} loadingPosition='end'>
+                                    { t('transfer.showParkingLots') }
+                                </Button>
                             </Stack>
                         </Popup>
                     </CircleMarker>

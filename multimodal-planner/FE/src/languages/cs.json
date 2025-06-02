@@ -34,7 +34,11 @@
         "deselect": "Zrušit výběr přestupního bodu",
         "transferPlural": "přestupů",
         "transferSingular": "přestup",
-        "transfer234": "přestupy"
+        "transfer234": "přestupy",
+        "showParkingLots": "Zobrazit parkoviště v okolí"
+    },
+    "parkingLots": {
+        "capacity": "Kapacita"
     },
     "language": {
         "select": "Jazyk",

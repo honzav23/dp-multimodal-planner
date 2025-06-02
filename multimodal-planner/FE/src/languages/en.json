@@ -34,7 +34,11 @@
         "deselect": "Deselect the transfer point",
         "transferPlural": "transfers",
         "transferSingular": "transfer",
-        "transfer234": "transfers"
+        "transfer234": "transfers",
+        "showParkingLots": "Show parking lots nearby"
+    },
+    "parkingLots": {
+        "capacity": "Capacity"
     },
     "language": {
         "select": "Language",
