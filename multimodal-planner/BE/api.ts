@@ -10,6 +10,7 @@ import { Hono } from '@hono/hono';
 import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
 import { calculateRoutes } from "./routeCalculator.ts";
+import { fetchParkingLots } from './parkingLotsNearby.ts'
 import { TripRequest } from "./types/TripRequest.ts";
 import { ResultStatus } from "../types/ResultStatus.ts";
 import { getTransferStops, getTripsForLines, convert12HourTo24Hour } from "./common/common.ts";
@@ -65,6 +66,12 @@ app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
 app.get(`${apiUrl}/api/transferStops`, (request) => {
   return request.json(transferStops);
 });
+
+app.post(`${apiUrl}/api/parkingLotsNearby`, async (request) => {
+  const body = await request.req.json();
+  const parkingLots = await fetchParkingLots(body.stopId)
+  return request.json(parkingLots);
+})
 
 app.notFound((request) => {
   return request.json({ error: 'Not Found' }, 404);
