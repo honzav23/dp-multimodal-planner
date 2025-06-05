@@ -25,8 +25,8 @@ def getClusters():
     base_num_clusters = 15
     num_clusters = [base_num_clusters]
     alternative_num_clusters = int(np.sqrt(len(candidates))) + base_num_clusters
-    if alternative_num_cluster <= len(candidates):
-        num_clusters.append(alternative_num_cluster)
+    if alternative_num_clusters <= len(candidates):
+        num_clusters.append(alternative_num_clusters)
 
     # Create the clusters using KMeans method
     dbs = [sklearn.cluster.KMeans(n_clusters=n).fit(coords) for n in num_clusters]
