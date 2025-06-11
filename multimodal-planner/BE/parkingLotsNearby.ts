@@ -69,7 +69,10 @@ function convertNodesToObject(nodes: OSMNode[]): Record<number, OSMNode> {
 }
 
 function extractTags(parkingLotObj: Record<string, any>, parkingLot: OSMWay) {
-    if ("capacity" in parkingLot.tags) {
+    if (!("tags" in parkingLot)) {
+        return
+    }
+    if ("capacity" in parkingLot.tags!) {
         parkingLotObj["capacity"] = parseInt(parkingLot.tags.capacity);
     }
 }

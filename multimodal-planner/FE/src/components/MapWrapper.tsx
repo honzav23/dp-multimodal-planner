@@ -14,6 +14,7 @@ import 'leaflet/dist/leaflet.css'
 import { routeColors } from "../common/common.ts";
 import useIsMobile from '../hooks/useIsMobile.ts'
 import ParkingLotInfo from "./ParkingLotInfo.tsx";
+import {ParkingLot} from "../../../types/ParkingLot.ts";
 
 interface MapWrapperProps {
     tabValue: string;
@@ -29,6 +30,10 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
     const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
     const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
     const isMobile = useIsMobile()
+
+    const parkingLotTagsDefined = (parkingLot: ParkingLot): boolean => {
+        return Object.keys(parkingLot).length > 1
+    }
 
     return (
         <MapContainer key={isMobile ? 'mobile' : 'desktop'} zoomControl={!isMobile} center={[49.195061, 16.606836]} zoom={12} scrollWheelZoom={true} style={{height: '100vh'}}>
@@ -54,9 +59,11 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
             { parkingLots.map((p) => {
                 return (
                     <Polygon positions={p.polygon}>
-                        <Popup closeOnClick={true}>
-                            <ParkingLotInfo parkingLot={p}/>
-                        </Popup>
+                        { parkingLotTagsDefined(p) && (
+                            <Popup closeOnClick={true}>
+                                <ParkingLotInfo parkingLot={p}/>
+                            </Popup>
+                        ) }
                     </Polygon>
                 )
             })}
