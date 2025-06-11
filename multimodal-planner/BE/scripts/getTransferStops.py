@@ -89,6 +89,8 @@ def get_available_parking_lots(transfer_stops_df):
     finally:
         transfer_stops_dir = os.path.join(script_dir, "..", "transferStops")
         transfer_stops_dir = os.path.normpath(transfer_stops_dir)
+        if not os.path.exists(transfer_stops_dir):
+            os.makedirs(transfer_stops_dir)
         transfer_stops_df.to_csv(f'{transfer_stops_dir}/transferStopsWithParkingLots.csv', sep=';', encoding='utf-8', index=False)
 
         # Clean the GTFS files
