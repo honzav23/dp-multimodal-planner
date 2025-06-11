@@ -4,7 +4,7 @@
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
-import {ParkingLot} from "../../../types/ParkingLot.ts";
+import {ParkingLot, ParkingLotKeys} from "../../../types/ParkingLot.ts";
 import {Box} from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -31,7 +31,7 @@ function ParkingLotInfo({ parkingLot }: ParkingLotInfoProps) {
                         return (
                             <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff'}}>
                                 <th style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{t(`parkingLots.${key}`)}:</th>
-                                <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{parkingLot[key]}</td>
+                                <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{parkingLot[key as ParkingLotKeys]}</td>
                             </tr>
                         )
                     })}
