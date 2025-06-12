@@ -129,11 +129,20 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
 
         let validCorrespondingTrip: LissyAvailableTrip = {shape_id: -1, stops: '', trips: [], stopOrder: []}
 
-        // Find the correct trip based on the total number of stops they include
+        // Find the correct trip based on the stops they include
         for (const trip of correspondingTrips) {
             if (trip.stopOrder.length === leg.serviceJourney.quays.length) {
-                validCorrespondingTrip = trip
-                break
+                let stopsMatch = true
+                for (let i = 0; i < trip.stopOrder.length; i++) {
+                    if (trip.stopOrder[i] !== leg.serviceJourney.quays[i].name) {
+                        stopsMatch = false
+                        break
+                    }
+                }
+                if (stopsMatch) {
+                    validCorrespondingTrip = trip
+                    break
+                }
             }
         }
         if (validCorrespondingTrip.shape_id === -1) {
@@ -165,7 +174,6 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
                 continue
             }
             // Flatten the array of coords so the total distance can be calculated easily
-            //console.log(tripShape.coords.length, beginningStopIndex, endingStopIndex)
             const routeCoordsFlatten = tripShape.coords.slice(beginningStopIndex, endingStopIndex).flat()
             const distance = getTotalDistance(routeCoordsFlatten)
 
