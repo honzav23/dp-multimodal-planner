@@ -7,15 +7,14 @@
 
 import { Snackbar, Alert } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
-import { closeSnackbar } from "../store/slices/tripSlice";
+import { closeSnackbar } from "../store/slices/snackbarSlice.ts";
 
 import { useTranslation } from "react-i18next";
 import useIsMobile from "../hooks/useIsMobile";
 
 function ActionFeedback() {
     const dispatch = useAppDispatch();
-    const snackbarOpen = useAppSelector((state) => state.trip.openSnackbar);
-    const message = useAppSelector((state) => state.trip.snackbarMessage);
+    const { snackbarOpen, message, type } = useAppSelector((state) => state.snackbar);
 
     const isMobile = useIsMobile()
 
@@ -27,7 +26,7 @@ function ActionFeedback() {
                   onClose={() => dispatch(closeSnackbar())}>
             <Alert
                 onClose={() => dispatch(closeSnackbar())}
-                severity={message === 'error' ? 'error' : 'warning'}
+                severity={type}
                 variant="filled"
                 sx={{width: '100%'}}
             >

@@ -6,25 +6,42 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {CircleMarker, Marker, Popup} from "react-leaflet";
+import {CircleMarker, Marker, Popup, useMap} from "react-leaflet";
 import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { setTransferStop, initialCoords } from "../store/slices/tripSlice";
 import { getParkingLotsNearby } from "../store/slices/transferStopSlice";
 import { WarningAmber } from "@mui/icons-material";
+import { useState, useEffect } from "react";
 
 import markerIconTransfer from '../img/marker-icon-orange.png'
-import {Icon} from "leaflet";
+import {Icon, LatLngTuple} from "leaflet";
 import { useTranslation } from "react-i18next";
 
 function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
     const parkingLotsLoading = useAppSelector((state) => state.transferStop.parkingLotsLoading);
+    const parkingLots = useAppSelector((state) => state.transferStop.parkingLots);
+
+    const [transferStopForParkingCoords, setTransferStopForParkingCoords] = useState<LatLngTuple | null>(null);
 
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
+
+    const map = useMap()
+
+    useEffect(() => {
+        // Go to the transfer stop with the parking lots and zoom in
+        // so that the parking lots are more visible
+        if (parkingLots.length > 0 && transferStopForParkingCoords) {
+            map.flyTo(transferStopForParkingCoords, 16)
+        }
+        else {
+            setTransferStopForParkingCoords(null);
+        }
+    }, [parkingLots])
 
     /**
      * Selects and deselects the transfer stop based on stopSelected parameter
@@ -38,6 +55,11 @@ function TransferStopsSelection() {
         else {
             dispatch(setTransferStop(stop));
         }
+    }
+
+    const handleShowParkingLotsForTransferStop = (stop: TransferStop) => {
+        setTransferStopForParkingCoords(stop.stopCoords);
+        dispatch(getParkingLotsNearby(stop.stopId))
     }
 
     /**
@@ -71,7 +93,7 @@ function TransferStopsSelection() {
                                 {
                                     getSelectionButton(stop)
                                 }
-                                <Button onClick={() => dispatch(getParkingLotsNearby(stop.stopId))}
+                                <Button onClick={() => handleShowParkingLotsForTransferStop(stop)}
                                         color='secondary' size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained' loading={parkingLotsLoading} loadingPosition='end'>
                                     { t('transfer.showParkingLots') }
                                 </Button>

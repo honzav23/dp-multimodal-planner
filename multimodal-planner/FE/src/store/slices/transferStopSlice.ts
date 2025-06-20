@@ -8,8 +8,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { TransferStop } from '../../../../types/TransferStop';
-import {LatLngTuple} from "leaflet";
 import {ParkingLot} from "../../../../types/ParkingLot.ts";
+import {openSnackbar} from "./snackbarSlice.ts";
 
 interface TransferStopState {
     transferStops: TransferStop[];
@@ -41,9 +41,12 @@ export const getTransferStops = createAsyncThunk(
  * Get nearby parking lots for a given transfer stop
  */
 export const getParkingLotsNearby = createAsyncThunk('transferStops/parkingLots',
-    async (stopId: string): Promise<ParkingLot[]> => {
+    async (stopId: string, { dispatch }): Promise<ParkingLot[]> => {
         const apiUrl = import.meta.env.VITE_BACKEND_URL
         const response = await axios.post<ParkingLot[]>(`${apiUrl}/parkingLotsNearby`, { stopId })
+        if (response.data.length === 0) {
+            dispatch(openSnackbar({message: 'noParkingLotsFound', type: 'warning'}))
+        }
         return response.data;
     })
 

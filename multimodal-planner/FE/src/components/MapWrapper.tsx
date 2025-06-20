@@ -58,6 +58,7 @@ function MapWrapper( {tabValue }: MapWrapperProps ) {
 
             { parkingLots.map((p) => {
                 return (
+                    // TODO Add key to loop
                     <Polygon positions={p.polygon}>
                         { parkingLotTagsDefined(p) && (
                             <Popup closeOnClick={true}>

@@ -10,6 +10,7 @@ import addressReducer from './slices/addressSlice';
 import inputFocusReducer from './slices/inputsFocusSlice';
 import tripReducer from './slices/tripSlice';
 import transferStopReducer from './slices/transferStopSlice';
+import snackbarReducer from './slices/snackbarSlice';
 
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export type RootState = ReturnType<typeof store.getState>;
@@ -21,6 +22,7 @@ const store = configureStore({
         focus: inputFocusReducer,
         trip: tripReducer,
         transferStop: transferStopReducer,
+        snackbar: snackbarReducer,
     },
 });
 

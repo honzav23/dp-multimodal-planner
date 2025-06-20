@@ -16,7 +16,8 @@
     "feedback": {
         "error": "Unable to fetch trips",
         "noTripsFound": "No suitable trips were found",
-        "noReturnTripsFound": "No return trips were found"
+        "noReturnTripsFound": "No return trips were found",
+        "noParkingLotsFound": "No parking lots nearby"
     },
     "preferences": {
         "headline": "Additional preferences",

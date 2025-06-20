@@ -32,7 +32,6 @@ async function getParkingLotsFromOverpass(stopId: string): Promise<OSMElement[]>
         >;
         out skel qt;
     `
-
     const response = await fetch("https://overpass-api.de/api/interpreter", {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,

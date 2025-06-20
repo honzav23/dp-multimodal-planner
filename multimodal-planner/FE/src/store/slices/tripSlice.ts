@@ -12,6 +12,7 @@ import type { TripResponse } from "../../../../types/TripResult";
 import polyLine from "@mapbox/polyline"
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
+import { openSnackbar } from "./snackbarSlice.ts";
 
 interface TripSliceState {
     tripRequest: TripRequest;
@@ -69,12 +70,31 @@ function getFormattedDate() {
 /**
  * Gets the most effective trips
  */
-export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, { getState }): Promise<TripResponse> => {
+export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, {dispatch, getState }): Promise<TripResponse> => {
     const tripRequest = (getState() as { trip: TripSliceState }).trip.tripRequest;
     const apiUrl = import.meta.env.VITE_BACKEND_URL;
-    const response = await axios.post(`${apiUrl}/calculateTrips`, tripRequest)
+    try {
+        const response = await axios.post(`${apiUrl}/calculateTrips`, tripRequest)
+        const data = response.data
 
-    return response.data
+        const tripsNotFound = data.outboundTrips.length === 0
+        const returnTripsNotFound = data.returnTrips.length === 0 && tripRequest.preferences.comingBack
+
+        if (tripsNotFound) {
+            dispatch(openSnackbar({message: 'noTripsFound', type: 'warning'}))
+        }
+
+        else if (returnTripsNotFound) {
+            dispatch(openSnackbar({message: 'noReturnTripsFound', type: 'warning'}))
+        }
+        return data
+    }
+
+    catch (_) {
+        dispatch(openSnackbar({message: "error", type: 'error'}))
+        return { outboundTrips: [], returnTrips: [] }
+    }
+
 });
 
 const tripSlice = createSlice({
@@ -98,10 +118,6 @@ const tripSlice = createSlice({
         },
         setTransferStop(state, action: PayloadAction<TransferStop | null>) {
             state.tripRequest.preferences.transferStop = action.payload;
-        },
-        closeSnackbar(state) {
-          state.openSnackbar = false;
-          state.snackbarMessage = '';
         },
         setSelectedTrip(state, action: PayloadAction<number>) {
             if (action.payload === state.selectedTrip) {
@@ -162,17 +178,6 @@ const tripSlice = createSlice({
             state.routes.returnDecodedRoutes = []
             state.tripResults = action.payload;
 
-            // No trips found
-            if (state.tripResults.outboundTrips.length === 0) {
-                state.openSnackbar = true;
-                state.snackbarMessage = 'noTripsFound'
-            }
-
-            else if (state.tripResults.returnTrips.length === 0 && state.tripRequest.preferences.comingBack) {
-                state.openSnackbar = true;
-                state.snackbarMessage = 'noReturnTripsFound'
-            }
-
             for (const tripResult of state.tripResults.outboundTrips) {
                 const legs = tripResult.legs.map((leg) => (
                     {
@@ -193,16 +198,14 @@ const tripSlice = createSlice({
                 state.routes.returnDecodedRoutes.push(legs)
             }
         })
-        builder.addCase(getTrips.rejected, (state, action) => {
+        builder.addCase(getTrips.rejected, (state) => {
             state.isLoading = false;
-            state.openSnackbar = true;
-            state.snackbarMessage = 'error'
         })
     }
 });
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
-            setDepartureTime, setTransferStop, closeSnackbar, setSelectedTrip, 
+            setDepartureTime, setTransferStop, setSelectedTrip,
             setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords, clearComingBackDateTime,
             setComingBackTime, setComingBackDate } = tripSlice.actions;
 

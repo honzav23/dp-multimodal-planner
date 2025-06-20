@@ -21,7 +21,7 @@ export type OSMWay = {
     type: "way",
     id: number,
     nodes: number[],
-    tags: OSMTag
+    tags?: OSMTag
 }
 
 export type OSMElement = (OSMNode | OSMWay)
