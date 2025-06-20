@@ -82,10 +82,10 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
     for (let i = 0; i < transferStopsInTrips.length; i++) {
         const carPatternsPromises = tripResultsForTransferStops[i].map((trip) => getRouteByCar(transferStopsInTrips[i].coords, tripRequest.origin, addMinutes(trip.endTime, 1)))
         const carPatternsResponses = await Promise.all(carPatternsPromises)
-        const carPatternsResponsesNotEmpty = carPatternsResponses.every((c) => c.trip.tripPatterns.length > 0)
+        const carPatternsResponsesEmpty = !carPatternsResponses.every((c) => c.trip.tripPatterns.length > 0)
 
         // If no car trip is found for any of the results for a certain transfer stops, don't push it to responses
-        if (!carPatternsResponsesNotEmpty) {
+        if (carPatternsResponsesEmpty) {
             indicesToDelete.push(i)
         }
         else {
@@ -107,7 +107,7 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
     })
 
 
-    // Set the name of the place of departure for car as the name of the trasnfer stop
+    // Set the name of the place of departure for car as the name of the transfer stop
     for (let i = 0; i < transferStopsInTrips.length; i++) {
         for (let j = 0; j < carPatternForStops[i].length; j++) {
             carPatternForStops[i][j].legs[0].fromPlace.name = transferStopsInTrips[i].name

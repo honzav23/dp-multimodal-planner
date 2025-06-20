@@ -143,8 +143,8 @@ function minMaxNormalization(currentValue: number, min: number, max: number): nu
 }
 
 /**
- *
- * @param tripRankings
+ * Normalize all criteria used in trips
+ * @param tripRankings Trips which criteria need to be normalized
  */
 function normalizeCriteria(tripRankings: TripDecision[]) {
 
@@ -162,6 +162,10 @@ function normalizeCriteria(tripRankings: TripDecision[]) {
     }
 }
 
+/**
+ * Finds the best trips according to given criteria
+ * @param trips Original trips
+ */
 export function findBestTrips(trips: TripResult[]): TripResult[] {
     if (trips.length === 0 || trips.length === 1) {
         return trips
