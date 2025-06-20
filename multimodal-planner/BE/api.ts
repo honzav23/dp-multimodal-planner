@@ -21,7 +21,7 @@ const app = new Hono();
 
 let apiUrl = "";
 if (Deno.env.get("API_BASE_URL")) {
-  apiUrl = Deno.env.get("API_BASE_URL");
+  apiUrl = Deno.env.get("API_BASE_URL") || '';
 }
 
 // Define who can make requests to this server and which methods are allowed

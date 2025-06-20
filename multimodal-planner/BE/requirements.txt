@@ -3,3 +3,4 @@ overpy
 scikit-learn
 schedule
 requests
+kmedoids
