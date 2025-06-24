@@ -7,7 +7,7 @@
  * Marker dragging functionality was done with the help of ChatGPT
  */
 
-import { Icon, LatLngTuple, LeafletMouseEvent, DragEndEvent, Marker as LeafletMarker } from 'leaflet';
+import { Icon, LatLngTuple, LeafletMouseEvent, Marker as LeafletMarker } from 'leaflet';
 
 // Marker images adopted from https://github.com/pointhi/leaflet-color-markers/blob/master/
 import markerIconStart from '../img/marker-icon-green.png'
