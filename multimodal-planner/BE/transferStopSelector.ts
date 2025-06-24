@@ -162,6 +162,15 @@ function normalizeCriteria(tripRankings: TripDecision[]) {
     }
 }
 
+// Flag that given trip has the lowest time or lowest consumption
+function flagTheBestTimeAndConsumption(bestTrips: TripResult[]) {
+    const minTimeTrip = bestTrips.reduce((min, trip) => trip.totalTime < min.totalTime ? trip : min)
+    minTimeTrip.lowestTime = true
+
+    const minEmissionsTrip = bestTrips.reduce((min, trip) => trip.totalEmissions < min.totalEmissions ? trip : min)
+    minEmissionsTrip.lowestEmissions = true
+}
+
 /**
  * Finds the best trips according to given criteria
  * @param trips Original trips
@@ -198,14 +207,9 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
         }))
 
     tripsWithScores.sort((a, b) => a.score - b.score)
+    
     // Get 10 best solutions
     const bestTrips = tripsWithScores.map((val) => trips[val.trip.tripIndex]).slice(0, 10)
-
-    const minTimeTrip = bestTrips.reduce((min, trip) => trip.totalTime < min.totalTime ? trip : min, bestTrips[0])
-    minTimeTrip.lowestTime = true
-
-    const minEmissionsTrip = bestTrips.reduce((min, trip) => trip.totalEmissions < min.totalEmissions ? trip : min, bestTrips[0])
-    minEmissionsTrip.lowestEmissions = true
-
+    flagTheBestTimeAndConsumption(bestTrips)
     return bestTrips
 }

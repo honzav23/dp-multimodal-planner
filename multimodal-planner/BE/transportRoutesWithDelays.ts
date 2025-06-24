@@ -28,12 +28,12 @@ export function getTotalDistance(coords: [number, number][]): number {
 
 /**
  * Find corresponding trips which match the start stop and end stop
- * @param lineFrom Stop from which the line begins
- * @param lineTo Stop in which the line ends
+ * @param lineStartStop Stop from which the line begins
+ * @param lineEndStop Stop in which the line ends
  */
-function findCorrespondingTrips(lineFrom: string, lineTo: string) {
+function findCorrespondingTrips(lineStartStop: string, lineEndStop: string) {
     for (const line of availableTripsByLines) {
-        const correspondingTrips = line.filter((trip) => trip.stops === `${lineFrom} -> ${lineTo}`)
+        const correspondingTrips = line.filter((trip) => trip.stops === `${lineStartStop} -> ${lineEndStop}`)
         if (correspondingTrips.length > 0) {
             return correspondingTrips
         }
@@ -135,10 +135,10 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
         }
-        const lineFrom = leg.serviceJourney.quays[0].name
-        const lineTo = leg.serviceJourney.quays[leg.serviceJourney.quays.length - 1].name
+        const lineStartStop = leg.serviceJourney.quays[0].name
+        const lineEndStop = leg.serviceJourney.quays[leg.serviceJourney.quays.length - 1].name
 
-        const correspondingTrips = findCorrespondingTrips(lineFrom, lineTo)
+        const correspondingTrips = findCorrespondingTrips(lineStartStop, lineEndStop)
         const validCorrespondingTrip = findCorrectTripFromCorrespondingTrips(correspondingTrips, leg)
 
         if (validCorrespondingTrip === null) {
@@ -154,16 +154,16 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
         const beginningStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.fromPlace.quay.id)
         const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id)
 
-        const firstStopTimeOfDeparture = leg.serviceJourney.passingTimes[0].departure.time
-
-        // Find a trip with the correct departure time
-        const foundTrip = validCorrespondingTrip.trips.find((t) => t.dep_time === firstStopTimeOfDeparture)
-        if (foundTrip) {
-            legDelays = await getDelaysForLeg(foundTrip.id, endingStopIndex)
-        }
         if (beginningStopIndex === -1 || endingStopIndex === -1) {
             legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
             continue
+        }
+        
+        const firstStopTimeOfDeparture = leg.serviceJourney.passingTimes[0].departure.time
+
+        const correctTimeTrip = validCorrespondingTrip.trips.find((t) => t.dep_time === firstStopTimeOfDeparture)
+        if (correctTimeTrip) {
+            legDelays = await getDelaysForLeg(correctTimeTrip.id, endingStopIndex)
         }
         // Flatten the array of coords so the total distance can be calculated easily
         const routeCoordsFlatten = tripShape.coords.slice(beginningStopIndex, endingStopIndex).flat()

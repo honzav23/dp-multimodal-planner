@@ -20,16 +20,18 @@ import {TransferStop} from "../types/TransferStop.ts";
 import { fetchReturnTrips } from "./returnTrips.ts";
 import {TransportMode} from "../types/TransportMode.ts";
 
+const TRANSFER_STOP_THRESHOLD = 15
+
 function pickupPointSet(pickupPoint: [number, number]): boolean {
     return pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000
 }
 
 /**
- * Retrieves the candidate transfer stops for a trip request that are too far from the destination.
+ * Gets only candidate transfer stops that are not too far from the destination.
  * @param tripRequest The trip request
  * @returns Candidate transfer stops
  */
-function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
+function removeDistantTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
     const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
             ...row,
@@ -51,6 +53,18 @@ function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDi
     return candidateTransferPoints;
 }
 
+async function getCandidateTransferStops(tripRequest: TripRequest): Promise<TransferStop[]> {
+    const { preferences } = tripRequest
+    let candidateTransferStops: TransferStop[] = preferences.transferStop ?
+        [preferences.transferStop] : removeDistantTransferStops(tripRequest)
+
+    if (candidateTransferStops.length > TRANSFER_STOP_THRESHOLD && !preferences.findBestTrip) {
+        candidateTransferStops = await getRepresentativeTransferStops(candidateTransferStops)
+    }
+
+    return candidateTransferStops
+}
+
 /**
  * Converts a trip from the representation returned by OTP
  * to internal representation
@@ -58,7 +72,8 @@ function getCandidateTransferStops(tripRequest: TripRequest): TransferStopWithDi
  * @returns Trip converted to TripResult
  */
 export async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
-    const totalTransfers = calculateTotalNumberOfTransfers(trip)
+
+  const totalTransfers = calculateTotalNumberOfTransfers(trip)
   if (availableTripsByLines.length === 0) {
         return {
             totalTime: trip.duration,
@@ -325,17 +340,13 @@ export async function calculateRoutes(tripRequest: TripRequest): Promise<TripRes
     const pickupPointValid = pickupPointSet(preferences.pickupCoords)
     const finalDestination =  pickupPointValid ? preferences.pickupCoords : destination
 
-    let candidateTransferStops: TransferStop[] = preferences.transferStop ?
-        [preferences.transferStop] : getCandidateTransferStops(tripRequest)
+    const candidateTransferStops = await getCandidateTransferStops(tripRequest)
 
     if (candidateTransferStops.length === 0) {
         tripResults = await handleNoCandidateTransferStops(origin, finalDestination, departureDateTime, preferences.modeOfTransport)
     }
-    else if (candidateTransferStops.length > 15 && !preferences.findBestTrip) {
-        candidateTransferStops = await getRepresentativeTransferStops(candidateTransferStops)
-    }
 
-    if (tripResults.length === 0) {
+    if (tripResults.length === 0 && candidateTransferStops.length > 0) {
         const carTripsFromOriginToEachTransferStop = await getCarTripsFromOriginToEachTransferStop(candidateTransferStops, origin, departureDateTime)
         const candidateStopAndCarPairs = await pairTransferStopWithItsCarTrip(candidateTransferStops, carTripsFromOriginToEachTransferStop)
         const publicTransportTripsToDestination = await getPublicTransportTripsFromTransferStopToDestination(candidateStopAndCarPairs, finalDestination, preferences.modeOfTransport)
