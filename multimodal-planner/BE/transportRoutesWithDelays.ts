@@ -129,10 +129,12 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
     const legRoutes: {route: string, distance: number, delayInfo: DelayInfo[]}[] = []
     for (const leg of trip.legs) {
         let legDelays: DelayInfo[] = []
+        let routePolyline = leg.pointsOnLink.points
+        let routeDistance = leg.distance
 
         // Skip car and foot (route automatic, no delay) and the case where no trips are available
         if (leg.mode === 'car' || leg.mode === 'foot' || availableTripsByLines.length === 0) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            legRoutes.push({route: routePolyline, distance: routeDistance, delayInfo: legDelays})
             continue
         }
         const lineStartStop = leg.serviceJourney.quays[0].name
@@ -142,12 +144,12 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
         const validCorrespondingTrip = findCorrectTripFromCorrespondingTrips(correspondingTrips, leg)
 
         if (validCorrespondingTrip === null) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            legRoutes.push({route: routePolyline, distance: routeDistance, delayInfo: legDelays})
             continue
         }
         const tripShape = await getShapesFromLissy(validCorrespondingTrip.shape_id)
         if (tripShape === null) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            legRoutes.push({route: routePolyline, distance: routeDistance, delayInfo: legDelays})
             continue
         }
 
@@ -155,7 +157,7 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
         const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id)
 
         if (beginningStopIndex === -1 || endingStopIndex === -1) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+            legRoutes.push({route: routePolyline, distance: routeDistance, delayInfo: legDelays})
             continue
         }
         
@@ -167,14 +169,13 @@ export async function getLegsRoutesAndDelays(trip: OTPTripPattern) {
         }
         // Flatten the array of coords so the total distance can be calculated easily
         const routeCoordsFlatten = tripShape.coords.slice(beginningStopIndex, endingStopIndex).flat()
-        const distance = getTotalDistance(routeCoordsFlatten)
+        const calculatedDistance = getTotalDistance(routeCoordsFlatten)
 
-        if (distance === 0) {
-            legRoutes.push({route: leg.pointsOnLink.points, distance: leg.distance, delayInfo: legDelays})
+        if (calculatedDistance > 0) {
+            routePolyline = polyline.encode(routeCoordsFlatten)
+            routeDistance = calculatedDistance
         }
-        else {
-            legRoutes.push({route: polyline.encode(routeCoordsFlatten), distance: distance, delayInfo: legDelays})
-        }
+        legRoutes.push({route: routePolyline, distance: routeDistance, delayInfo: legDelays})
 
     }
     return legRoutes;
