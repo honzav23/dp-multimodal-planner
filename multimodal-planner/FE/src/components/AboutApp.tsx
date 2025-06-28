@@ -112,7 +112,7 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
         <footer style={{  backgroundColor: '#f3f3f3' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'baseline', flexWrap: 'wrap', mt: 1 }}>
                 <a href="https://data.brno.cz/"><img style={{height: "10vh", width: '200px'}} src={dataBrnoLogo}/></a>
-                <a href="https://pclazur.fit.vutbr.cz/lissy/"><img style={{height: "10vh"}} src={lissyLogo}/></a>
+                <a href="https://dexter.fit.vutbr.cz/lissy/"><img style={{height: "10vh"}} src={lissyLogo}/></a>
                 <a href="https://docs.opentripplanner.org/en/latest/"><img style={{height: "10vh"}} src={otpLogo}/></a>
             </Box>
         </footer>
