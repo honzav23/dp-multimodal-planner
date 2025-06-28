@@ -98,6 +98,7 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
         // nnnnnn, (2012, 02 24). Remove multiple elements from array in Javascript/jQuery. Stack Overflow. https://stackoverflow.com/questions/9425009/remove-multiple-elements-from-array-in-javascript-jquery
         for (let i = indicesToDelete.length - 1; i >= 0; i--) {
             transferStopsInTrips.splice(indicesToDelete[i], 1);
+            tripResultsForTransferStops.splice(indicesToDelete[i], 1);
         }
     }
 
@@ -147,8 +148,7 @@ export async function fetchReturnTrips(bestTrips: TripResult[], tripRequest: Tri
     const carTripsResponses = await processCarTrips(transferStopsUsedInTrips, tripResultsForTransferStops, tripRequest);
 
     const tripResultsForTransferStopsFlatten = tripResultsForTransferStops.flat()
-
-    const returnTripResults = []
+    const returnTripResults: TripResult[] = []
     for (let i = 0; i < carTripsResponses.length; i++) {
         returnTripResults.push(mergeFinalTripWithCar(tripResultsForTransferStopsFlatten[i], carTripsResponses[i], true))
     }
