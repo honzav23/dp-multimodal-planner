@@ -39,7 +39,32 @@
         "showParkingLots": "Zobrazit parkoviště v okolí"
     },
     "parkingLots": {
-        "capacity": "Kapacita"
+        "capacity": "Kapacita",
+        "capacityDisabled": "Kapacita pro postižené",
+        "fee": "Poplatek",
+        "charge": "Výše poplatku",
+        "parkRide": "Park & Ride",
+        "maxStay": "Maximální doba stání",
+        "stay": "doba stání",
+        "more": "delší než",
+        "less": "kratší než",
+        "yes": "Ano",
+        "no": "Ne",
+        "except": "s výjimkou",
+        "days": {
+            "Mo": "Po",
+            "Tu": "Út",
+            "We": "St",
+            "Th": "Čt",
+            "Fr": "Pá",
+            "Sa": "So",
+            "Su": "Ne"
+        },
+        "timeUnits": {
+            "minutes": "minut",
+            "hours": "hodin",
+            "days": "dní"
+        }
     },
     "language": {
         "select": "Jazyk",

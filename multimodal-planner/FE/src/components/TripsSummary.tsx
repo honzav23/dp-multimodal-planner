@@ -23,7 +23,7 @@ import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice"
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
-    Minimize, EnergySavingsLeaf, DirectionsRun, KeyboardArrowUp} from "@mui/icons-material";
+    Minimize, EnergySavingsLeaf, DirectionsRun} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
 import SortIcon from './SortIcon'
 import useIsMobile from '../hooks/useIsMobile';

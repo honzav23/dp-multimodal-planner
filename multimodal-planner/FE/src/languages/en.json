@@ -39,7 +39,32 @@
         "showParkingLots": "Show parking lots nearby"
     },
     "parkingLots": {
-        "capacity": "Capacity"
+        "capacity": "Capacity",
+        "capacityDisabled": "Capacity for disabled",
+        "fee": "Fee",
+        "charge": "Charge",
+        "parkRide": "Park & Ride",
+        "maxStay": "Max stay",
+        "stay": "stay time",
+        "more": "longer than",
+        "less": "shorter than",
+        "yes": "Yes",
+        "no": "No",
+        "except": "except",
+        "days": {
+            "Mo": "Mo",
+            "Tu": "Tu",
+            "We": "We",
+            "Th": "Th",
+            "Fr": "Fr",
+            "Sa": "Sa",
+            "Su": "Su"
+        },
+        "timeUnits": {
+            "minutes": "minutes",
+            "hours": "hours",
+            "days": "days"
+        }
     },
     "language": {
         "select": "Language",
