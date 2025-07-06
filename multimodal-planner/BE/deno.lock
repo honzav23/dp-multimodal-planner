@@ -1,5 +1,5 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
     "jsr:@hono/hono@^4.6.10": "4.6.12",
     "jsr:@std/assert@1": "1.0.8",
@@ -11,6 +11,8 @@
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/streams@^1.0.8": "1.0.8",
     "jsr:@std/testing@*": "1.0.5",
+    "npm:@types/node@*": "22.10.1",
+    "npm:osm-conditional-restrictions@*": "0.0.0",
     "npm:polyline-encoded@0.0.9": "0.0.9"
   },
   "jsr": {
@@ -60,8 +62,20 @@
     }
   },
   "npm": {
+    "@types/node@22.10.1": {
+      "integrity": "sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "osm-conditional-restrictions@0.0.0": {
+      "integrity": "sha512-eFclZWxSU+2bZlcE3TrLyBv+Ly2iSKM/gpaUDaL5u5E13qu+M3aiJ3AhRDTMMcEPLFuvBg2SMPKelURdYqttvA=="
+    },
     "polyline-encoded@0.0.9": {
       "integrity": "sha512-xv6ONShzZdcISK6IT8x3IqsqxPq7HRqcPJ80V4et4hMolIRct5s/5dtUkfO7hGZEeKtWZ1fK7/fKur8gbd4fvg=="
+    },
+    "undici-types@6.20.0": {
+      "integrity": "sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg=="
     }
   },
   "redirects": {
@@ -213,6 +227,7 @@
       "jsr:@std/assert@1",
       "jsr:@std/cli@*",
       "jsr:@std/csv@*",
+      "npm:osm-conditional-restrictions@*",
       "npm:polyline-encoded@0.0.9"
     ]
   }

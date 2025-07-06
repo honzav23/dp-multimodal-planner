@@ -7,7 +7,16 @@
  */
 
 export type OSMTag = Record<string, any> | {
-    capacity?: string
+    capacity?: string,
+    'capacity:disabled'?: string
+    'fee:conditional'?: string,
+    'maxstay:conditional'?: string,
+    fee?: "yes" | "no" | "donation" | "unknown",
+    charge?: string,
+    maxstay?: string,
+    park_ride?: string,
+    name?: string,
+    opening_hours?: string,
 } // TODO make it more accurate
 
 export type OSMNode = {

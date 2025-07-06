@@ -115,7 +115,6 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
             carPatternForStops[i][j].legs[0].fromPlace.name = transferStopsInTrips[i].name
         }
     }
-
     const carPatternForStopsFlatten = carPatternForStops.flat()
     const carTripsPromises = carPatternForStopsFlatten.map(convertOTPDataToTripResult)
     return (await Promise.all(carTripsPromises))
