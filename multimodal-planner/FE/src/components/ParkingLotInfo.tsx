@@ -4,7 +4,7 @@
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
-import {Fee, ParkingLot, ParkingLotKeys, MaxStay} from "../../../types/ParkingLot.ts";
+import type {Fee, ParkingLot, MaxStay, OpeningHours, DayTimeRange} from "../../../types/ParkingLot.ts";
 import {Box} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
@@ -16,15 +16,21 @@ interface ParkingLotInfoProps {
 function ParkingLotInfo({ parkingLot }: ParkingLotInfoProps) {
     const { t } = useTranslation();
     const parkingLotTableKeys = Object.keys(parkingLot).filter(key => key !== 'polygon' && key !== 'name');
+    const parkingLotTagsDefined = Object.keys(parkingLot).length > 1;
+
+    // Format the validity interval string to unified format
+    // for example Mo-Fr 10:00-18:00
+    const formatValidityIntervalString = (condition: DayTimeRange): string => {
+        const dayFrom = condition.dayFrom ? t(`parkingLots.days.${condition.dayFrom}`) : '';
+        const dayTo = condition.dayTo ? '-' + t(`parkingLots.days.${condition.dayTo}`) : '';
+        const time = condition.timeRange ?? ''
+        return `${dayFrom}${dayTo} ${time}`;
+    }
 
     const transformFeeConditional = (fee: Fee, condProp: 'conditions' | 'exceptions'): string[] => {
         return fee[condProp].map(cond => {
             if ("dayFrom" in cond) {
-                const dayFrom = cond.dayFrom ? t(`parkingLots.days.${cond.dayFrom}`) : '';
-                const dayTo = cond.dayTo ? '-' + t(`parkingLots.days.${cond.dayTo}`) : '';
-                const timeFrom = cond.timeFrom ? cond.timeFrom : '';
-                const timeTo = cond.timeTo ? cond.timeTo : '';
-                return `${dayFrom}${dayTo} ${timeFrom}-${timeTo}`;
+                return formatValidityIntervalString(cond);
             }
             else {
                 const operator = t(`parkingLots.${cond.operator}`);
@@ -65,16 +71,22 @@ function ParkingLotInfo({ parkingLot }: ParkingLotInfoProps) {
         const conditions = maxStay.conditions.map(cond => {
             const timeValue = cond.amountOfTime
             const unit = t(`parkingLots.timeUnits.${cond.unit}`);
-            const dayFrom = t(`parkingLots.days.${cond.validityRange.dayFrom}`);
-            const dayTo = cond.validityRange.dayTo ? '-' + t(`parkingLots.days.${cond.validityRange.dayTo}`) : '';
-            const timeFrom = cond.validityRange.timeFrom ? cond.validityRange.timeFrom : '';
-            const timeTo = cond.validityRange.timeTo ? cond.validityRange.timeTo : '';
-            return `${timeValue} ${unit} ${dayFrom}${dayTo} ${timeFrom}-${timeTo}`;
+            return `${timeValue} ${unit} ${formatValidityIntervalString(cond.validityRange)}`;
         });
-        return `${conditions.join(', ')}`;
+        return `${conditions.join('; ')}`;
     }
 
-    const formatOutputBasedOnKey = (key: ParkingLotKeys, value: any): string | ReactNode => {
+    const formatOpeningHours = (openingHours: OpeningHours): string => {
+        if (openingHours.isInterval) {
+            const conditions = openingHours.openingHours.map(cond => {
+                return formatValidityIntervalString(cond);
+            });
+            return `${conditions.join('; ')}`;
+        }
+        return openingHours.openingHours as string
+    }
+
+    const formatOutputBasedOnKey = (key: keyof ParkingLot, value: any): string | ReactNode => {
 
         switch (key) {
             case 'capacity':
@@ -93,38 +105,48 @@ function ParkingLotInfo({ parkingLot }: ParkingLotInfoProps) {
             case 'parkRide':
                 return value ? t('parkingLots.yes') : t('parkingLots.no');
             case 'openingHours':
-                if (typeof value === 'string') {
-                    return value; // Assuming it's a string representation of opening hours
-                }
-                else {
-                    // TODO
-                }
+                return formatOpeningHours(value);
+
+            case 'website':
+                return <a href={value}>{value}</a>
             default:
                 return value;
         }
     }
+    
+    const getTitle = (): string => {
+        if (parkingLotTagsDefined) {
+            return parkingLot.name || ''
+        }
+        return t('parkingLots.noParkingLotInfo')
+    }
+
     return (
         <Box sx={{ padding: '0 10px' }}>
-            <h2 style={{ textAlign: 'center' }}>{parkingLot.name || '' }</h2>
-            <table
-                style={{
-                    borderCollapse: "collapse",
-                    borderTop: "1px solid #ddd",
-                    margin: "20px auto",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                }}
-            >
-                <tbody>
-                    {parkingLotTableKeys.map((key, i) => {
-                        return (
-                            <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff'}}>
-                                <th style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{t(`parkingLots.${key}`)}:</th>
-                                <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ formatOutputBasedOnKey(key as ParkingLotKeys, parkingLot[key as ParkingLotKeys]) }</td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+            <h2 style={{ textAlign: 'center' }}>{getTitle()}</h2>
+
+            { parkingLotTagsDefined &&
+                <table
+                    style={{
+                        borderCollapse: "collapse",
+                        borderTop: "1px solid #ddd",
+                        margin: "20px auto",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    }}
+                >
+                    <tbody>
+                        {parkingLotTableKeys.map((key, i) => {
+                            const typedKey = key as keyof ParkingLot
+                            return (
+                                <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff'}}>
+                                    <th style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{t(`parkingLots.${key}`)}:</th>
+                                    <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ formatOutputBasedOnKey(typedKey, parkingLot[typedKey]) }</td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            }
         </Box>
     )
 }

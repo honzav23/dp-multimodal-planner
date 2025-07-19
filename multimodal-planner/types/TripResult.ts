@@ -20,13 +20,18 @@ export type TripLeg = {
     distance: number,
     line: string,
     route: string,
-    averageDelay: number,
-    delayInfo: DelayInfo[]
+    delays: DelaysForLeg
 }
 
 export type TripResponse = {
     outboundTrips: TripResult[],
     returnTrips: TripResult[],
+}
+
+export type DelaysForLeg = {
+    averageDelay: number,
+    currentDelay: number,
+    pastDelays: DelayInfo[]
 }
 
 export type DelayInfo = {

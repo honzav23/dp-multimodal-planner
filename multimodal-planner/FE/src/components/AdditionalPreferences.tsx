@@ -20,6 +20,7 @@ import {
     clearComingBackDateTime,
     setComingBackDate,
     setComingBackTime,
+    setUseOnlyPublicTransport
 } from "../store/slices/tripSlice";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import type { TransportMode } from "../../../types/TransportMode";
@@ -44,6 +45,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop)
     const selectedMeansOfTransport = useAppSelector((state) => state.trip.tripRequest.preferences.modeOfTransport)
     const findBestTripSelected = useAppSelector((state) => state.trip.tripRequest.preferences.findBestTrip)
+    const useOnlyPublicTransport = useAppSelector((state) => state.trip.tripRequest.preferences.useOnlyPublicTransport)
     const pickupAddress = useAppSelector((state) => state.address.pickupAddress)
     const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
     const preferences = useAppSelector((state) => state.trip.tripRequest.preferences)
@@ -215,6 +217,10 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                         />
                     </Box>
                     <Box sx={{ marginLeft: { md: '5%', sm: 0 }, display: 'flex', gap: '15px', flexDirection: 'column', width: { md: '30%', sm: '100%' }}}>
+                        {/* Use only public transport */}
+                        <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setUseOnlyPublicTransport(val))}
+                                                             checked={useOnlyPublicTransport}/>} label={t('preferences.onlyPublicTransport')}/>
+
                          {/* Find the best solution checkbox */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setFindBestTrip(val))}
                             checked={findBestTripSelected}/>} label={t('preferences.bestTrip')}/>

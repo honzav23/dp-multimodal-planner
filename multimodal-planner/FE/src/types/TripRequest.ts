@@ -16,6 +16,7 @@ export type TripRequest = {
     departureTime: string;
     preferences: {
         modeOfTransport: TransportMode[];
+        useOnlyPublicTransport: boolean;
         transferStop: TransferStop | null;
         findBestTrip: boolean;
         pickupCoords: LatLngTuple

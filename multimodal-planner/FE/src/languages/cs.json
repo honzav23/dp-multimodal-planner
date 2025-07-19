@@ -24,6 +24,7 @@
         "transferPoints": "Přestupní body",
         "noParkingLots": "Žádná parkoviště v blízkosti",
         "transport": "Preferované dopravní prostředky",
+        "onlyPublicTransport": "Využít pouze hromadnou dopravu",
         "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)",
         "pickup": "Místo vyzvednutí",
         "return": "Budu se vracet",
@@ -45,6 +46,8 @@
         "charge": "Výše poplatku",
         "parkRide": "Park & Ride",
         "maxStay": "Maximální doba stání",
+        "openingHours": "Otevírací doba",
+        "website": "Webová stránka",
         "stay": "doba stání",
         "more": "delší než",
         "less": "kratší než",
@@ -64,7 +67,8 @@
             "minutes": "minut",
             "hours": "hodin",
             "days": "dní"
-        }
+        },
+        "noParkingLotInfo": "Nenalezeny žádné informace o parkovišti"
     },
     "language": {
         "select": "Jazyk",
@@ -82,6 +86,8 @@
     "return": "Cesty zpět",
     "date": "Datum",
     "delay": "Zpoždění",
+    "currentDelay": "Aktuální zpoždění",
+    "averageDelay": "Průměrné zpoždění za minulé dny",
     "via": "přes",
     "eco": "Nejekologičtější",
     "fastest": "Nejkratší čas cesty",

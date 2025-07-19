@@ -6,9 +6,9 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import { ListItem, Stack, Typography, Icon, Box, Chip, Popover } from '@mui/material'
+import { ListItem, Stack, Typography, Icon, Box, Chip, Popover, Tooltip } from '@mui/material'
 import { useState, MouseEvent } from 'react'
-import { TripLeg } from '../../../../types/TripResult'
+import {DelaysForLeg, TripLeg} from '../../../../types/TripResult'
 import LegDelayTable from "./LegDelayTable";
 import { formatDateTime } from "../../common/common";
 import { DirectionsCar, DirectionsBus, Train, Tram, QuestionMark, DirectionsWalk, DirectionsSubway } from '@mui/icons-material'
@@ -86,6 +86,20 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
         return legName
     }
 
+    const getDelayNumber = (delays: DelaysForLeg): number => {
+        return leg.delays.currentDelay === -1 ? leg.delays.averageDelay : leg.delays.currentDelay
+    }
+
+    const getChipColor = (delays: DelaysForLeg): 'success' | 'error' => {
+        if (delays.currentDelay !== -1) {
+            return delays.currentDelay === 0 ? 'success' : 'error'
+        }
+        return delays.averageDelay === 0 ? 'success' : 'error'
+    }
+
+    const getTooltipTitle = (delays: DelaysForLeg): string => {
+        return delays.currentDelay === -1 ? t('averageDelay') : t('currentDelay')
+    }
 
     return (
         <ListItem
@@ -107,12 +121,16 @@ function TripDetailLeg({ leg, idx, totalLegs }: TripDetailLegProps) {
                     <Typography variant="body2" sx={{ color: "#546E7A" }}>
                         {formatDateTime(leg.startTime)} - {formatDateTime(leg.endTime)}
                     </Typography>
-                    { leg.delayInfo.length > 0 &&
+                    { (leg.delays.pastDelays.length > 0 || leg.delays.currentDelay !== -1) &&
                         <>
-                            <Chip size='small' label={`+${leg.averageDelay} min`} color={leg.averageDelay > 0 ? 'error' : 'success'} onClick={handleClick}/>
-                            <Popover open={open} id={id} anchorEl={anchorEl} transformOrigin={{ vertical: 'bottom', horizontal: 'left' }} anchorOrigin={{vertical: 'top', horizontal: 'right'}} onClose={handleClose}>
-                                <LegDelayTable delays={leg.delayInfo}/>
-                            </Popover>
+                            <Tooltip title={ getTooltipTitle(leg.delays) } arrow placement='right'>
+                                <Chip sx={{ border: leg.delays.currentDelay !== -1 ? '2px solid #ffa500' : 'inherit' }} size='small' label={`+${getDelayNumber(leg.delays)} min`} color={getChipColor(leg.delays)} onClick={handleClick}/>
+                            </Tooltip>
+                            { leg.delays.pastDelays.length > 0 &&
+                                <Popover open={open} id={id} anchorEl={anchorEl} transformOrigin={{ vertical: 'bottom', horizontal: 'left' }} anchorOrigin={{vertical: 'top', horizontal: 'right'}} onClose={handleClose}>
+                                    <LegDelayTable delays={leg.delays.pastDelays}/>
+                                </Popover>
+                            }
                         </>
                     }
                 </Box>

@@ -39,6 +39,7 @@ const initialState: TripSliceState = {
         departureTime: (new Date()).toLocaleTimeString(),
         preferences: {
             modeOfTransport: [],
+            useOnlyPublicTransport: false,
             transferStop: null,
             findBestTrip: false,
             pickupCoords: initialCoords,
@@ -103,9 +104,17 @@ const tripSlice = createSlice({
     reducers: {
         setStartCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.origin = action.payload;
+
+            // Remove the old routes from a trip whenever the starting point changes
+            state.tripResults.outboundTrips = []
+            state.tripResults.returnTrips = []
         },
         setEndCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.destination = action.payload;
+
+            // Remove the old routes from a trip whenever the ending point changes
+            state.tripResults.outboundTrips = []
+            state.tripResults.returnTrips = []
         },
         setPickupCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.preferences.pickupCoords = action.payload
@@ -164,6 +173,9 @@ const tripSlice = createSlice({
             if (state.tripRequest.preferences.comingBack) {
                 state.tripRequest.preferences.comingBack.returnTime = action.payload
             }
+        },
+        setUseOnlyPublicTransport(state, action: PayloadAction<boolean>) {
+            state.tripRequest.preferences.useOnlyPublicTransport = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -207,6 +219,6 @@ const tripSlice = createSlice({
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, setSelectedTrip,
             setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords, clearComingBackDateTime,
-            setComingBackTime, setComingBackDate } = tripSlice.actions;
+            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport } = tripSlice.actions;
 
 export default tripSlice.reducer;
