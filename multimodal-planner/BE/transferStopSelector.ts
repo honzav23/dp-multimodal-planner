@@ -78,7 +78,7 @@ function getTotalEmissions(trip: TripResult): number {
  *
  * @returns Pareto optimal trips
  */
-export function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
+function getParetoOptimalTrips(trips: TripDecision[]): TripDecision[] {
     let optimalTrips: TripDecision[] = [];
 
     for (const trip of trips) {
@@ -175,7 +175,7 @@ function flagTheBestTimeAndConsumption(bestTrips: TripResult[]) {
  * Finds the best trips according to given criteria
  * @param trips Original trips
  */
-export function findBestTrips(trips: TripResult[]): TripResult[] {
+function findBestTrips(trips: TripResult[]): TripResult[] {
     if (trips.length === 0 || trips.length === 1) {
         return trips
     }
@@ -183,7 +183,7 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     
     let tripRankings: TripDecision[] = []
     for (let i = 0; i < trips.length; i++) {
-        const delaySum = trips[i].legs.reduce((acc, leg) => acc + leg.averageDelay, 0)
+        const delaySum = trips[i].legs.reduce((acc, leg) => acc + leg.delays.averageDelay, 0)
         tripRankings.push(
             {
                 tripIndex: i,
@@ -213,3 +213,5 @@ export function findBestTrips(trips: TripResult[]): TripResult[] {
     flagTheBestTimeAndConsumption(bestTrips)
     return bestTrips
 }
+
+export { findBestTrips, getParetoOptimalTrips }

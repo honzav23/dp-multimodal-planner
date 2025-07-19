@@ -23,7 +23,7 @@ function getHeaders() {
 /**
  * Get all dates when the delay information is available
  */
-export async function getAvailableDatesFromLissy(): Promise<LissyAvailableDates | null> {
+async function getAvailableDatesFromLissy(): Promise<LissyAvailableDates | null> {
     const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
         method: "GET",
         headers: getHeaders()
@@ -40,7 +40,7 @@ export async function getAvailableDatesFromLissy(): Promise<LissyAvailableDates 
  * @param startDate Beginning of the range in YYYY-MM-DD format
  * @param endDate The end of range in YYYY-MM-DD format
  */
-export async function getAvailableRoutesForDates(startDate: string, endDate: string): Promise<LissyAvailableRoute[] | null> {
+async function getAvailableRoutesForDates(startDate: string, endDate: string): Promise<LissyAvailableRoute[] | null> {
     const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[["${startDate}","${endDate}"]]`, {
         method: "GET",
         headers: getHeaders()
@@ -55,7 +55,7 @@ export async function getAvailableRoutesForDates(startDate: string, endDate: str
     return availableRoutesJson
 }
 
-export async function getAvailableTripsForRoutes(availableRoutes: LissyAvailableRoute[], startDate: string, endDate: string): Promise<LissyAvailableTrip[][] | null> {
+async function getAvailableTripsForRoutes(availableRoutes: LissyAvailableRoute[], startDate: string, endDate: string): Promise<LissyAvailableTrip[][] | null> {
     const availableTripsFetches = availableRoutes.map((ar) => {
         return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[["${startDate}","${endDate}"]]&route_id=${ar.id}&fullStopOrder=true`, {
             method: "GET",
@@ -73,7 +73,7 @@ export async function getAvailableTripsForRoutes(availableRoutes: LissyAvailable
  * @param tripId Id of a trip to get delay about
  * @param availableDates Range of dates for which the delays are considered
  */
-export async function getDelaysFromLissy(tripId: number, availableDates: string[]): Promise<LissyDelay | null> {
+async function getDelaysFromLissy(tripId: number, availableDates: string[]): Promise<LissyDelay | null> {
     const response = await fetch(`${Deno.env.get('LISSY_API_URL')}/delayTrips/getTripData?dates=[["${availableDates[0]}","${availableDates[1]}"]]&trip_id=${tripId}`, {
         method: "GET",
         headers: getHeaders()
@@ -92,7 +92,7 @@ export async function getDelaysFromLissy(tripId: number, availableDates: string[
  * Gets the shape for a given shapeId
  * @param shapeId Identifier of a shape
  */
-export async function getShapesFromLissy(shapeId: number): Promise<LissyShape | null>  {
+async function getShapesFromLissy(shapeId: number): Promise<LissyShape | null>  {
     const shapeResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/shapes/getShape?shape_id=${shapeId}`, {
         method: "GET",
         headers: getHeaders()
@@ -104,3 +104,6 @@ export async function getShapesFromLissy(shapeId: number): Promise<LissyShape | 
     const shapeJson = await shapeResponse.json()
     return shapeJson
 }
+
+export { getShapesFromLissy, getDelaysFromLissy, getAvailableTripsForRoutes, getAvailableRoutesForDates,
+         getAvailableDatesFromLissy }

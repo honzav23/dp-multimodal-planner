@@ -6,7 +6,7 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-export type OTPGraphQLData = {
+export type OTPGraphQLTrip = {
     trip: {
         nextPageCursor: string | null
         tripPatterns: OTPTripPattern[]
@@ -27,6 +27,7 @@ export type OTPTripLeg = {
     aimedEndTime: string,
     distance: number,
     serviceJourney: {
+        id: string | null
         quays: {
           name: string,
           id: string

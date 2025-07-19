@@ -9,7 +9,7 @@
 import {parse} from "@std/csv"
 import type {TransferStop} from "../../types/TransferStop.ts";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
-import type {OTPGraphQLData} from "../types/OTPGraphQLData.ts";
+import type {OTPGraphQLTrip} from "../types/OTPGraphQLData.ts";
 import type { TransportMode } from '../../types/TransportMode.ts'
 import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
 import {LissyAvailableTrip} from "../types/LissyTypes.ts";
@@ -27,7 +27,7 @@ function parseArguments(): boolean {
  * Gets available transfer stops from .csv file
  * @returns Promise of all transfer stops
  */
-export async function getTransferStops(): Promise<TransferStop[]> {
+async function getTransferStops(): Promise<TransferStop[]> {
     const text = Deno.readTextFileSync(`${rootDir}/transferStops/transferStopsWithParkingLots.csv`);
     const csvData = parse(text, {skipFirstRow: true, separator: ';', strip: true});
 
@@ -88,7 +88,7 @@ function goToHistory(baseDate: string, daysInHistory: number) {
  * Get all trips from Lissy app which have delay information from the last 2 days
  * @returns Promise of all available trips and dates
  */
-export async function getTripsForLines(): Promise<{availableTripsByLines: LissyAvailableTrip[][], availableDates: string[]}> {
+async function getTripsForLines(): Promise<{availableTripsByLines: LissyAvailableTrip[][], availableDates: string[]}> {
 
     const externalGTFS = parseArguments()
     if (externalGTFS) {
@@ -143,6 +143,7 @@ function getGqlQueryString(): string {
                 aimedEndTime
                 distance
                 serviceJourney {
+                    id
                     quays {
                         name
                         id
@@ -186,7 +187,7 @@ function getGqlQueryString(): string {
  * @param to
  * @param dateTime Date and time of departure (in ISO format)
  */
-export async function getRouteByCar(from: [number, number], to: [number, number], dateTime: string): Promise<OTPGraphQLData> {
+async function getRouteByCar(from: [number, number], to: [number, number], dateTime: string): Promise<OTPGraphQLTrip> {
     const query = getGqlQueryString()
     const variables = {
         from: {
@@ -216,7 +217,7 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
             }
         }
     }
-    const carRoute = await request(otpUrl, query, variables) as OTPGraphQLData
+    const carRoute = await request(otpUrl, query, variables) as OTPGraphQLTrip
     return carRoute
 }
 
@@ -229,7 +230,7 @@ export async function getRouteByCar(from: [number, number], to: [number, number]
  * all means of transport
  * @returns Promise of the result from OTP
  */
-export async function getPublicTransportTrip(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLData> {
+async function getPublicTransportTrip(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLTrip> {
     const query = getGqlQueryString()
     const variables: Record<string, any> = {
         from: {
@@ -270,7 +271,7 @@ export async function getPublicTransportTrip(from: [number, number], to: [number
             }
         }
     }
-    let publicTransportRoute = await request(otpUrl, query, variables) as OTPGraphQLData
+    let publicTransportRoute = await request(otpUrl, query, variables) as OTPGraphQLTrip
     if (publicTransportRoute.trip.tripPatterns.length === 0) {
         variables.pageCursor = publicTransportRoute.trip.nextPageCursor
         publicTransportRoute = await request(otpUrl, query, variables)
@@ -288,7 +289,7 @@ export async function getPublicTransportTrip(from: [number, number], to: [number
  * 
  * @returns The distance between the two points in meters
  */
-export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const toRadians = (degrees: number) => degrees * Math.PI / 180;
 
     const R = 6371;
@@ -304,7 +305,7 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
     return distance * 1000;
 }
 
-export function addMinutes(isoDate: string, minutes: number): string {
+function addMinutes(isoDate: string, minutes: number): string {
     const date = new Date(isoDate)
     date.setMinutes(date.getMinutes() + minutes)
 
@@ -317,7 +318,7 @@ export function addMinutes(isoDate: string, minutes: number): string {
  * @param time Time to convert
  * @returns Time in 24-hour format
  */
-export function convert12HourTo24Hour(time: string): string {
+function convert12HourTo24Hour(time: string): string {
     const [splitTime, modifier] = time.split(" ")
     
     if (modifier) {
@@ -334,3 +335,7 @@ export function convert12HourTo24Hour(time: string): string {
     }
     return time
 }
+
+export { parseArguments, convert12HourTo24Hour, addMinutes, calculateDistance, getPublicTransportTrip, getRouteByCar,
+        getTripsForLines, getTransferStops
+    }

@@ -11,7 +11,7 @@ import type {TripRequest} from "./types/TripRequest.ts";
 import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
 import {transferStops} from "./api.ts";
 import {addMinutes, getPublicTransportTrip, getRouteByCar} from "./common/common.ts";
-import type {OTPGraphQLData, OTPTripPattern} from "./types/OTPGraphQLData.ts";
+import type {OTPGraphQLTrip, OTPTripPattern} from "./types/OTPGraphQLData.ts";
 import {convertOTPDataToTripResult, mergeFinalTripWithCar} from "./routeCalculator.ts";
 
 /**
@@ -76,7 +76,7 @@ function setDestinationNamesForPublicTransportTrips(tripPatternsForTransferStops
  * @returns Car trips for each public transport trip for each transfer stop
  */
 async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripResultsForTransferStops: TripResult[][], tripRequest: TripRequest): Promise<TripResult[]> {
-    const carPatternsByStopResponses: OTPGraphQLData[][] = []
+    const carPatternsByStopResponses: OTPGraphQLTrip[][] = []
     const indicesToDelete: number[] = []
 
     // For each transfer stop and each trip pattern of public transport in it, create a request for car
@@ -126,7 +126,7 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
  * @param tripRequest Original trip request
  * @returns Return trips
  */
-export async function fetchReturnTrips(bestTrips: TripResult[], tripRequest: TripRequest): Promise<TripResult[]> {
+async function fetchReturnTrips(bestTrips: TripResult[], tripRequest: TripRequest): Promise<TripResult[]> {
     const transferStopsUsedInTrips = getTransferStopsUsedInTrips(bestTrips, tripRequest);
 
     // Make OTP requests to fetch the public transport trips for each transfer stop
@@ -153,3 +153,5 @@ export async function fetchReturnTrips(bestTrips: TripResult[], tripRequest: Tri
 
     return returnTripResults
 }
+
+export { fetchReturnTrips }

@@ -13,7 +13,8 @@ import { calculateRoutes } from "./routeCalculator.ts";
 import { fetchParkingLots } from './parkingLotsNearby.ts'
 import { TripRequest } from "./types/TripRequest.ts";
 import { ResultStatus } from "../types/ResultStatus.ts";
-import { getTransferStops, getTripsForLines, convert12HourTo24Hour } from "./common/common.ts";
+import { getTransferStops, getTripsForLines, convert12HourTo24Hour, parseArguments } from "./common/common.ts";
+import { connectToKordisWebSocket, createConversionTable } from './common/realtimeVehicleInfoProcessing.ts';
 
 export const rootDir = import.meta.dirname;
 
@@ -45,6 +46,7 @@ app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
     departureDateTime: `${body.departureDate}T${convert12HourTo24Hour(body.departureTime)}`,
     preferences: {
       modeOfTransport: body.preferences.modeOfTransport,
+      useOnlyPublicTransport: body.preferences.useOnlyPublicTransport,
       transferStop: body.preferences.transferStop,
       findBestTrip: body.preferences.findBestTrip,
       pickupCoords: body.preferences.pickupCoords,
@@ -80,5 +82,12 @@ app.notFound((request) => {
 // Get all transfer stops and trips that include delay information when the server starts
 export const transferStops = await getTransferStops();
 export const {availableTripsByLines, availableDates} = await getTripsForLines()
+
+const externalGTFS = parseArguments()
+
+if (!externalGTFS) {
+  connectToKordisWebSocket();
+  await createConversionTable()
+}
 
 Deno.serve(app.fetch);

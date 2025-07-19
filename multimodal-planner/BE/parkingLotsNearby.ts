@@ -7,7 +7,7 @@
  */
 
 import {transferStops} from "./api.ts";
-import {OSMElement, OSMNode, OSMWay} from "./types/ParkingLotOSM.ts";
+import {OSMElement, OSMNode, OSMWay, OSMTag} from "./types/ParkingLotOSM.ts";
 import {ParkingLot, Fee, MaxStay, TimeUnits, DayTimeRange, StayTime, MaxStayCondition, OpeningHours} from "../types/ParkingLot.ts";
 import { parseConditionalRestrictions, type Conditional, type Exception } from "osm-conditional-restrictions";
 
@@ -80,20 +80,16 @@ function isInterval(interval: string): boolean {
 }
 
 function extractValidityRange(conditionString: string): DayTimeRange {
-    const [days, times] = conditionString.split(" ");
+    const [days, timeRange] = conditionString.split(" ");
     const [dayFrom, dayTo] = days.split("-");
-    const [timeFrom, timeTo] = times.split("-");
 
     const feeCondition: Partial<DayTimeRange> = {}
     feeCondition["dayFrom"] = dayFrom;
     if (dayTo) {
         feeCondition["dayTo"] = dayTo;
     }
-    if (timeFrom) {
-        feeCondition["timeFrom"] = timeFrom;
-    }
-    if (timeTo) {
-        feeCondition["timeTo"] = timeTo;
+    if (timeRange) {
+        feeCondition["timeRange"] = timeRange;
     }
     return feeCondition as DayTimeRange;
 }
@@ -194,7 +190,6 @@ function handleMaxStay(maxStayConditionalTree: Conditional): MaxStay {
 function handleOpeningHours(openingHours: string): OpeningHours {
     const openingHoursObj: Partial<OpeningHours> = {};
     if (isInterval(openingHours)) {
-
         openingHoursObj["openingHours"] = openingHours.split("; ").map(extractValidityRange);
         openingHoursObj["isInterval"] = true;
     } 
@@ -216,9 +211,11 @@ function extractTags(parkingLotObj: Partial<ParkingLot>, parkingLot: OSMWay) {
         const capacityDisabled = parkingLot.tags["capacity:disabled"];
         if (capacityDisabled === "yes") {
             parkingLotObj["capacityDisabled"] = true;
-        } else if (capacityDisabled === "no") {
+        }
+        else if (capacityDisabled === "no") {
             parkingLotObj["capacityDisabled"] = false;
-        } else {
+        }
+        else {
             parkingLotObj["capacityDisabled"] = parseInt(capacityDisabled);
         }
     }
@@ -231,24 +228,22 @@ function extractTags(parkingLotObj: Partial<ParkingLot>, parkingLot: OSMWay) {
         parkingLotObj["maxStay"] = handleMaxStay(maxStayConditionalTree);
     }
 
-    if ("charge" in parkingLot.tags!) {
-        parkingLotObj["charge"] = parkingLot.tags.charge;
-    }
-
     if ("park_ride" in parkingLot.tags!) {
         parkingLotObj["parkRide"] = parkingLot.tags.park_ride !== "no";
-    }
-
-    if ("name" in parkingLot.tags!) {
-        parkingLotObj["name"] = parkingLot.tags.name;
     }
 
     if ("opening_hours" in parkingLot.tags!) {
         parkingLotObj["openingHours"] = handleOpeningHours(parkingLot.tags.opening_hours);
     }
+    const keys = ["charge", "name", "website"]
+    for (const key of keys as (keyof ParkingLot)[]) {
+        if (key in parkingLot.tags!) {
+            parkingLotObj[key] = parkingLot.tags![key as keyof OSMTag];
+        }
+    }
 }
 
-export async function fetchParkingLots(stopId: string) {
+async function fetchParkingLots(stopId: string) {
     const osmParkingLots = await getParkingLotsFromOverpass(stopId);
     const osmParkingLotsNodes: OSMNode[] = osmParkingLots.filter((p) => p.type === "node")
     const nodesObject = convertNodesToObject(osmParkingLotsNodes);
@@ -267,3 +262,5 @@ export async function fetchParkingLots(stopId: string) {
 
     return parkingLots
 }
+
+export { fetchParkingLots }

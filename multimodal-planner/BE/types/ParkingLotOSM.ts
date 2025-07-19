@@ -17,7 +17,8 @@ export type OSMTag = Record<string, any> | {
     park_ride?: string,
     name?: string,
     opening_hours?: string,
-} // TODO make it more accurate
+    website?: string
+}
 
 export type OSMNode = {
     type: "node",
