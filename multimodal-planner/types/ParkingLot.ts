@@ -16,6 +16,7 @@ export type ParkingLot = {
     parkRide?: boolean,
     name?: string,
     openingHours?: OpeningHours,
+    website?: string
 }
 
 export type TimeUnits = 'minutes' | 'hours' | 'days'
@@ -23,8 +24,7 @@ export type TimeUnits = 'minutes' | 'hours' | 'days'
 export type DayTimeRange = {
     dayFrom: string,
     dayTo?: string,
-    timeFrom?: string,
-    timeTo?: string,
+    timeRange: string
 }
 
 export type MaxStay = {
@@ -53,9 +53,14 @@ export type StayTime = {
     unit: TimeUnits,
 }
 
-export type OpeningHours = {
-    isInterval: boolean,
-    openingHours: DayTimeRange[] | string,
+interface OpeningHoursString {
+    isInterval: false,
+    openingHours: string
 }
 
-export type ParkingLotKeys = 'capacity' | 'capacityDisabled' | 'fee' | 'parkRide' | 'maxStay' | 'charge' | 'openingHours';
+interface OpeningHoursInterval {
+    isInterval: true,
+    openingHours: DayTimeRange[]
+}
+
+export type OpeningHours = OpeningHoursString | OpeningHoursInterval

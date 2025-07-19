@@ -12,7 +12,7 @@ def get_GTFS_files():
     '''
     Download the GTFS files and store them on disk
     '''
-    response = requests.get("https://www.arcgis.com/sharing/rest/content/items/379d2e9a7907460c8ca7fda1f3e84328/data")
+    response = requests.get("https://kordis-jmk.cz/gtfs/gtfs.zip")
     if response.status_code == 200:
         with open(f'{script_dir}/GTFS.zip', "wb") as f:
             f.write(response.content)
@@ -95,7 +95,6 @@ def get_available_parking_lots(transfer_stops_df):
 
         # Clean the GTFS files
         os.system(f'rm {script_dir}/GTFS.zip')
-        os.system(f'rm -r {script_dir}/GTFS')
 
 
 def main():
