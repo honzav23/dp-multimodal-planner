@@ -27,6 +27,7 @@ import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
 import TripDetail from "./TripDetail/TripDetail";
 import SortIcon from './SortIcon'
 import useIsMobile from '../hooks/useIsMobile';
+import { useSwapAddresses } from "../hooks/useSwapAddress.ts";
 
 import { useTranslation } from "react-i18next";
 import {SortState, SortInfo} from "../types/SortState.ts";
@@ -47,6 +48,7 @@ function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
     const dispatch = useAppDispatch();
 
     const [tabValue, setTabValue] = useState('outbound');
+    const swapOriginAndDestination = useSwapAddresses()
 
     const [sortTimeState, setSortTimeState] = useState<SortInfo>({ sortState: 'none', forcedState: null, selected: false })
     const [sortEmissionsState, setSortEmissionsState] = useState<SortInfo>({ sortState: 'none', forcedState: null, selected: false })
@@ -154,6 +156,7 @@ function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
         dispatch(setSelectedTrip(-1))
         setTabValue(val)
         switchRoutes(val)
+        swapOriginAndDestination()
     }
 
     /**
@@ -268,6 +271,6 @@ function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
         :
         <></>
     );
-};
+}
 
 export default TripsSummary;

@@ -11,19 +11,20 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import {Close, Minimize, SwapVert, Tune, ZoomOutMap} from '@mui/icons-material'
 
-import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTripsAndRoutes } from '../store/slices/tripSlice';
-import { clearStartAddress, clearEndAddress, setStartAddress, setEndAddress } from '../store/slices/addressSlice';
-import { getTransferStops } from '../store/slices/transferStopSlice';
+import { useAppSelector, useAppDispatch } from '../../store/hooks.ts';
+import { setFocus } from '../../store/slices/inputsFocusSlice.ts';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTripsAndRoutes } from '../../store/slices/tripSlice.ts';
+import { clearStartAddress, clearEndAddress } from '../../store/slices/addressSlice.ts';
+import { getTransferStops } from '../../store/slices/transferStopSlice.ts';
 import { useEffect, useState } from 'react';
 import dayjs, {Dayjs} from 'dayjs';
-import AdditionalPreferences from './AdditionalPreferences';
-import type { ResultStatus } from "../../../types/ResultStatus.ts";
+import AdditionalPreferences from './AdditionalPreferences.tsx';
 
 import { useTranslation } from 'react-i18next';
-import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
-import useIsMobile from "../hooks/useIsMobile.ts";
+import useIsMobile from "../../hooks/useIsMobile.ts";
+import { useSwapAddresses } from "../../hooks/useSwapAddress.ts";
+import useDateError from "../../hooks/useDateError.ts";
+import useTimeError from "../../hooks/useTimeError.ts";
 
 interface TripRequestFormProps {
     minimize?: (origin: string) => void;
@@ -33,14 +34,14 @@ interface TripRequestFormProps {
 export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
 
-    const startAddress = useAppSelector((state) => state.address.startAddress)
-    const endAddress = useAppSelector((state) => state.address.endAddress)
+    const { startAddress, endAddress } = useAppSelector((state) => state.address)
 
     const startCoords = useAppSelector((state) => state.trip.tripRequest.origin)
     const endCoords = useAppSelector((state) => state.trip.tripRequest.destination)
     const isLoading = useAppSelector((state) => state.trip.isLoading)
 
     const isMobile = useIsMobile()
+    const swapOriginAndDestination = useSwapAddresses()
     const [minimized, setMinimized] = useState(false);
 
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -49,12 +50,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const startInputValue = startAddress === null ? '' : (startAddress === '' ? `${startCoords[0].toFixed(5)} ${startCoords[1].toFixed(5)}` : startAddress)
     const endInputValue = endAddress === null ? '' : (endAddress === '' ? `${endCoords[0].toFixed(5)} ${endCoords[1].toFixed(5)}` : endAddress)
 
-    const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
-    const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
+    const [dateError, setDateError, handleDateError] = useDateError()
+    const [timeError, setTimeError, handleTimeError] = useTimeError()
     const [comingBackDateValid, setComingBackDateValid] = useState(true)
     const [comingBackTimeValid, setComingBackTimeValid] = useState(true)
 
-    const inputValid = startAddress !== null && endAddress !== null && !dateError.error && !timeError.error && comingBackDateValid && comingBackTimeValid
+    const formValid = startAddress !== null && endAddress !== null && !dateError.error && !timeError.error && comingBackDateValid && comingBackTimeValid
 
     const dispatch = useAppDispatch()
 
@@ -67,22 +68,6 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
       dispatch(getTransferStops())
     }, [])
 
-    const handleDateError = (error: DateValidationError, date: Dayjs | null) => {
-        if (error === null && date !== null) {
-            setDateError({error: false, message: ''})
-        }
-        else {
-            setDateError({error: true, message: t('form.validation.invalidDate')})
-        }
-    }
-    const handleTimeError = (error: TimeValidationError, time: Dayjs | null) => {
-        if (error === null && time !== null) {
-            setTimeError({error: false, message: ''})
-        }
-        else {
-            setTimeError({error: true, message: t('form.validation.invalidTime')})
-        }
-    }
 
     const handleDateChange = (date: Dayjs | null) => {
         if (date !== null ) {
@@ -131,33 +116,6 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
       // Remove the route if present
       dispatch(setSelectedTrip(-1))
-    }
-
-    /**
-    * Swaps the origin address and coordinates with the destination ones
-    */
-    const swapOriginAndDestination = () => {
-        if (startAddress === null && endAddress !== null) {
-            dispatch(setStartAddress(endAddress))
-            dispatch(clearEndAddress())
-
-            dispatch(setStartCoords(endCoords))
-            dispatch(setEndCoords(initialCoords))
-        }
-        else if (startAddress !== null && endAddress === null) {
-            dispatch(clearStartAddress())
-            dispatch(setEndAddress(startAddress))
-
-            dispatch(setEndCoords(startCoords))
-            dispatch(setStartCoords(initialCoords))
-        }
-        else if (startAddress !== null && endAddress !== null) {
-            dispatch(setStartAddress(endAddress))
-            dispatch(setEndAddress(startAddress))
-
-            dispatch(setStartCoords(endCoords))
-            dispatch(setEndCoords(startCoords))
-        }
     }
 
     const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
@@ -291,7 +249,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
         <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={(dateValid, timeValid) => handleDialogClosed(dateValid, timeValid)}/>
 
         {/* Get routes button */}
-        <Button disabled={!inputValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
+        <Button disabled={!formValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
                 onClick={() => {dispatch(clearTripsAndRoutes());dispatch(getTrips())}}>
             {t('form.show')}
         </Button>

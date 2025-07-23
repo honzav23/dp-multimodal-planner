@@ -7,7 +7,7 @@
  */
 
 import {Drawer, Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent} from "@mui/material";
-import TripRequestForm from './components/TripRequestForm';
+import TripRequestForm from './components/Form/TripRequestForm.tsx';
 import TripsSummary from './components/TripsSummary';
 import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";

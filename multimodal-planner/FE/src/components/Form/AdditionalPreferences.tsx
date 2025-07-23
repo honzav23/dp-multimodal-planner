@@ -9,8 +9,7 @@ import { Autocomplete, TextField, Tooltip, ListItem, ListItemText, Divider, Dial
     DialogContent, IconButton, Checkbox, FormControlLabel, Box, InputAdornment } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { WarningAmber, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
-
-import { TransferStop } from "../../../types/TransferStop";
+import { TransferStop } from "../../../../types/TransferStop.ts";
 import {
     setTransferStop,
     setSelectedModeOfTransport,
@@ -21,18 +20,18 @@ import {
     setComingBackDate,
     setComingBackTime,
     setUseOnlyPublicTransport
-} from "../store/slices/tripSlice";
-import { useAppSelector, useAppDispatch } from "../store/hooks";
-import type { TransportMode } from "../../../types/TransportMode";
-import { clearPickupAddress } from "../store/slices/addressSlice";
-import { setFocus } from "../store/slices/inputsFocusSlice";
+} from "../../store/slices/tripSlice.ts";
+import { useAppSelector, useAppDispatch } from "../../store/hooks.ts";
+import type { TransportMode } from "../../../../types/TransportMode.ts";
+import { clearPickupAddress } from "../../store/slices/addressSlice.ts";
+import { setFocus } from "../../store/slices/inputsFocusSlice.ts";
 import { useTranslation } from "react-i18next";
 import {useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import dayjs, {Dayjs} from "dayjs";
 import {TimePicker} from "@mui/x-date-pickers/TimePicker";
-import {DateValidationError, TimeValidationError} from "@mui/x-date-pickers";
-import type {ResultStatus} from "../../../types/ResultStatus.ts";
+import useDateError from "../../hooks/useDateError.ts";
+import useTimeError from "../../hooks/useTimeError.ts";
 
 interface AdditionalPreferencesProps {
     dialogOpen: boolean
@@ -51,13 +50,13 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const preferences = useAppSelector((state) => state.trip.tripRequest.preferences)
 
     const [returnDateTimeShown, setReturnDateTimeShown] = useState(false)
-    const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
-    const [timeError, setTimeError] = useState<ResultStatus>({error: false, message: ''})
+    const [dateError, setDateError, handleDateError] = useDateError()
+    const [timeError, setTimeError, handleTimeError] = useTimeError()
     const defaultDate = dayjs(Date.now())
     
     const pickupInputValue = pickupAddress === null ? '' : (pickupAddress === '' ? `${pickupCoords[0].toFixed(5)} ${pickupCoords[1].toFixed(5)}` : pickupAddress)
 
-    const { t, i18n } = useTranslation()
+    const { t } = useTranslation()
 
     const icon = <CheckBoxOutlineBlank fontSize="small" />;
     const checkedIcon = <CheckBox fontSize="small" />;
@@ -88,23 +87,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
         }
         setDateError({error: false, message: ''})
         setTimeError({error: false, message: ''})
-    }
-
-    const handleDateError = (error: DateValidationError, date: Dayjs | null) => {
-        if (error === null && date !== null) {
-            setDateError({error: false, message: ''})
-        }
-        else {
-            setDateError({error: true, message: t('form.validation.invalidDate')})
-        }
-    }
-    const handleTimeError = (error: TimeValidationError, time: Dayjs | null) => {
-        if (error === null && time !== null) {
-            setTimeError({error: false, message: ''})
-        }
-        else {
-            setTimeError({error: true, message: t('form.validation.invalidTime')})
-        }
     }
 
     const handleDateChange = (date: Dayjs | null) => {
@@ -259,6 +241,6 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
             </DialogContent>
         </Dialog>
     );
-};
+}
 
 export default AdditionalPreferences;

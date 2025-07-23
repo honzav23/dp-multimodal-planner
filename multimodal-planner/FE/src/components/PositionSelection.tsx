@@ -17,7 +17,7 @@ import { Marker, useMapEvents } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setPickupCoords } from '../store/slices/tripSlice';
+import { setStartCoords, setEndCoords, setPickupCoords, clearTripsAndRoutes } from '../store/slices/tripSlice';
 import { useRef } from 'react'
 
 function PositionSelection() {
@@ -39,6 +39,7 @@ function PositionSelection() {
      */
     click(e: LeafletMouseEvent) {
       const coords: LatLngTuple = [e.latlng.lat, e.latlng.lng]
+      dispatch(clearTripsAndRoutes())
       if (startInputFocused) {
         dispatch(getAddress({coords, origin: "start"}))
         dispatch(setStartCoords(coords))
@@ -62,6 +63,7 @@ function PositionSelection() {
    * @param origin Indication of which marker was dragged
    */
   const handleMarkerDrag = (origin: string) => {
+    dispatch(clearTripsAndRoutes())
     if (origin === 'start' && startMarkerRef.current !== null) {
       const coords = startMarkerRef.current.getLatLng()
       const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
