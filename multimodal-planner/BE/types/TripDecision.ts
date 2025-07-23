@@ -12,6 +12,7 @@ export type TripDecision = {
     totalTransfers: number,
     totalEmissions: number,
     totalDelay: number,
+    isDelayCritical: boolean, // If the delay is so big that next leg would be missed because of that
     totalTimeNormalized: number,
     totalEmissionsNormalized: number,
     totalTransfersNormalized: number,

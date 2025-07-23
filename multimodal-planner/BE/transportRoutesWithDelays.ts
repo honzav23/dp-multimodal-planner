@@ -10,7 +10,7 @@ import {calculateDistance} from "./common/common.ts";
 import { availableTripsByLines, availableDates } from "./api.ts";
 import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
 import type { LissyAvailableTrip } from "./types/LissyTypes.ts";
-import polyline from 'polyline'
+import polyline from "polyline-codec";
 import {DelayInfo, DelaysForLeg} from "../types/TripResult.ts";
 import { getTripIdToVehicleInfo } from "./common/realtimeVehicleInfoProcessing.ts";
 import {RealtimeVehicleInfo} from "./types/RealtimeVehicleInfo.ts";
@@ -45,10 +45,10 @@ function findCorrespondingTrips(lineStartStop: string, lineEndStop: string) {
 
 function findCorrectTripFromCorrespondingTrips(correspondingTrips: LissyAvailableTrip[], leg: OTPTripLeg): LissyAvailableTrip | null {
     for (const trip of correspondingTrips) {
-        if (trip.stopOrder.length === leg.serviceJourney.quays.length) {
+        if (trip.stopOrder.length === leg.serviceJourney!.quays.length) {
             let stopsMatch = true
             for (let i = 0; i < trip.stopOrder.length; i++) {
-                if (trip.stopOrder[i] !== leg.serviceJourney.quays[i].name) {
+                if (trip.stopOrder[i] !== leg.serviceJourney!.quays[i].name) {
                     stopsMatch = false
                     break
                 }
@@ -62,11 +62,11 @@ function findCorrectTripFromCorrespondingTrips(correspondingTrips: LissyAvailabl
 }
 
 function findStopIndices(leg: OTPTripLeg, vehicleInfoOnCurrentLeg: RealtimeVehicleInfo): [number, number] {
-    const fromStopId = leg.fromPlace.quay.id
-    const fromStopIndex = leg.serviceJourney.quays.findIndex((q) => q.id === fromStopId)
+    const fromStopId = leg.fromPlace.quay!.id
+    const fromStopIndex = leg.serviceJourney!.quays.findIndex((q) => q.id === fromStopId)
 
     const gtfsStopIdRegex = /1:U(\d{4})([a-zA-Z]\d*)/
-    const lastVehicleStopIndex = leg.serviceJourney.quays.findIndex((q) => {
+    const lastVehicleStopIndex = leg.serviceJourney!.quays.findIndex((q) => {
         const match = q.id.match(gtfsStopIdRegex)
         if (!match) {
             return false
@@ -78,7 +78,7 @@ function findStopIndices(leg: OTPTripLeg, vehicleInfoOnCurrentLeg: RealtimeVehic
 }
 
 function getVehicleInfoOnCurrentLeg(leg: OTPTripLeg): RealtimeVehicleInfo | undefined {
-    const numericGtfsTripId = parseInt(leg.serviceJourney.id!.split(':')[1]) // OTP GTFS trip id is in the format '1:123456'
+    const numericGtfsTripId = parseInt(leg.serviceJourney!.id!.split(':')[1]) // OTP GTFS trip id is in the format '1:123456'
     const tripIdToVehicleInfo = getTripIdToVehicleInfo()
     return tripIdToVehicleInfo[numericGtfsTripId]
 }
@@ -86,7 +86,7 @@ function getVehicleInfoOnCurrentLeg(leg: OTPTripLeg): RealtimeVehicleInfo | unde
 // Gets the delay that the leg has AT THE MOMENT
 // if the trip or the delay is not found, null is returned
 function getCurrentLegDelay(leg: OTPTripLeg): number | null {
-    if (!leg.serviceJourney.id) {
+    if (!leg.serviceJourney!.id) {
         return null
     }
     const vehicleInfoOnCurrentLeg = getVehicleInfoOnCurrentLeg(leg)
@@ -187,14 +187,14 @@ async function getLegDelays(leg: OTPTripLeg, validCorrespondingTrip: LissyAvaila
         return legDelays;
     }
 
-    const firstStopTimeOfDeparture = leg.serviceJourney.passingTimes[0].departure.time;
+    const firstStopTimeOfDeparture = leg.serviceJourney!.passingTimes[0].departure.time;
     const correctTimeTrip = validCorrespondingTrip.trips.find((t) => t.dep_time === firstStopTimeOfDeparture);
 
     if (!correctTimeTrip) {
         return legDelays;
     }
 
-    const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id);
+    const endingStopIndex = leg.serviceJourney!.quays.findIndex((quay) => quay.id === leg.toPlace.quay!.id);
     if (endingStopIndex !== -1) {
         legDelays.pastDelays = await getPastDelaysForLeg(correctTimeTrip.id, endingStopIndex);
         if (legDelays.pastDelays.length > 0) {
@@ -218,8 +218,8 @@ async function getLegRoute(leg: OTPTripLeg, validCorrespondingTrip: LissyAvailab
         return { route: routePolyline, distance: routeDistance };
     }
 
-    const beginningStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.fromPlace.quay.id);
-    const endingStopIndex = leg.serviceJourney.quays.findIndex((quay) => quay.id === leg.toPlace.quay.id);
+    const beginningStopIndex = leg.serviceJourney!.quays.findIndex((quay) => quay.id === leg.fromPlace.quay!.id);
+    const endingStopIndex = leg.serviceJourney!.quays.findIndex((quay) => quay.id === leg.toPlace.quay!.id);
 
     if (beginningStopIndex === -1 || endingStopIndex === -1) {
         return { route: routePolyline, distance: routeDistance };
@@ -229,7 +229,7 @@ async function getLegRoute(leg: OTPTripLeg, validCorrespondingTrip: LissyAvailab
     const calculatedDistance = calculateTotalDistance(routeCoordsFlatten);
 
     if (calculatedDistance > 0) {
-        routePolyline = polyline.encode(routeCoordsFlatten);
+        routePolyline = polyline.encode(routeCoordsFlatten, 5);
         routeDistance = calculatedDistance;
     }
 

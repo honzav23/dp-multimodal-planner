@@ -14,7 +14,7 @@ export type TripResult = {
 export type TripLeg = {
     startTime: string,
     endTime: string,
-    modeOfTransport: string,
+    modeOfTransport: TransportMode,
     from: string,
     to: string,
     distance: number,
@@ -22,6 +22,10 @@ export type TripLeg = {
     route: string,
     delays: DelaysForLeg
 }
+
+// The same modes of transport as in OTP2
+export type TransportMode = 'foot' | 'car' | 'rail' | 'bus' | 'tram' | 'trolleybus' | 'metro' | 'air' | 'bicycle'
+    | 'cableway' | 'water' | 'funicular' | 'lift' | 'taxi' | 'monorail' | 'coach' | 'scooter'
 
 export type TripResponse = {
     outboundTrips: TripResult[],

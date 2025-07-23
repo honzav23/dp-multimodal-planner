@@ -12,7 +12,7 @@ import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
 import {transferStops} from "./api.ts";
 import {addMinutes, getPublicTransportTrip, getRouteByCar} from "./common/common.ts";
 import type {OTPGraphQLTrip, OTPTripPattern} from "./types/OTPGraphQLData.ts";
-import {convertOTPDataToTripResult, mergeFinalTripWithCar} from "./routeCalculator.ts";
+import {convertOTPDataToTripResult, mergeFinalTripWithCar, tripUsesOnlyPublicTransport} from "./routeCalculator.ts";
 
 /**
  * Assign coordinates to all transfer stops for the best trips
@@ -127,31 +127,48 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
  * @returns Return trips
  */
 async function fetchReturnTrips(bestTrips: TripResult[], tripRequest: TripRequest): Promise<TripResult[]> {
-    const transferStopsUsedInTrips = getTransferStopsUsedInTrips(bestTrips, tripRequest);
 
-    // Make OTP requests to fetch the public transport trips for each transfer stop
-    const returnTripPromises = transferStopsUsedInTrips.map((trip) => getPublicTransportTrip(tripRequest.destination, trip.coords,
-        tripRequest.preferences.comingBack!.returnDateTime, tripRequest.preferences.modeOfTransport, 5)
-    )
-    // For each transfer stop have a few trip patterns
-    const tripPatternsForTransferStops: OTPTripPattern[][] = (await Promise.all(returnTripPromises)).map((trip) => trip.trip.tripPatterns)
+    // Distinguish between trips that include a car and trips that don't
+    const groupByTransport: Partial<Record<"car" | 'public', TripResult[]>> = Object.groupBy(bestTrips, (trip) =>
+      tripUsesOnlyPublicTransport(trip) ? 'public' : 'car'
+    );
 
-    setDestinationNamesForPublicTransportTrips(tripPatternsForTransferStops, transferStopsUsedInTrips)
+    let publicTransportTrips: TripResult[] = []
+    const carTrips: TripResult[] = []
 
-    // Convert all the trip patterns to TripResult type
-    const tripResultsForTransferStops = await Promise.all(tripPatternsForTransferStops.map(async (tripPatternsForStop) => {
-        const tripPatternsTransferStopPromises = tripPatternsForStop.map(convertOTPDataToTripResult)
-        return await Promise.all(tripPatternsTransferStopPromises)
-    }))
-    const carTripsResponses = await processCarTrips(transferStopsUsedInTrips, tripResultsForTransferStops, tripRequest);
-
-    const tripResultsForTransferStopsFlatten = tripResultsForTransferStops.flat()
-    const returnTripResults: TripResult[] = []
-    for (let i = 0; i < carTripsResponses.length; i++) {
-        returnTripResults.push(mergeFinalTripWithCar(tripResultsForTransferStopsFlatten[i], carTripsResponses[i], true))
+    if (groupByTransport.public) {
+        const returnPublicTransportTrips = await getPublicTransportTrip(tripRequest.destination, tripRequest.origin, tripRequest.preferences.comingBack!.returnDateTime,
+            tripRequest.preferences.modeOfTransport, 10)
+        const returnPublicTransportTripResults = returnPublicTransportTrips.trip.tripPatterns.map(convertOTPDataToTripResult)
+        publicTransportTrips = await Promise.all(returnPublicTransportTripResults)
     }
 
-    return returnTripResults
+    if (groupByTransport.car) {
+        const transferStopsUsedInTrips = getTransferStopsUsedInTrips(groupByTransport.car, tripRequest);
+
+        // Make OTP requests to fetch the public transport trips for each transfer stop
+        const returnTripPromises = transferStopsUsedInTrips.map((trip) => getPublicTransportTrip(tripRequest.destination, trip.coords,
+            tripRequest.preferences.comingBack!.returnDateTime, tripRequest.preferences.modeOfTransport, 5)
+        )
+        // For each transfer stop have a few trip patterns
+        const tripPatternsForTransferStops: OTPTripPattern[][] = (await Promise.all(returnTripPromises)).map((trip) => trip.trip.tripPatterns)
+
+        setDestinationNamesForPublicTransportTrips(tripPatternsForTransferStops, transferStopsUsedInTrips)
+
+        // Convert all the trip patterns to TripResult type
+        const tripResultsForTransferStops = await Promise.all(tripPatternsForTransferStops.map(async (tripPatternsForStop) => {
+            const tripPatternsTransferStopPromises = tripPatternsForStop.map(convertOTPDataToTripResult)
+            return await Promise.all(tripPatternsTransferStopPromises)
+        }))
+        const carTripsResponses = await processCarTrips(transferStopsUsedInTrips, tripResultsForTransferStops, tripRequest);
+
+        const tripResultsForTransferStopsFlatten = tripResultsForTransferStops.flat()
+        for (let i = 0; i < carTripsResponses.length; i++) {
+            carTrips.push(mergeFinalTripWithCar(tripResultsForTransferStopsFlatten[i], carTripsResponses[i], true))
+        }
+    }
+
+    return [...carTrips, ...publicTransportTrips]
 }
 
 export { fetchReturnTrips }

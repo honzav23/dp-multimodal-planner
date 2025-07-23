@@ -120,8 +120,8 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
             legDelays.push({ averageDelay: 0, pastDelays: [], currentDelay: -1 })
             continue
         }
-        const lineStartStop = leg.serviceJourney.quays[0].name
-        const lineEndStop = leg.serviceJourney.quays[leg.serviceJourney.quays.length - 1].name
+        const lineStartStop = leg.serviceJourney!.quays[0].name
+        const lineEndStop = leg.serviceJourney!.quays[leg.serviceJourney!.quays.length - 1].name
         const correspondingTrips = findCorrespondingTrips(lineStartStop, lineEndStop)
         const validCorrespondingTrip = findCorrectTripFromCorrespondingTrips(correspondingTrips, leg)
         legRoutes.push(await getLegRoute(leg, validCorrespondingTrip))
@@ -197,6 +197,10 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
     return mergedResult
 }
 
+function tripUsesOnlyPublicTransport(trip: TripResult): boolean {
+    return trip.legs[0].modeOfTransport !== 'car'
+}
+
 /**
  * Merges the trip from origin to pickup point with the one from pickup point to destination
  * or the trip from destination to transfer point and the one from transfer point to origin
@@ -206,6 +210,18 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
  * @returns Merged trip
  */
 function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTrip: boolean): TripResult {
+
+    const getViaStopText = (): string => {
+        const publicTransportTrip = tripUsesOnlyPublicTransport(finalTrip)
+        if (returnTrip) {
+            return car.legs[0].from
+        }
+        else if (publicTransportTrip) {
+            return ''
+        }
+        return finalTrip.legs[0].to
+    }
+
     const mergedResult: TripResult = {
         totalTime: finalTrip.totalTime + car.totalTime + (Date.parse(car.startTime) - Date.parse(finalTrip.endTime)) / 1000,
         totalDistance: finalTrip.totalDistance + car.totalDistance,
@@ -213,7 +229,7 @@ function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTri
         endTime: car.endTime,
         legs: [...finalTrip.legs, ...car.legs],
         totalTransfers: finalTrip.totalTransfers + 1,
-        via: returnTrip ? car.legs[0].from : finalTrip.legs[0].to,
+        via: getViaStopText(),
         lowestTime: false,
         lowestEmissions: false,
         totalEmissions: 0
@@ -242,7 +258,7 @@ async function getFromPickupPointToDestination(trip: TripResult, tripRequest: Tr
     const beginning = addMinutes(trip.legs[trip.legs.length - 1].endTime, 1)
     const carTrip = await getRouteByCar(tripRequest.preferences.pickupCoords, tripRequest.destination, beginning)
     const carResult = await convertOTPDataToTripResult(carTrip.trip.tripPatterns[0])
-    const mergedTrip = await mergeFinalTripWithCar(trip, carResult, false)
+    const mergedTrip = mergeFinalTripWithCar(trip, carResult, false)
 
     markPickupPoints(mergedTrip)
 
@@ -369,4 +385,5 @@ async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> 
     return tripsWithAdditionalPreferences
 }
 
-export { calculateRoutes, mergeFinalTripWithCar, convertOTPDataToTripResult }
+export { calculateRoutes, mergeFinalTripWithCar, convertOTPDataToTripResult, mergeCarWithPublicTransport, tripUsesOnlyPublicTransport,
+    calculateTotalNumberOfTransfers }

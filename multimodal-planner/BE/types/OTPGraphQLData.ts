@@ -6,6 +6,8 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
+import type { TransportMode } from '../../types/TripResult.ts'
+
 export type OTPGraphQLTrip = {
     trip: {
         nextPageCursor: string | null
@@ -22,7 +24,7 @@ export type OTPTripPattern = {
 }
 
 export type OTPTripLeg = {
-    mode: string,
+    mode: TransportMode,
     aimedStartTime: string,
     aimedEndTime: string,
     distance: number,
@@ -37,12 +39,12 @@ export type OTPTripLeg = {
                 time: string
             }
         }[]
-    },
+    } | null,
     fromPlace: {
         name: string,
         quay: {
             id: string
-        }
+        } | null
     },
     toPlace: {
         name: string,
@@ -50,11 +52,11 @@ export type OTPTripLeg = {
         longitude: number,
         quay: {
             id: string
-        }
+        } | null
     },
     line: {
-        publicCode: string | null
-    },
+        publicCode: string
+    } | null,
     pointsOnLink: {
         points: string
     }

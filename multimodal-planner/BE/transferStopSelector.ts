@@ -5,8 +5,9 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import type { TripResult } from "../types/TripResult.ts";
+import type {TripLeg, TripResult} from "../types/TripResult.ts";
 import type { TripDecision } from "./types/TripDecision.ts";
+import {addMinutes} from "./common/common.ts";
 
 // Below are average emissions according to https://www.rekrabicka.cz/blog/ekologicky-dopad-dopravnich-prostredku
 // The values are grams of CO2 per kilometer per passenger
@@ -171,11 +172,48 @@ function flagTheBestTimeAndConsumption(bestTrips: TripResult[]) {
     minEmissionsTrip.lowestEmissions = true
 }
 
+function hasCriticalDelay(trip: TripResult): boolean {
+
+    const isPublicTransport = (leg: TripLeg) => {
+        return leg.modeOfTransport !== 'car' && leg.modeOfTransport !== 'foot';
+    }
+
+    for (let i = 0; i < trip.legs.length - 1; i++) {
+        const legDelay = trip.legs[i].delays.currentDelay !== -1 ? trip.legs[i].delays.currentDelay : trip.legs[i].delays.averageDelay
+        if (isPublicTransport(trip.legs[i])) {
+            let endLegDateWithDelayUnixValue = 0
+            let nextLegStartDateUnixValue = 0
+
+            // Case when public transport leg is followed by another public transport leg
+            if (isPublicTransport(trip.legs[i+1])) {
+                const endLegDateWithDelay = addMinutes(trip.legs[i].endTime, legDelay)
+                endLegDateWithDelayUnixValue = Date.parse(endLegDateWithDelay)
+                nextLegStartDateUnixValue = Date.parse(trip.legs[i+1].startTime)
+            }
+
+            // Case when public transport leg is followed by walking (to another stop for example) which is followed
+            // by public transport
+            else if (trip.legs[i+1].modeOfTransport === 'foot') {
+                if (i + 2 < trip.legs.length && isPublicTransport(trip.legs[i+2])) {
+                    const differenceBetweenEndAndStartOfWalkingInMinutes = Math.ceil((Date.parse(trip.legs[i+1].endTime) - Date.parse(trip.legs[i+1].startTime)) / 60000)
+
+                    const endLegDateWithDelayAndWalking = addMinutes(trip.legs[i].endTime, legDelay + differenceBetweenEndAndStartOfWalkingInMinutes)
+                    endLegDateWithDelayUnixValue = Date.parse(endLegDateWithDelayAndWalking)
+                    nextLegStartDateUnixValue = Date.parse(trip.legs[i+2].startTime)
+                }
+            }
+            // Return true if the leg with the delays (+ walking time) ends later than the following leg begins
+            return endLegDateWithDelayUnixValue > nextLegStartDateUnixValue
+        }
+    }
+    return false
+}
+
 /**
  * Finds the best trips according to given criteria
  * @param trips Original trips
  */
-function findBestTrips(trips: TripResult[]): TripResult[] {
+ function findBestTrips(trips: TripResult[]): TripResult[] {
     if (trips.length === 0 || trips.length === 1) {
         return trips
     }
@@ -183,7 +221,13 @@ function findBestTrips(trips: TripResult[]): TripResult[] {
     
     let tripRankings: TripDecision[] = []
     for (let i = 0; i < trips.length; i++) {
-        const delaySum = trips[i].legs.reduce((acc, leg) => acc + leg.delays.averageDelay, 0)
+        const delaySum = trips[i].legs.reduce((acc, leg) => {
+            // If possible use current delay in the calculation
+            if (leg.delays.currentDelay !== -1) {
+                return acc + leg.delays.currentDelay
+            }
+            return acc + leg.delays.averageDelay
+        }, 0)
         tripRankings.push(
             {
                 tripIndex: i,
@@ -191,6 +235,7 @@ function findBestTrips(trips: TripResult[]): TripResult[] {
                 totalTransfers: trips[i].totalTransfers,
                 totalEmissions: getTotalEmissions(trips[i]),
                 totalDelay: delaySum,
+                isDelayCritical: hasCriticalDelay(trips[i]),
                 totalTimeNormalized: 0,
                 totalTransfersNormalized: 0,
                 totalEmissionsNormalized: 0,
@@ -214,4 +259,4 @@ function findBestTrips(trips: TripResult[]): TripResult[] {
     return bestTrips
 }
 
-export { findBestTrips, getParetoOptimalTrips }
+export { findBestTrips, getParetoOptimalTrips, hasCriticalDelay }

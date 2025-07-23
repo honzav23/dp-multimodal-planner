@@ -9,7 +9,7 @@ import { describe, it } from "jsr:@std/testing/bdd"
 import { expect } from "jsr:@std/expect";
 import { validateRequestInput, validateCoordinates, validateDateAndTime, validatePreferences, validateTransferStop,
          validatePickupPoint, validateComingBackFields } from "../validate.ts";
-import { trip, transferStop } from "./data/testTrip.ts";
+import { trip, transferStop } from "./data/testTripRequest.ts";
 
 describe("Validate trip request", () => {
   it("Doesn't throw when request is correct", () => {
