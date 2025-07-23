@@ -104,17 +104,9 @@ const tripSlice = createSlice({
     reducers: {
         setStartCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.origin = action.payload;
-
-            // Remove the old routes from a trip whenever the starting point changes
-            state.tripResults.outboundTrips = []
-            state.tripResults.returnTrips = []
         },
         setEndCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.destination = action.payload;
-
-            // Remove the old routes from a trip whenever the ending point changes
-            state.tripResults.outboundTrips = []
-            state.tripResults.returnTrips = []
         },
         setPickupCoords(state, action: PayloadAction<LatLngTuple>) {
             state.tripRequest.preferences.pickupCoords = action.payload
