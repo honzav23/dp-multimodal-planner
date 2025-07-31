@@ -25,11 +25,12 @@
         "noParkingLots": "No parking lots nearby",
         "transport": "Preferred means of transport",
         "onlyPublicTransport": "Use only public transport",
-        "bestTrip": "Find the best trip (might take a long time)",
+        "findBestTrip": "Find the best trip",
+        "findBestTripText": "might take a long time to compute",
         "pickup": "Pickup point",
-        "return": "I will be coming back",
-        "returnDate": "Return date",
-        "returnTime": "Return time"
+        "comingBack": "I will be coming back",
+        "comingBackDate": "Return date",
+        "comingBackTime": "Return time"
     },
     "transfer": {
         "select": "Select as a transfer point",
@@ -120,19 +121,16 @@
             "preferences": {
                 "transferPointSelection": "Transfer point selection",
                 "transferPointSelectionText": "choice of a transfer point used for the transition between car and public transport.",
-                "pickup": "Pickup point",
                 "pickupText": "selection of the place used to transport the passenger by car to the destination (the choice of the place is the same as for the entry of the starting and ending points in the form).",
-                "meansOfTransport": "Preferred means of transport",
                 "meansOfTransportText": "the possibility to choose which means of transport will be used to get from the transfer point to the destination.",
-                "findBest": "Find the best trip",
+                "onlyPublicTransportText": "only public transport is used when calculating the route.",
                 "findBestText": "this item causes all suitable transfer points to be tried to find the best trip. However, the calculation may take longer depending on the length of the route.",
-                "comingBack": "I will be coming back",
                 "comingBackText": "click on this option to set the departure date and time for the way back. Then, in addition to the start-to-finish routes, the destination-to-start routes will also be displayed."
             },
             "transferStopsHeader": "Transfer points",
-            "transferStopsText": "Transfer points are also shown on the map as green circles. Clicking on any of them will display its name and the option to select that point to be used for the trip.",
+            "transferStopsText": "Transfer points are also shown on the map as green circles. Clicking on any of them will display its name and the option to select that point to be used for the trip. Getting parking lot information for a given transfer point is also possible. Blue polygons are shown around the transfer point indicating found parking lots after clicking the button. Additional parking lot information can be obtained by clicking the polygon.",
             "tripShowHeader": "Displaying the trips",
-            "tripShowText": "If the trips that meet the requirements can be found, a list of them will be displayed at the bottom left of the screen. You can switch between outbound and return trips. There are also buttons to the right of these options that allow you to sort the trips by speed or by power consumption (only one parameter can be sorted at a time). Clicking on one of the trips will display details about it. Each route can include delay information, which is located in the top right corner of each subtrip. By clicking on this, you can see in a table how the delay has evolved in the few days before the departure date."
+            "tripShowText": "If the trips that meet the requirements can be found, a list of them will be displayed at the bottom left of the screen. You can switch between outbound and return trips. There are also buttons to the right of these options that allow you to sort the trips by speed or by power consumption (only one parameter can be sorted at a time). Clicking on one of the trips will display details about it. Each route can include delay information, which is located in the top right corner of each subtrip. By clicking on this, you can see in a table how the delay has evolved in the few days before the departure date. Yellow border around the delay icon marks the current delay of the trip."
         },
         "contact": {
             "contactTitle": "Contact",

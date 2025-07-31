@@ -84,13 +84,15 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
                     <ul>
                         <li><strong>{t('about.usage.preferences.transferPointSelection')}</strong> - {t('about.usage.preferences.transferPointSelectionText')}</li>
                         <br/>
-                        <li><strong>{t('about.usage.preferences.pickup')}</strong> - {t('about.usage.preferences.pickupText')}</li>
+                        <li><strong>{t('preferences.pickup')}</strong> - {t('about.usage.preferences.pickupText')}</li>
                         <br/>
-                        <li><strong>{t('about.usage.preferences.meansOfTransport')}</strong> - {t('about.usage.preferences.meansOfTransportText')}</li>
+                        <li><strong>{t('preferences.transport')}</strong> - {t('about.usage.preferences.meansOfTransportText')}</li>
                         <br/>
-                        <li><strong>{t('about.usage.preferences.findBest')}</strong> - {t('about.usage.preferences.findBestText')}</li>
+                        <li><strong>{t('preferences.onlyPublicTransport')}</strong> - {t('about.usage.preferences.onlyPublicTransportText')}</li>
                         <br/>
-                        <li><strong>{t('about.usage.preferences.comingBack')}</strong> - {t('about.usage.preferences.comingBackText')}</li>
+                        <li><strong>{t('preferences.findBestTrip')}</strong> - {t('about.usage.preferences.findBestText')}</li>
+                        <br/>
+                        <li><strong>{t('preferences.comingBack')}</strong> - {t('about.usage.preferences.comingBackText')}</li>
                     </ul>
                     <Divider/>
                     <h2>{t('about.usage.transferStopsHeader')}</h2>

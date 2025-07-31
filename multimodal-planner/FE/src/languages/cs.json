@@ -25,11 +25,12 @@
         "noParkingLots": "Žádná parkoviště v blízkosti",
         "transport": "Preferované dopravní prostředky",
         "onlyPublicTransport": "Využít pouze hromadnou dopravu",
-        "bestTrip": "Nalézt nejlepší trasu (může trvat dlouho)",
+        "findBestTrip": "Nalézt nejlepší trasu",
+        "findBestTripText": "výpočet může trvat dlouho",
         "pickup": "Místo vyzvednutí",
-        "return": "Budu se vracet",
-        "returnDate": "Datum návratu",
-        "returnTime": "Čas návratu"
+        "comingBack": "Budu se vracet",
+        "comingBackDate": "Datum návratu",
+        "comingBackTime": "Čas návratu"
     },
     "transfer": {
         "select": "Zvolit jako přestupní bod",
@@ -120,19 +121,16 @@
             "preferences": {
                 "transferPointSelection": "Výběr přestupního bodu",
                 "transferPointSelectionText": "volba přestupního bodu, který bude sloužit k přechodu mezi autem a hromadnou dopravou.",
-                "pickup": "Místo vyzvednutí",
                 "pickupText": "volba místa sloužící k převozu autem do cílové destinace (volba místa je stejná jako u zadání počátečního a koncového bodu ve formuláři).",
-                "meansOfTransport": "Preferované dopravní prostředky",
                 "meansOfTransportText": "možnost zvolit, které dopravní prostředky budou použity při dopravě z přestupního bodu do cíle.",
-                "findBest": "Nalézt nejlepší trasu",
+                "onlyPublicTransportText": "při výpočtu trasy je využita pouze hromadná doprava.",
                 "findBestText": "tato položka způsobí, že se pro vyhledání nejlepší trasy vyzkouší všechny vhodné přestupní body. Výpočet však může trvat delší dobu v závislosti na délce trasy.",
-                "comingBack": "Budu se vracet",
                 "comingBackText": "po kliknutí na tuto možnost lze nastavit datum a čas odjezdu zpět. Poté se kromě tras ze startu do cíle zobrazí i trasy z cíle do startu."
             },
             "transferStopsHeader": "Přestupní body",
-            "transferStopsText": "Přestupní body jsou rovněž zobrazeny na mapě v podobě zelených kroužků. Po kliknutí na jakýkoliv z nich se zobrazí jeho název a možnost zvolit tento bod, který se použije pro danou trasu.",
+            "transferStopsText": "Přestupní body jsou rovněž zobrazeny na mapě v podobě zelených kroužků. Po kliknutí na jakýkoliv z nich se zobrazí jeho název a možnost zvolit tento bod, který se použije pro danou trasu. Pro každý z přestupních bodů je rovněž možné získat informace o parkování v okolí. Po kliknutí na tlačítko se okolo přestupního bodu objeví modré polygony označující nalezená parkoviště. Po kliknutí na něj lze získat další informace o daném parkovišti",
             "tripShowHeader": "Zobrazení tras",
-            "tripShowText": "Pokud se podaří nalézt trasy, které vyhovují požadavkům, zobrazí se jejich seznam v levé části obrazovky dole. Lze přepínat mezi trasami tam a trasami zpět. Zároveň se napravo od těchto možností nacházejí tlačítka umožňující řadit trasy podle rychlosti, nebo podle spotřeby (v danou chvíli lze řadit pouze podle jednoho parametru). Po kliknutí na jednu z tras se zobrazí detaily o ní. Součástí každého spoje na trase mohou být informace o zpoždění, které se nachází v pravém horním rohu každého spoje. Po kliknutí na tento údaj lze v tabulce vidět, jak se zpoždění vyvíjelo v pár dnech před datem odjezdu."
+            "tripShowText": "Pokud se podaří nalézt trasy, které vyhovují požadavkům, zobrazí se jejich seznam v levé části obrazovky dole. Lze přepínat mezi trasami tam a trasami zpět. Zároveň se napravo od těchto možností nacházejí tlačítka umožňující řadit trasy podle rychlosti, nebo podle spotřeby (v danou chvíli lze řadit pouze podle jednoho parametru). Po kliknutí na jednu z tras se zobrazí detaily o ní. Součástí každého spoje na trase mohou být informace o zpoždění, které se nachází v pravém horním rohu každého spoje. Po kliknutí na tento údaj lze v tabulce vidět, jak se zpoždění vyvíjelo v pár dnech před datem odjezdu. Pokud je zpoždění ohraničeno žlutou barvou, jedná se o aktuální zpoždění daného spoje."
         },
         "contact": {
             "contactTitle": "Kontakt",

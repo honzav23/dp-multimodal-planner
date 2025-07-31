@@ -205,16 +205,16 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
 
                          {/* Find the best solution checkbox */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setFindBestTrip(val))}
-                            checked={findBestTripSelected}/>} label={t('preferences.bestTrip')}/>
+                            checked={findBestTripSelected}/>} label={`${t('preferences.findBestTrip')} (${t('preferences.findBestTripText')})`}/>
 
                         {/* I will be coming back checkbox */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => handleComingBackCheckboxChange(val)}
-                           checked={returnDateTimeShown}/>} label={t('preferences.return')}/>
+                           checked={returnDateTimeShown}/>} label={t('preferences.comingBack')}/>
 
                         {returnDateTimeShown && (
                             <>
                                 {/* Select date */}
-                                <DatePicker sx={{ backgroundColor: 'white' }} label={t('preferences.returnDate')} defaultValue={defaultDate}
+                                <DatePicker sx={{ backgroundColor: 'white' }} label={t('preferences.comingBackDate')} defaultValue={defaultDate}
                                             onError={(err, val) => handleDateError(err, val)}
                                             slotProps={{
                                                 textField: {
@@ -225,7 +225,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                                             onChange={(date) => handleDateChange(date)}/>
 
                                 {/* Select time */}
-                                <TimePicker sx={{ backgroundColor: 'white' }} label={t('preferences.returnTime')} defaultValue={defaultDate}
+                                <TimePicker sx={{ backgroundColor: 'white' }} label={t('preferences.comingBackTime')} defaultValue={defaultDate}
                                             onError={(err, val) => handleTimeError(err, val)}
                                             slotProps={{
                                                 textField: {
