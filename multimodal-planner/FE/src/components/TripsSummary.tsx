@@ -19,7 +19,7 @@ import {
     Tooltip
 } from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
-import { setSelectedTrip, clearTripsAndRoutes } from "../store/slices/tripSlice";
+import { setSelectedTrip, clearTripsAndRoutes, setShowOutboundTrips } from "../store/slices/tripSlice";
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
@@ -36,10 +36,9 @@ import '../css/tabStyle.css'
 interface TripSummaryProps {
     minimize?: (origin: string) => void;
     maximize?: (origin: string) => void;
-    switchRoutes: (value: string) => void;
 }
 
-function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
+function TripsSummary({ minimize, maximize }: TripSummaryProps) {
 
     const isMobile = useIsMobile()
     const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
@@ -71,6 +70,7 @@ function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
     useEffect(() => {
         if (selectedTrip === -1 && !isMobile && outboundTrips.length > 0) {
             setTabValue('outbound');
+            setShowOutboundTrips(true)
             dispatch(setSelectedTrip(0))
         }
     }, [outboundTrips]);
@@ -155,7 +155,7 @@ function TripsSummary({ minimize, maximize, switchRoutes }: TripSummaryProps) {
     const handleTabChange = (e: SyntheticEvent, val: string) => {
         dispatch(setSelectedTrip(-1))
         setTabValue(val)
-        switchRoutes(val)
+        dispatch(setShowOutboundTrips(val === 'outbound'))
         swapOriginAndDestination()
     }
 

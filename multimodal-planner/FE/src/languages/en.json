@@ -14,7 +14,9 @@
         }
     },
     "feedback": {
-        "error": "Unable to fetch trips",
+        "tripError": "Unable to fetch trips",
+        "transferStopsError": "Unable to fetch transfer points",
+        "parkingLotError": "Unable to fetch parking lots",
         "noTripsFound": "No suitable trips were found",
         "noReturnTripsFound": "No return trips were found",
         "noParkingLotsFound": "No parking lots nearby"

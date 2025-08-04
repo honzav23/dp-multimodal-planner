@@ -1,5 +1,5 @@
 export type TripResult = {
-    totalTime: number,
+    totalTime: number, // In seconds
     totalDistance: number, // In kilometers
     startTime: string,
     endTime: string,

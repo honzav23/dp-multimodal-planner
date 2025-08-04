@@ -16,7 +16,7 @@ import { setFocus } from '../../store/slices/inputsFocusSlice.ts';
 import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTripsAndRoutes } from '../../store/slices/tripSlice.ts';
 import { clearStartAddress, clearEndAddress } from '../../store/slices/addressSlice.ts';
 import { getTransferStops } from '../../store/slices/transferStopSlice.ts';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type KeyboardEvent } from 'react';
 import dayjs, {Dayjs} from 'dayjs';
 import AdditionalPreferences from './AdditionalPreferences.tsx';
 
@@ -61,12 +61,26 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
 
     useEffect(() => {
-      changeCursor()
+        changeCursorStyle()
     }, [startInputFocused, endInputFocused, pickupInputFocused])
 
     useEffect(() => {
-      dispatch(getTransferStops())
+        dispatch(getTransferStops())
     }, [])
+
+    // Used to be able to submit the form by Enter key
+    useEffect(() => {
+        window.addEventListener('keyup', (e: globalThis.KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                handleSubmit()
+            }
+        })
+
+        return () => {
+            window.removeEventListener('keyup', handleSubmit)
+        }
+    }, [formValid, isLoading]);
 
 
     const handleDateChange = (date: Dayjs | null) => {
@@ -86,7 +100,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     /**
     * Changes the cursor style based on the input focus
     */
-    const changeCursor = () => {
+    const changeCursorStyle = () => {
       const elements = document.getElementsByClassName("leaflet-grab")
       let cursorStyle = "grab"
 
@@ -120,19 +134,8 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
     const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
         setDialogOpen(false)
-        if (!comingBackDateValid) {
-            setComingBackDateValid(false)
-        }
-        else {
-            setComingBackDateValid(true)
-        }
-
-        if (!comingBackTimeValid) {
-            setComingBackTimeValid(false)
-        }
-        else {
-            setComingBackTimeValid(true)
-        }
+        setComingBackDateValid(comingBackDateValid)
+        setComingBackTimeValid(comingBackTimeValid)
     }
 
     /**
@@ -155,105 +158,119 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
         }
     }
 
+    const handleSubmit = () => {
+        if (formValid && !isLoading) {
+            dispatch(getTrips())
+            dispatch(clearTripsAndRoutes());
+        }
+    }
+
+    // Disable opening the settings when submitting the form by Enter key
+    const disableOpeningSettingsWhenSubmittingForm = (e: KeyboardEvent<HTMLButtonElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+        }
+    }
+
     return (
         <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Tooltip arrow placement='right' title={t('form.showPreferences')}>
-                <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)}>
-                    <Tune/>
-                </IconButton>
-            </Tooltip>
-            <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: `translateX(${isMobile ? '0' : '-5%'})` }}>
-                {t('form.plan')}
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Tooltip arrow placement='right' title={t('form.showPreferences')}>
+                    <IconButton size='large' edge='start' sx={{ color: 'black' }} onClick={() => setDialogOpen(true)} onKeyDown={disableOpeningSettingsWhenSubmittingForm}>
+                        <Tune/>
+                    </IconButton>
+                </Tooltip>
+                <h2 style={{ flexGrow: 1, textAlign: 'center', margin: 0, transform: `translateX(${isMobile ? '0' : '-5%'})` }}>
+                    {t('form.plan')}
+                </h2>
+                {
+                    isMobile && (minimized ?
+                        <IconButton onClick={conditionalMaximize} color='primary' edge='start'>
+                            <ZoomOutMap/>
+                        </IconButton>
+                        :
+                        <IconButton onClick={conditionalMinimize} color='primary' edge='start'>
+                            <Minimize/>
+                        </IconButton>
+                    )
+                }
+            </div>
+
+
+            {/* Start point text field */}
+            <TextField style={{ backgroundColor: "white" }} slotProps={
             {
-                isMobile && (minimized ?
-                    <IconButton onClick={conditionalMaximize} color='primary' edge='start'>
-                        <ZoomOutMap/>
-                    </IconButton>
-                    :
-                    <IconButton onClick={conditionalMinimize} color='primary' edge='start'>
-                        <Minimize/>
-                    </IconButton>
-                )
-            }
-        </div>
-
-
-        {/* Start point text field */}
-        <TextField style={{ backgroundColor: "white" }} slotProps={
-        {
-            input: {
-            endAdornment:
-                <InputAdornment position='end'>
-                    <IconButton edge='end' onClick={() => clearInput('start')}>
-                        <Close/>
-                    </IconButton>
-                </InputAdornment>
-            },
-            htmlInput: {
-                readOnly: true
-            }
-        }}
-            size="small" value={startInputValue} placeholder={t('form.start')} type='text'
-            onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
-        />
-        <Tooltip placement='right' title={t('form.switch')}>
-            <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
-                <SwapVert fontSize='inherit'/>
-            </IconButton>
-        </Tooltip>
-        
-
-        {/* End point text field */}
-        <TextField sx={{ backgroundColor: "white", mb: 2 }} slotProps={
-        {
-            input: {
+                input: {
                 endAdornment:
                     <InputAdornment position='end'>
-                        <IconButton edge='end' onClick={() => clearInput('end')}>
+                        <IconButton edge='end' onClick={() => clearInput('start')}>
                             <Close/>
                         </IconButton>
                     </InputAdornment>
-            },
-            htmlInput: {
-                readOnly: true
-            }
-        }}
-        size="small" value={endInputValue} placeholder={t('form.end')} type='text'
-        onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
-        />
+                },
+                htmlInput: {
+                    readOnly: true
+                }
+            }}
+                size="small" value={startInputValue} placeholder={t('form.start')} type='text'
+                onFocus={() => dispatch(setFocus({origin: "start", focused: true}))}
+            />
+            <Tooltip placement='right' title={t('form.switch')}>
+                <IconButton size="medium" sx={{ color: 'black', alignSelf: 'center' }} onClick={swapOriginAndDestination}>
+                    <SwapVert fontSize='inherit'/>
+                </IconButton>
+            </Tooltip>
 
 
-        <div style={{ display: 'flex', gap: '10px'}}>
-            {/* Select date */}
-            <DatePicker label={t('form.departureDate')} sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())}
-                        onError={(err, val) => handleDateError(err, val)}
-                        slotProps={{
-                            textField: {
-                                helperText: dateError.message
-                            }
-                        }}
-                        onChange={(date) => handleDateChange(date)}/>
+            {/* End point text field */}
+            <TextField sx={{ backgroundColor: "white", mb: 2 }} slotProps={
+            {
+                input: {
+                    endAdornment:
+                        <InputAdornment position='end'>
+                            <IconButton edge='end' onClick={() => clearInput('end')}>
+                                <Close/>
+                            </IconButton>
+                        </InputAdornment>
+                },
+                htmlInput: {
+                    readOnly: true
+                }
+            }}
+            size="small" value={endInputValue} placeholder={t('form.end')} type='text'
+            onFocus={() => dispatch(setFocus({origin: "end", focused: true}))}
+            />
 
-            {/* Select time */}
-            <TimePicker label={t('form.departureTime')} sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())}
-                        onError={(err, val) => handleTimeError(err, val)}
-                        slotProps={{
-                            textField: {
-                                helperText: timeError.message
-                            }
-                        }}
-                        onChange={(time) => handleTimeChange(time)}/>
-        </div>
-        <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={(dateValid, timeValid) => handleDialogClosed(dateValid, timeValid)}/>
 
-        {/* Get routes button */}
-        <Button disabled={!formValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
-                onClick={() => {dispatch(clearTripsAndRoutes());dispatch(getTrips())}}>
-            {t('form.show')}
-        </Button>
-    </>
+            <div style={{ display: 'flex', gap: '10px'}}>
+                {/* Select date */}
+                <DatePicker label={t('form.departureDate')} sx={{ backgroundColor: 'white', flex: "1" }} defaultValue={dayjs(Date.now())}
+                            onError={(err, val) => handleDateError(err, val)}
+                            slotProps={{
+                                textField: {
+                                    helperText: dateError.message
+                                }
+                            }}
+                            onChange={(date) => handleDateChange(date)}/>
+
+                {/* Select time */}
+                <TimePicker label={t('form.departureTime')} sx={{ backgroundColor: 'white', flex: "0 0 40%" }} defaultValue={dayjs(Date.now())}
+                            onError={(err, val) => handleTimeError(err, val)}
+                            slotProps={{
+                                textField: {
+                                    helperText: timeError.message
+                                }
+                            }}
+                            onChange={(time) => handleTimeChange(time)}/>
+            </div>
+            <AdditionalPreferences dialogOpen={dialogOpen} closeDialog={(dateValid, timeValid) => handleDialogClosed(dateValid, timeValid)}/>
+
+            {/* Get routes button */}
+            <Button disabled={!formValid || isLoading} sx={{width: '60%', alignSelf: 'center', textTransform: 'none', fontSize: '1rem'}} variant='contained' size='large' loading={isLoading} loadingPosition='end'
+                    onClick={handleSubmit}>
+                {t('form.show')}
+            </Button>
+        </>
     )
 }
 

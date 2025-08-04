@@ -8,18 +8,17 @@ import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type { TripResponse } from "../../../../types/TripResult";
-// @ts-ignore
-import polyLine from "@mapbox/polyline"
+import { decode } from '@googlemaps/polyline-codec'
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
-import { openSnackbar } from "./snackbarSlice.ts";
+import { openErrorSnackbar, openWarningSnackbar } from "./snackbarSlice.ts";
 
 interface TripSliceState {
     tripRequest: TripRequest;
     tripResults: TripResponse;
     isLoading: boolean;
-    openSnackbar: boolean;
     snackbarMessage: string;
+    showOutboundTrips: boolean;
 
     // Decoded routes for each leg of each trip
     routes: {
@@ -46,6 +45,7 @@ const initialState: TripSliceState = {
             comingBack: null,
         }
     },
+    showOutboundTrips: true,
     tripResults: {
         outboundTrips: [],
         returnTrips: [],
@@ -56,7 +56,6 @@ const initialState: TripSliceState = {
     },
     selectedTrip: -1,
     isLoading: false,
-    openSnackbar: false,
     snackbarMessage: '',
 };
 
@@ -82,17 +81,17 @@ export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, {dis
         const returnTripsNotFound = data.returnTrips.length === 0 && tripRequest.preferences.comingBack
 
         if (tripsNotFound) {
-            dispatch(openSnackbar({message: 'noTripsFound', type: 'warning'}))
+            dispatch(openWarningSnackbar('noTripsFound'))
         }
 
         else if (returnTripsNotFound) {
-            dispatch(openSnackbar({message: 'noReturnTripsFound', type: 'warning'}))
+            dispatch(openWarningSnackbar('noReturnTripsFound'))
         }
         return data
     }
 
-    catch (_) {
-        dispatch(openSnackbar({message: "error", type: 'error'}))
+    catch {
+        dispatch(openErrorSnackbar('tripError'))
         return { outboundTrips: [], returnTrips: [] }
     }
 
@@ -168,10 +167,13 @@ const tripSlice = createSlice({
         },
         setUseOnlyPublicTransport(state, action: PayloadAction<boolean>) {
             state.tripRequest.preferences.useOnlyPublicTransport = action.payload
+        },
+        setShowOutboundTrips(state, action: PayloadAction<boolean>) {
+            state.showOutboundTrips = action.payload
         }
     },
     extraReducers: (builder) => {
-        builder.addCase(getTrips.pending, (state, action) => {
+        builder.addCase(getTrips.pending, (state) => {
             state.isLoading = true;
         })
         builder.addCase(getTrips.fulfilled,(state, action) => {
@@ -186,7 +188,7 @@ const tripSlice = createSlice({
                 const legs = tripResult.legs.map((leg) => (
                     {
                         mode: leg.modeOfTransport as TransportMode,
-                        route: polyLine.decode(leg.route) as LatLngTuple[]
+                        route: decode(leg.route, 5) as LatLngTuple[]
                     }
                 ));
                 state.routes.outboundDecodedRoutes.push(legs)
@@ -196,7 +198,7 @@ const tripSlice = createSlice({
                 const legs = tripResult.legs.map((leg) => (
                     {
                         mode: leg.modeOfTransport as TransportMode,
-                        route: polyLine.decode(leg.route) as LatLngTuple[]
+                        route: decode(leg.route, 5) as LatLngTuple[]
                     }
                 ));
                 state.routes.returnDecodedRoutes.push(legs)
@@ -211,6 +213,6 @@ const tripSlice = createSlice({
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, setSelectedTrip,
             setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords, clearComingBackDateTime,
-            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport } = tripSlice.actions;
+            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips } = tripSlice.actions;
 
 export default tripSlice.reducer;

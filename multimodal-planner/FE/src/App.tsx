@@ -6,7 +6,7 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {Drawer, Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent} from "@mui/material";
+import { Box, IconButton, Tooltip, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import TripRequestForm from './components/Form/TripRequestForm.tsx';
 import TripsSummary from './components/TripsSummary';
 import { useAppSelector } from "./store/hooks";
@@ -17,11 +17,12 @@ import useIsMobile from './hooks/useIsMobile';
 import {useState, useEffect} from "react";
 import { useTranslation } from 'react-i18next';
 import AboutApp from "./components/AboutApp";
+import MobileTripRequestForm from "./components/MobileViews/MobileTripRequestForm.tsx";
+import MobileTripsSummary from "./components/MobileViews/MobileTripSummary";
 import {availableLanguages} from "../i18n.ts";
 import MapWrapper from "./components/MapWrapper.tsx";
 
 function App() {
-    const { outboundTrips } = useAppSelector((state) => state.trip.tripResults)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
 
     const { startInputFocused, endInputFocused } = useAppSelector((state) => state.focus)
@@ -30,7 +31,6 @@ function App() {
 
     const { t, i18n } = useTranslation()
 
-    const [tabValue, setTabValue] = useState('outbound');
     const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
 
     const isMobile = useIsMobile()
@@ -50,10 +50,6 @@ function App() {
         }
     }, [startInputFocused, endInputFocused, isMobile]);
 
-    useEffect(() => {
-        setTabValue("outbound");
-    }, [outboundTrips]);
-
     /**
      * Minimize the content
      * @param origin Element id to minimize
@@ -68,10 +64,6 @@ function App() {
      */
     const maximize = (origin: string) => {
         document.getElementById(origin)!.style.maxHeight = '60vh'
-    }
-
-    const handleSwitchRoutes = (tabValue: string) => {
-        setTabValue(tabValue)
     }
 
     /**
@@ -110,20 +102,7 @@ function App() {
                 zIndex: 1000
             }}>
                 {/* Mobile view for the request form */}
-                { isMobile ? (outboundTrips.length === 0 &&
-                        <Drawer sx={{ pointerEvents: 'none' }} open={true} anchor='bottom' PaperProps={{sx: {overflow: 'hidden', boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} hideBackdrop>
-                            <Box id='form' sx={{
-                                pointerEvents: 'auto',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '10px',
-                                m: 1
-                            }}>
-                                <TripRequestForm minimize={minimize} maximize={maximize} />
-                            </Box>
-                        </Drawer>
-                )
-                    :
+                { isMobile ? <MobileTripRequestForm/> :
                     <div
                         style={{
                             padding: "10px 10px",
@@ -139,19 +118,7 @@ function App() {
                 }
 
                  {/* Mobile view for the trips summary */}
-                { isMobile ? (outboundTrips.length > 0 &&
-                    <Drawer sx={{ pointerEvents: 'none' }} PaperProps={{sx: {overflow: 'hidden', boxShadow: '0px -20px 10px rgba(0, 0, 0, 0.2)' }}} open={true} anchor='bottom' hideBackdrop>
-                        <Box id="summary" sx={{
-                            fontSize: '1em',
-                            maxHeight: '50vh',
-                            pointerEvents: 'auto',
-                            display:'flex',
-                            flexDirection: 'column',
-                        }}>
-                            <TripsSummary switchRoutes={handleSwitchRoutes} minimize={minimize} maximize={maximize}/>
-                        </Box>
-                    </Drawer>)
-                    :
+                { isMobile ? <MobileTripsSummary/> :
                     <div
                         style={{
                             backgroundColor: "rgba(255, 255, 255, 0.8)",
@@ -164,7 +131,7 @@ function App() {
                             padding: '0',
                         }}>
                         <div style={{ display: 'flex', flexDirection: 'row', pointerEvents: 'auto', overflow: 'auto' }}>
-                            <TripsSummary switchRoutes={handleSwitchRoutes}/>
+                            <TripsSummary/>
                         </div>
                     </div>
                 }
@@ -197,7 +164,7 @@ function App() {
             </Box>
 
             <AboutApp dialogOpen={aboutAppDialogOpen} closeDialog={() => setAboutAppDialogOpen(false)}/>
-            <MapWrapper tabValue={tabValue}/>
+            <MapWrapper/>
             <ActionFeedback/>
         </div>
     );

@@ -11,7 +11,7 @@ import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { setTransferStop, initialCoords } from "../store/slices/tripSlice";
-import { getParkingLotsNearby } from "../store/slices/transferStopSlice";
+import { getParkingLotsNearby } from "../store/slices/parkingLotSlice";
 import { WarningAmber } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 
@@ -22,8 +22,8 @@ import { useTranslation } from "react-i18next";
 function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
-    const parkingLotsLoading = useAppSelector((state) => state.transferStop.parkingLotsLoading);
-    const parkingLots = useAppSelector((state) => state.transferStop.parkingLots);
+    const parkingLotsLoading = useAppSelector((state) => state.parkingLot.parkingLotsLoading);
+    const parkingLots = useAppSelector((state) => state.parkingLot.parkingLots);
 
     const [transferStopForParkingCoords, setTransferStopForParkingCoords] = useState<LatLngTuple | null>(null);
 

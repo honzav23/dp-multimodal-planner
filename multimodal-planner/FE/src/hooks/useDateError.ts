@@ -2,9 +2,10 @@ import { useState } from 'react'
 import type {ResultStatus} from "../../../types/ResultStatus.ts";
 import {DateValidationError} from "@mui/x-date-pickers";
 import {Dayjs} from "dayjs";
+import type { DateTimeValidation } from "../types/DateTimeValidation";
 import { useTranslation } from 'react-i18next'
 
-function useDateError() {
+function useDateError(): DateTimeValidation<DateValidationError> {
     const [dateError, setDateError] = useState<ResultStatus>({error: false, message: ''})
     const { t } = useTranslation()
 

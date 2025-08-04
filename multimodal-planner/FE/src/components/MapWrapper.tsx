@@ -15,19 +15,16 @@ import { routeColors } from "../common/common.ts";
 import useIsMobile from '../hooks/useIsMobile.ts'
 import ParkingLotInfo from "./ParkingLotInfo.tsx";
 
-interface MapWrapperProps {
-    tabValue: string;
-}
-
-function MapWrapper( {tabValue }: MapWrapperProps ) {
+function MapWrapper() {
     const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
     const { outboundDecodedRoutes, returnDecodedRoutes } = useAppSelector((state) => state.trip.routes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
+    const showOutboundTrips = useAppSelector((state) => state.trip.showOutboundTrips)
 
-    const parkingLots = useAppSelector((state) => state.transferStop.parkingLots)
+    const parkingLots = useAppSelector((state) => state.parkingLot.parkingLots)
 
-    const routesToShow = tabValue === 'outbound' ? outboundDecodedRoutes : returnDecodedRoutes;
-    const tripsToShow = tabValue === 'outbound' ? outboundTrips : returnTrips;
+    const routesToShow = showOutboundTrips ? outboundDecodedRoutes : returnDecodedRoutes;
+    const tripsToShow = showOutboundTrips ? outboundTrips : returnTrips;
     const isMobile = useIsMobile()
 
     return (

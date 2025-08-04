@@ -24,10 +24,15 @@ const snackbarSlice = createSlice({
     name: 'snackbar',
     initialState,
     reducers: {
-        openSnackbar: (state, action: PayloadAction<{message: string, type: 'error' | 'warning'}>) => {
+        openErrorSnackbar: (state, action: PayloadAction<string>) => {
             state.snackbarOpen = true;
-            state.message = action.payload.message;
-            state.type = action.payload.type;
+            state.message = action.payload;
+            state.type = 'error';
+        },
+        openWarningSnackbar: (state, action: PayloadAction<string>) => {
+            state.snackbarOpen = true;
+            state.message = action.payload;
+            state.type = 'warning';
         },
         closeSnackbar: (state) => {
             state.snackbarOpen = false;
@@ -37,6 +42,6 @@ const snackbarSlice = createSlice({
     }
 })
 
-export const { openSnackbar, closeSnackbar } = snackbarSlice.actions;
+export const { openErrorSnackbar, openWarningSnackbar, closeSnackbar } = snackbarSlice.actions;
 
 export default snackbarSlice.reducer;

@@ -14,7 +14,9 @@
         }
     },
     "feedback": {
-        "error": "Nepodařilo se načíst trasy",
+        "tripError": "Nepodařilo se načíst trasy",
+        "transferStopsError": "Nepodařilo se načíst přestupní body",
+        "parkingLotError": "Nepodařilo se načíst parkoviště",
         "noTripsFound": "Nebyla nalezena žádná vhodná trasa",
         "noReturnTripsFound": "Nebyly nalezeny cesty zpět",
         "noParkingLotsFound": "Žádná parkoviště v okolí"
