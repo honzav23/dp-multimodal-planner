@@ -7,7 +7,7 @@
 
 import type {OTPTripLeg} from "./types/OTPGraphQLData.ts";
 import {calculateDistance} from "./common/common.ts";
-import { availableTripsByLines, availableDates } from "./api.ts";
+import { lissyInfo } from "./api.ts";
 import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
 import type { LissyAvailableTrip } from "./types/LissyTypes.ts";
 import polyline from "polyline-codec";
@@ -34,7 +34,7 @@ function calculateTotalDistance(coords: [number, number][]): number {
  * @param lineEndStop Stop in which the line ends
  */
 function findCorrespondingTrips(lineStartStop: string, lineEndStop: string) {
-    for (const line of availableTripsByLines) {
+    for (const line of lissyInfo.availableTripsByLines) {
         const correspondingTrips = line.filter((trip) => trip.stops === `${lineStartStop} -> ${lineEndStop}`)
         if (correspondingTrips.length > 0) {
             return correspondingTrips
@@ -118,7 +118,7 @@ function getCurrentLegDelay(leg: OTPTripLeg): number | null {
  * @returns Promise of the delay information
  */
 async function getPastDelaysForLeg(tripId: number, endingStopIndex: number): Promise<DelayInfo[]> {
-    const delayData = await getDelaysFromLissy(tripId, availableDates)
+    const delayData = await getDelaysFromLissy(tripId, lissyInfo.availableDates)
     const pastDelays: DelayInfo[] = []
     if (delayData) {
         for (const dateKey of Object.keys(delayData)) {

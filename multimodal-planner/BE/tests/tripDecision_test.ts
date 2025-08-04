@@ -6,7 +6,7 @@
  */
 
 import { describe, it } from "jsr:@std/testing/bdd"
-import { assertEquals } from "jsr:@std/assert"
+import { expect } from "jsr:@std/expect";
 import { getParetoOptimalTrips, hasCriticalDelay } from "../transferStopSelector.ts";
 import { tripsParetoOneOptimal, tripsParetoMoreOptimal } from "./data/testTripRequest.ts";
 import {
@@ -19,33 +19,33 @@ import {
 describe("Check if making pareto queue is correct", () => {
   it("One pareto optimal solution", () => {
     const optimalTrips = getParetoOptimalTrips(tripsParetoOneOptimal)
-    assertEquals(optimalTrips.length, 1)
-    assertEquals(optimalTrips[0].tripIndex, 3)
+    expect(optimalTrips.length).toBe(1)
+    expect(optimalTrips[0].tripIndex).toBe(3)
   })
   it("Multiple pareto optimal solutions", () => {
     const optimalTrips = getParetoOptimalTrips(tripsParetoMoreOptimal)
-    assertEquals(optimalTrips.length, 3)
-    assertEquals(optimalTrips[0].tripIndex, 0)
-    assertEquals(optimalTrips[1].tripIndex, 2)
-    assertEquals(optimalTrips[2].tripIndex, 3)
+    expect(optimalTrips.length).toBe(3)
+    expect(optimalTrips[0].tripIndex).toBe(0)
+    expect(optimalTrips[1].tripIndex).toBe(2)
+    expect(optimalTrips[2].tripIndex).toBe(3)
 
   })
 })
 
 describe("Check if function evaluating critical delay is correct", () => {
   it("Return false when delay for trip without walking is 0", () => {
-    assertEquals(hasCriticalDelay(publicTransportTrip1CorrectResult), false)
+    expect(hasCriticalDelay(publicTransportTrip1CorrectResult)).toBeFalsy()
   })
 
   it("Return true when delay for trip without walking is so big that another leg is missed", () => {
-    assertEquals(hasCriticalDelay(publicTransportTrip1CorrectResultWithDelay), true)
+    expect(hasCriticalDelay(publicTransportTrip1CorrectResultWithDelay)).toBeTruthy()
   })
 
   it("Return false when delay for trip with walking is 0", () => {
-    assertEquals(hasCriticalDelay(publicTransportTripWithWalkNoDelay), false)
+    expect(hasCriticalDelay(publicTransportTripWithWalkNoDelay)).toBeFalsy()
   })
 
   it("Return true when delay for trip with walking is so big that another leg is missed", () => {
-    assertEquals(hasCriticalDelay(publicTransportTripWithWalkWithDelay), true)
+    expect(hasCriticalDelay(publicTransportTripWithWalkWithDelay)).toBeTruthy()
   })
 })

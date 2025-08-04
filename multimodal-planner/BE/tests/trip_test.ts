@@ -1,5 +1,5 @@
 import { describe, it } from "jsr:@std/testing/bdd"
-import { assertEquals } from "jsr:@std/assert"
+import { expect } from "jsr:@std/expect";
 import { carTrip1, carTrip1CorrectResult, publicTransportTrip1, publicTransportTrip1CorrectResult,
         carTripResultToMerge, publicTransportTripResultToMerge, correctMergedTrip, carTripAfterPublicTransport,
     correctMergedTripPickup, correctMergedTripReverseReturn, correctMergedPublicTransportTripPickup, publicTransportTripResultPickup} from "./data/testTrips.ts";
@@ -14,37 +14,37 @@ import {TripResult} from "../../types/TripResult.ts";
 describe("Check if OTPTrip is correctly converted to TripResult type", () => {
     it("Convert car OTPTrip to TripResult", async () => {
         const carTrip1Result: TripResult = await convertOTPDataToTripResult(carTrip1)
-        assertEquals(carTrip1Result, carTrip1CorrectResult)
+        expect(carTrip1Result).toEqual(carTrip1CorrectResult)
     })
 
     it("Convert public transport OTPTrip to TripResult", async () => {
         const publicTransportTrip1Result: TripResult = await convertOTPDataToTripResult(publicTransportTrip1)
-        assertEquals(publicTransportTrip1Result, publicTransportTrip1CorrectResult)
+        expect(publicTransportTrip1Result).toEqual(publicTransportTrip1CorrectResult)
     })
 })
 
 describe("Check if merging car trip and public transport trip is correct", () => {
     it("Merge car trip and public transport trip", () => {
         const mergedTrip = mergeCarWithPublicTransport(carTripResultToMerge, publicTransportTripResultToMerge, "Valašské Meziříčí")
-        assertEquals(mergedTrip, correctMergedTrip)
+        expect(mergedTrip).toEqual(correctMergedTrip)
     })
 
     it("Merge car public transport trip with pickup car", () => {
         // Merge car + public transport + pickup car
         const mergedTrip = mergeFinalTripWithCar(correctMergedTrip, carTripAfterPublicTransport, false)
-        assertEquals(mergedTrip, correctMergedTripPickup)
+        expect(mergedTrip).toEqual(correctMergedTripPickup)
     })
 
     it("Merge public transport trip with car trip with returning back", () => {
         // Merge public transport + car
         const mergedTrip = mergeFinalTripWithCar(publicTransportTripResultToMerge, carTripAfterPublicTransport, true)
-        assertEquals(mergedTrip, correctMergedTripReverseReturn)
+        expect(mergedTrip).toEqual(correctMergedTripReverseReturn)
     })
 
     it("Merge public transport trip with pickup car", () => {
         // Merge public transport + pickup car
         const mergedTrip = mergeFinalTripWithCar(publicTransportTripResultPickup, carTripAfterPublicTransport, false)
-        assertEquals(mergedTrip, correctMergedPublicTransportTripPickup)
+        expect(mergedTrip).toEqual(correctMergedPublicTransportTripPickup)
     })
 
 })
@@ -52,12 +52,12 @@ describe("Check if merging car trip and public transport trip is correct", () =>
 describe("Check if number of transfers is calculated correctly", () => {
     it("Trip with only car returns 0 transfers", () => {
         const transfers = calculateTotalNumberOfTransfers(carTrip1)
-        assertEquals(transfers, 0)
+        expect(transfers).toBe(0)
     })
 
     it("Public transport trip with 2 legs returns 1 transfer", () => {
         const transfers = calculateTotalNumberOfTransfers(publicTransportTrip1)
-        assertEquals(transfers, 1)
+        expect(transfers).toBe(1)
 
     })
 })

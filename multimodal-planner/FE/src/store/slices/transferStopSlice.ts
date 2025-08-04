@@ -9,7 +9,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { TransferStop } from '../../../../types/TransferStop';
 import {ParkingLot} from "../../../../types/ParkingLot.ts";
-import {openSnackbar} from "./snackbarSlice.ts";
+import {openErrorSnackbar} from "./snackbarSlice.ts";
 
 interface TransferStopState {
     transferStops: TransferStop[];
@@ -30,25 +30,19 @@ const initialState: TransferStopState = {
  */
 export const getTransferStops = createAsyncThunk(
     'transferStops/getTransferStops',
-    async (): Promise<TransferStop[]> => {
+    async (_, { dispatch }): Promise<TransferStop[]> => {
         const apiUrl = import.meta.env.VITE_BACKEND_URL;
-        const response = await axios.get<TransferStop[]>(`${apiUrl}/transferStops`);
-        return response.data;
+
+        try {
+            const response = await axios.get<TransferStop[]>(`${apiUrl}/transferStops`);
+            return response.data;
+        }
+        catch {
+            dispatch(openErrorSnackbar('transferStopsError'))
+            return []
+        }
     }
 );
-
-/**
- * Get nearby parking lots for a given transfer stop
- */
-export const getParkingLotsNearby = createAsyncThunk('transferStops/parkingLots',
-    async (stopId: string, { dispatch }): Promise<ParkingLot[]> => {
-        const apiUrl = import.meta.env.VITE_BACKEND_URL
-        const response = await axios.post<ParkingLot[]>(`${apiUrl}/parkingLotsNearby`, { stopId })
-        if (response.data.length === 0) {
-            dispatch(openSnackbar({message: 'noParkingLotsFound', type: 'warning'}))
-        }
-        return response.data;
-    })
 
 const transferStopSlice = createSlice({
     name: 'transferStops',
@@ -57,18 +51,6 @@ const transferStopSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(getTransferStops.fulfilled, (state, action) => {
                 state.transferStops = action.payload;
-            })
-
-        builder.addCase(getParkingLotsNearby.pending, (state) => {
-            state.parkingLotsLoading = true
-        })
-        builder.addCase(getParkingLotsNearby.fulfilled, (state, action) => {
-            state.parkingLotsLoading = false
-            state.parkingLots = action.payload
-        })
-        builder.addCase(getParkingLotsNearby.rejected, (state, action) => {
-            // TODO React somehow when rejected
-            state.parkingLotsLoading = false
         })
     },
 });

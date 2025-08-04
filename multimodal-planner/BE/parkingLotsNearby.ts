@@ -200,7 +200,7 @@ function handleOpeningHours(openingHours: string): OpeningHours {
     return openingHoursObj as OpeningHours;
 }
 
-function extractTags(parkingLotObj: Partial<ParkingLot>, parkingLot: OSMWay) {
+function extractTags(parkingLot: OSMWay, parkingLotObj: Partial<ParkingLot>) {
     if (!("tags" in parkingLot)) {
         return
     }
@@ -255,7 +255,7 @@ async function fetchParkingLots(stopId: string) {
     for (const parkingLot of osmParkingLotsWays) {
         const parkingLotObj: Partial<ParkingLot> = {}
         parkingLotObj.polygon = getParkingLotBoundingBox(parkingLot, nodesObject)
-        extractTags(parkingLotObj, parkingLot)
+        extractTags(parkingLot, parkingLotObj)
 
         parkingLots.push(parkingLotObj as ParkingLot)
     }
@@ -263,4 +263,4 @@ async function fetchParkingLots(stopId: string) {
     return parkingLots
 }
 
-export { fetchParkingLots }
+export { fetchParkingLots, extractTags, handleFees, handleMaxStay }

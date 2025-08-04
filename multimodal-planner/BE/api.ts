@@ -11,10 +11,13 @@ import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
 import { calculateRoutes } from "./routeCalculator.ts";
 import { fetchParkingLots } from './parkingLotsNearby.ts'
-import { TripRequest } from "./types/TripRequest.ts";
-import { ResultStatus } from "../types/ResultStatus.ts";
-import { getTransferStops, getTripsForLines, convert12HourTo24Hour, parseArguments } from "./common/common.ts";
+import type { TripRequest } from "./types/TripRequest.ts";
+import type { TransferStop } from "../types/TransferStop.ts";
+import type { ResultStatus } from "../types/ResultStatus.ts";
+import { getTripsForLines, convert12HourTo24Hour, parseArguments } from "./common/common.ts";
+import { getTransferStops } from "./common/otpRequests.ts";
 import { connectToKordisWebSocket, createConversionTable } from './common/realtimeVehicleInfoProcessing.ts';
+import type {LissyObj} from "./types/LissyTypes.ts";
 
 export const rootDir = import.meta.dirname;
 
@@ -79,15 +82,22 @@ app.notFound((request) => {
   return request.json({ error: 'Not Found' }, 404);
 })
 
-// Get all transfer stops and trips that include delay information when the server starts
-export const transferStops = await getTransferStops();
-export const {availableTripsByLines, availableDates} = await getTripsForLines()
+export let transferStops: TransferStop[] = [];
+export let lissyInfo: LissyObj = { availableTripsByLines: [], availableDates: [] }
 
-const externalGTFS = parseArguments()
+// Run only when the server starts, not in tests
+if (import.meta.main) {
+  // Get all transfer stops and trips that include delay information when the server starts
+  transferStops = await getTransferStops();
+  lissyInfo = await getTripsForLines()
 
-if (!externalGTFS) {
-  connectToKordisWebSocket();
-  await createConversionTable()
+  const externalGTFS = parseArguments()
+
+  if (!externalGTFS) {
+    connectToKordisWebSocket();
+    await createConversionTable()
+  }
+  Deno.serve(app.fetch);
 }
 
-Deno.serve(app.fetch);
+

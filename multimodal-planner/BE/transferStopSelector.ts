@@ -7,7 +7,7 @@
 
 import type {TripLeg, TripResult} from "../types/TripResult.ts";
 import type { TripDecision } from "./types/TripDecision.ts";
-import {addMinutes} from "./common/common.ts";
+import {addSeconds} from "./common/common.ts";
 
 // Below are average emissions according to https://www.rekrabicka.cz/blog/ekologicky-dopad-dopravnich-prostredku
 // The values are grams of CO2 per kilometer per passenger
@@ -186,7 +186,7 @@ function hasCriticalDelay(trip: TripResult): boolean {
 
             // Case when public transport leg is followed by another public transport leg
             if (isPublicTransport(trip.legs[i+1])) {
-                const endLegDateWithDelay = addMinutes(trip.legs[i].endTime, legDelay)
+                const endLegDateWithDelay = addSeconds(trip.legs[i].endTime, legDelay * 60)
                 endLegDateWithDelayUnixValue = Date.parse(endLegDateWithDelay)
                 nextLegStartDateUnixValue = Date.parse(trip.legs[i+1].startTime)
             }
@@ -195,9 +195,9 @@ function hasCriticalDelay(trip: TripResult): boolean {
             // by public transport
             else if (trip.legs[i+1].modeOfTransport === 'foot') {
                 if (i + 2 < trip.legs.length && isPublicTransport(trip.legs[i+2])) {
-                    const differenceBetweenEndAndStartOfWalkingInMinutes = Math.ceil((Date.parse(trip.legs[i+1].endTime) - Date.parse(trip.legs[i+1].startTime)) / 60000)
+                    const differenceBetweenEndAndStartOfWalkingInSeconds = Math.ceil((Date.parse(trip.legs[i+1].endTime) - Date.parse(trip.legs[i+1].startTime)) / 1000)
 
-                    const endLegDateWithDelayAndWalking = addMinutes(trip.legs[i].endTime, legDelay + differenceBetweenEndAndStartOfWalkingInMinutes)
+                    const endLegDateWithDelayAndWalking = addSeconds(trip.legs[i].endTime, legDelay * 60 + differenceBetweenEndAndStartOfWalkingInSeconds)
                     endLegDateWithDelayUnixValue = Date.parse(endLegDateWithDelayAndWalking)
                     nextLegStartDateUnixValue = Date.parse(trip.legs[i+2].startTime)
                 }

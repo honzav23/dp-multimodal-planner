@@ -10,7 +10,8 @@ import type {TripResult} from "../types/TripResult.ts";
 import type {TripRequest} from "./types/TripRequest.ts";
 import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
 import {transferStops} from "./api.ts";
-import {addMinutes, getPublicTransportTrip, getRouteByCar} from "./common/common.ts";
+import {addSeconds} from "./common/common.ts";
+import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
 import type {OTPGraphQLTrip, OTPTripPattern} from "./types/OTPGraphQLData.ts";
 import {convertOTPDataToTripResult, mergeFinalTripWithCar, tripUsesOnlyPublicTransport} from "./routeCalculator.ts";
 
@@ -81,7 +82,7 @@ async function processCarTrips(transferStopsInTrips: TransferStopInTrip[], tripR
 
     // For each transfer stop and each trip pattern of public transport in it, create a request for car
     for (let i = 0; i < transferStopsInTrips.length; i++) {
-        const carPatternsPromises = tripResultsForTransferStops[i].map((trip) => getRouteByCar(transferStopsInTrips[i].coords, tripRequest.origin, addMinutes(trip.endTime, 1)))
+        const carPatternsPromises = tripResultsForTransferStops[i].map((trip) => getCarTrip(transferStopsInTrips[i].coords, tripRequest.origin, addSeconds(trip.endTime, 60)))
         const carPatternsResponses = await Promise.all(carPatternsPromises)
         const carPatternsResponsesEmpty = !carPatternsResponses.every((c) => c.trip.tripPatterns.length > 0)
 

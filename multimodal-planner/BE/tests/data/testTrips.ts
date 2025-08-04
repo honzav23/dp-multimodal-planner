@@ -9,8 +9,8 @@ export const carTrip1: OTPTripPattern = {
     legs: [
         {
             mode: "car",
-            aimedStartTime: "2025-07-21T10:00:00Z",
-            aimedEndTime: "2025-07-21T10:30:00Z",
+            aimedStartTime: "2025-07-21T10:00:00.000Z",
+            aimedEndTime: "2025-07-21T10:30:00.000Z",
             distance: 25000,
             serviceJourney: null,
             fromPlace: {
@@ -60,15 +60,15 @@ export const carTrip1CorrectResult: TripResult = {
 }
 
 export const publicTransportTrip1: OTPTripPattern = {
-    aimedStartTime: "2025-07-21T15:55:00Z",
-    aimedEndTime: "2025-07-21T16:40:00Z",
+    aimedStartTime: "2025-07-21T15:55:00.000Z",
+    aimedEndTime: "2025-07-21T16:40:00.000Z",
     distance: 35000,
     duration: 2700,
     legs: [
         {
             mode: "bus",
-            aimedStartTime: "2025-07-21T15:55:00Z",
-            aimedEndTime: "2025-07-21T16:20:00Z",
+            aimedStartTime: "2025-07-21T15:55:00.000Z",
+            aimedEndTime: "2025-07-21T16:20:00.000Z",
             distance: 20000,
             serviceJourney: {
                 id: "bus_service_12345",
@@ -77,9 +77,9 @@ export const publicTransportTrip1: OTPTripPattern = {
                     { name: "Valašské Meziříčí, aut.nádraží", id: "cz:75701:001" }
                 ],
                 passingTimes: [
-                    { departure: { time: "2025-07-21T15:55:00Z" } },
-                    { departure: { time: "2025-07-21T16:05:00Z" } },
-                    { departure: { time: "2025-07-21T16:20:00Z" } }
+                    { departure: { time: "2025-07-21T15:55:00.000Z" } },
+                    { departure: { time: "2025-07-21T16:05:00.000Z" } },
+                    { departure: { time: "2025-07-21T16:20:00.000Z" } }
                 ]
             },
             fromPlace: {
@@ -107,9 +107,9 @@ export const publicTransportTrip1: OTPTripPattern = {
                     { name: "Bystřice pod Hostýnem, žel.st.", id: "cz:76371:001" }
                 ],
                 passingTimes: [
-                    { departure: { time: "2025-07-21T16:25:00Z" } },
-                    { departure: { time: "2025-07-21T16:35:00Z" } },
-                    { departure: { time: "2025-07-21T16:40:00Z" } }
+                    { departure: { time: "2025-07-21T16:25:00.000Z" } },
+                    { departure: { time: "2025-07-21T16:35:00.000Z" } },
+                    { departure: { time: "2025-07-21T16:40:00.000Z" } }
                 ]
             },
             fromPlace: {
@@ -181,12 +181,12 @@ export const publicTransportTrip1CorrectResultWithDelay: TripResult = {
 export const publicTransportTripWithWalkNoDelay: TripResult = {
     totalTime: 40 * 60,
     totalDistance: 15.7,
-    startTime: "2025-07-23T08:00:00Z",
-    endTime: "2025-07-23T08:40:00Z",
+    startTime: "2025-07-23T08:00:00.000Z",
+    endTime: "2025-07-23T08:40:00.000Z",
     legs: [
         {
-            startTime: "2025-07-23T08:00:00Z",
-            endTime: "2025-07-23T08:12:00Z",
+            startTime: "2025-07-23T08:00:00.000Z",
+            endTime: "2025-07-23T08:12:00.000Z",
             modeOfTransport: "bus",
             from: "Rožnov p.Radh., aut.st.",
             to: "Zubří, kulturní dům",
@@ -200,8 +200,8 @@ export const publicTransportTripWithWalkNoDelay: TripResult = {
             }
         },
         {
-            startTime: "2025-07-23T08:12:00Z",
-            endTime: "2025-07-23T08:20:00Z",
+            startTime: "2025-07-23T08:12:00.000Z",
+            endTime: "2025-07-23T08:20:00.000Z",
             modeOfTransport: "foot",
             from: "Zubří, kulturní dům",
             to: "Střítež n.Bečvou, žel.st.",
@@ -215,8 +215,8 @@ export const publicTransportTripWithWalkNoDelay: TripResult = {
             }
         },
         {
-            startTime: "2025-07-23T08:25:00Z",
-            endTime: "2025-07-23T08:40:00Z",
+            startTime: "2025-07-23T08:25:00.000Z",
+            endTime: "2025-07-23T08:40:00.000Z",
             modeOfTransport: "rail",
             from: "Střítež n.Bečvou, žel.st.",
             to: "Valašské Meziříčí, žel.st.",
@@ -246,12 +246,12 @@ export const publicTransportTripWithWalkWithDelay: TripResult = {
 export const carTripResultToMerge: TripResult = {
     totalTime: 25 * 60,
     totalDistance: 20,
-    startTime: "2025-07-21T17:00:00Z",
-    endTime: "2025-07-21T17:25:00Z",
+    startTime: "2025-07-21T17:00:00.000Z",
+    endTime: "2025-07-21T17:25:00.000Z",
     legs: [
         {
-            startTime: "2025-07-21T17:00:00Z",
-            endTime: "2025-07-21T17:25:00Z",
+            startTime: "2025-07-21T17:00:00.000Z",
+            endTime: "2025-07-21T17:25:00.000Z",
             modeOfTransport: "car",
             from: "Rožnov pod Radhoštěm",
             to: "Valašské Meziříčí",
@@ -275,12 +275,12 @@ export const carTripResultToMerge: TripResult = {
 export const publicTransportTripResultToMerge: TripResult = {
     totalTime: 75 * 60,
     totalDistance: 60,
-    startTime: "2025-07-21T17:35:00Z",
-    endTime: "2025-07-21T18:50:00Z",
+    startTime: "2025-07-21T17:35:00.000Z",
+    endTime: "2025-07-21T18:50:00.000Z",
     legs: [
         {
-            startTime: "2025-07-21T17:35:00Z",
-            endTime: "2025-07-21T17:55:00Z",
+            startTime: "2025-07-21T17:35:00.000Z",
+            endTime: "2025-07-21T17:55:00.000Z",
             modeOfTransport: "bus",
             from: "Valašské Meziříčí, aut.nádraží",
             to: "Frenštát pod Radhoštěm, aut.st.",
@@ -294,8 +294,8 @@ export const publicTransportTripResultToMerge: TripResult = {
             }
         },
         {
-            startTime: "2025-07-21T18:05:00Z",
-            endTime: "2025-07-21T18:50:00Z",
+            startTime: "2025-07-21T18:05:00.000Z",
+            endTime: "2025-07-21T18:50:00.000Z",
             modeOfTransport: "rail",
             from: "Frenštát pod Radhoštěm, žel.st.",
             to: "Ostrava hl.n.",
@@ -319,11 +319,11 @@ export const publicTransportTripResultToMerge: TripResult = {
 export const publicTransportTripResultPickup = {...publicTransportTripResultToMerge, via: ''}
 
 export const correctMergedTrip = {
-    totalTime: carTripResultToMerge.totalTime + publicTransportTripResultToMerge.totalTime + 10 * 60,
+    totalTime: carTripResultToMerge.totalTime + publicTransportTripResultToMerge.totalTime,
     totalDistance: carTripResultToMerge.totalDistance + publicTransportTripResultToMerge.totalDistance,
-    startTime: carTripResultToMerge.startTime,
+    startTime: '2025-07-21T17:10:00.000Z',
     endTime: publicTransportTripResultToMerge.endTime,
-    legs: [...carTripResultToMerge.legs, ...publicTransportTripResultToMerge.legs],
+    legs: [{...carTripResultToMerge.legs[0], startTime: '2025-07-21T17:10:00.000Z', endTime: '2025-07-21T17:35:00.000Z'}, ...publicTransportTripResultToMerge.legs],
     totalTransfers: 2,
     via: 'Valašské Meziříčí',
     lowestTime: false,
@@ -334,12 +334,12 @@ export const correctMergedTrip = {
 export const carTripAfterPublicTransport: TripResult = {
     totalTime: 15 * 60,
     totalDistance: 10,
-    startTime: "2025-07-21T19:00:00Z",
-    endTime: "2025-07-21T19:15:00Z",
+    startTime: "2025-07-21T19:00:00.000Z",
+    endTime: "2025-07-21T19:15:00.000Z",
     legs: [
         {
-            startTime: "2025-07-21T19:00:00Z",
-            endTime: "2025-07-21T19:15:00Z",
+            startTime: "2025-07-21T19:00:00.000Z",
+            endTime: "2025-07-21T19:15:00.000Z",
             modeOfTransport: "car",
             from: "Ostrava hl.n.",
             to: "Dolní Vítkovice, Ostrava",

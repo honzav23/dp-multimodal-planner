@@ -6,13 +6,14 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import { getRouteByCar, getPublicTransportTrip, calculateDistance, addMinutes } from "./common/common.ts";
+import { calculateDistance, addSeconds } from "./common/common.ts";
+import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
 import type { TripRequest } from "./types/TripRequest.ts";
 import type {TripResult, TripLeg, TripResponse, DelaysForLeg} from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
-import { transferStops, availableTripsByLines } from "./api.ts";
+import { transferStops, lissyInfo } from "./api.ts";
 import {
     findCorrespondingTrips,
     findCorrectTripFromCorrespondingTrips,
@@ -95,7 +96,7 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
         to: leg.toPlace.name,
         line: leg.line?.publicCode ?? '',
     });
-    if (availableTripsByLines.length === 0) {
+    if (lissyInfo.availableTripsByLines.length === 0) {
         return {
             ...baseTripResult,
             totalDistance: trip.distance,
@@ -165,6 +166,24 @@ function calculateTotalNumberOfTransfers(publicTransport: OTPTripPattern): numbe
     return totalNumberTransports - 1
 }
 
+// Move the car time forward to get rid of unnecessary waiting
+// for public transport
+function moveCarTimeForward(carTrip: TripResult, firstPublicTransportLeg: TripLeg): TripResult {
+    const differenceBetweenCarEndAndPublicStartInSeconds = (Date.parse(firstPublicTransportLeg.startTime) - Date.parse(carTrip.endTime)) / 1000
+    const shiftedCarStartTime = addSeconds(carTrip.startTime, differenceBetweenCarEndAndPublicStartInSeconds)
+    const shiftedCarEndTime = addSeconds(carTrip.endTime, differenceBetweenCarEndAndPublicStartInSeconds)
+
+    const updatedCarTrip: TripResult = structuredClone(carTrip)
+
+    updatedCarTrip.startTime = shiftedCarStartTime
+    updatedCarTrip.legs[0].startTime = shiftedCarStartTime
+
+    updatedCarTrip.endTime = shiftedCarEndTime
+    updatedCarTrip.legs[0].endTime = shiftedCarEndTime
+
+    return updatedCarTrip
+}
+
 /**
  * Merges a trip from origin to transfer point with trip from transfer point to destination
  * @param car Trip from origin to transfer point
@@ -179,15 +198,14 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
     car.legs[0].to = transferStopName
     publicTransport.legs[0].from = transferStopName
 
-    const mergedResult: TripResult = {
+    const updatedCarTrip = moveCarTimeForward(car, publicTransport.legs[0])
 
-        // Total time by car + total time by public transport + time waiting for public transport
-        totalTime: car.totalTime + publicTransport.totalTime +
-            (Date.parse(publicTransport.startTime) - Date.parse(car.endTime)) / 1000,
-        totalDistance: car.totalDistance + publicTransport.totalDistance, // Might be inaccurate due to wrong public transport routing
-        startTime: car.startTime,
+    const mergedResult: TripResult = {
+        totalTime: updatedCarTrip.totalTime + publicTransport.totalTime,
+        totalDistance: updatedCarTrip.totalDistance + publicTransport.totalDistance, // Might be inaccurate due to wrong public transport routing
+        startTime: updatedCarTrip.startTime,
         endTime: publicTransport.endTime,
-        legs: [...car.legs, ...publicTransport.legs],
+        legs: [...updatedCarTrip.legs, ...publicTransport.legs],
         totalTransfers: 1 + publicTransport.totalTransfers,
         via: transferStopName,
         lowestTime: false,
@@ -240,11 +258,11 @@ function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTri
 
 /**
  * Marks the Origin and Destination fields for appropriate legs as Pickup
- * @param trips Trips to mark pickup points for
+ * @param trip Trips to mark pickup points for
  */
 function markPickupPoints(trip: TripResult) {
     const legsLength = trip.legs.length
-    trip.legs[legsLength - 1].from = "Pickup",
+    trip.legs[legsLength - 1].from = "Pickup"
     trip.legs[legsLength - 2].to = "Pickup"
 }
 
@@ -255,8 +273,8 @@ function markPickupPoints(trip: TripResult) {
  * @returns Merged trip
  */
 async function getFromPickupPointToDestination(trip: TripResult, tripRequest: TripRequest): Promise<TripResult> {
-    const beginning = addMinutes(trip.legs[trip.legs.length - 1].endTime, 1)
-    const carTrip = await getRouteByCar(tripRequest.preferences.pickupCoords, tripRequest.destination, beginning)
+    const beginning = addSeconds(trip.legs[trip.legs.length - 1].endTime, 60)
+    const carTrip = await getCarTrip(tripRequest.preferences.pickupCoords, tripRequest.destination, beginning)
     const carResult = await convertOTPDataToTripResult(carTrip.trip.tripPatterns[0])
     const mergedTrip = mergeFinalTripWithCar(trip, carResult, false)
 
@@ -277,7 +295,7 @@ async function handleNoCandidateTransferStops(origin: [number, number], destinat
 
 async function getCarTripsFromOriginToEachTransferStop(candidateTransferStops: TransferStop[], origin: [number, number],
                                                        departureDateTime: string): Promise<OTPGraphQLTrip[]> {
-    const carPromises = candidateTransferStops.map((c) => getRouteByCar(origin, c.stopCoords, departureDateTime))
+    const carPromises = candidateTransferStops.map((c) => getCarTrip(origin, c.stopCoords, departureDateTime))
     return await Promise.all(carPromises)
 }
 
@@ -286,7 +304,7 @@ async function getCarTripsFromOriginToEachTransferStop(candidateTransferStops: T
 async function getPublicTransportTripsFromTransferStopToDestination(candidateStopAndCarPairs: { candidate: TransferStop, carTrip: TripResult}[],
                                                                     destination: [number, number], modeOfTransport: TransportMode[]): Promise<OTPGraphQLTrip[]> {
     const ptPromises = candidateStopAndCarPairs.map((c) => getPublicTransportTrip(c.candidate.stopCoords, destination,
-        addMinutes(c.carTrip.endTime, 5), modeOfTransport, 12))
+        addSeconds(c.carTrip.endTime, 300), modeOfTransport, 12))
     return await Promise.all(ptPromises)
 }
 

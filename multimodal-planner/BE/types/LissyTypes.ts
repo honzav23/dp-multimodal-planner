@@ -5,6 +5,11 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
+export type LissyObj = {
+    availableTripsByLines: LissyAvailableTrip[][],
+    availableDates: string[]
+}
+
 export type LissyAvailableDates = {
     start: string,
     disabled: [string],
