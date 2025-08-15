@@ -15,6 +15,7 @@
     "npm:@googlemaps/polyline-codec@*": "1.0.28",
     "npm:@googlemaps/polyline-codec@^1.0.28": "1.0.28",
     "npm:@types/node@*": "22.10.1",
+    "npm:kdbush@*": "4.0.2",
     "npm:osm-conditional-restrictions@*": "0.0.0"
   },
   "jsr": {
@@ -175,6 +176,9 @@
     },
     "json-parse-even-better-errors@2.3.1": {
       "integrity": "sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w=="
+    },
+    "kdbush@4.0.2": {
+      "integrity": "sha512-WbCVYJ27Sz8zi9Q7Q0xHC+05iwkm3Znipc2XTlrnJbsHMYktW4hPhXUE8Ys1engBrvffoSCqbil1JQAa7clRpA=="
     },
     "kind-of@6.0.3": {
       "integrity": "sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw=="
@@ -533,7 +537,9 @@
       "jsr:@std/cli@*",
       "jsr:@std/csv@*",
       "npm:@googlemaps/polyline-codec@*",
-      "npm:osm-conditional-restrictions@*"
+      "npm:kdbush@*",
+      "npm:osm-conditional-restrictions@*",
+      "npm:rbush@*"
     ],
     "packageJson": {
       "dependencies": [

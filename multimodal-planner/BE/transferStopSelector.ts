@@ -218,7 +218,7 @@ function hasCriticalDelay(trip: TripResult): boolean {
         return trips
     }
     let tripsWithScores: {trip: TripDecision, score: number}[] = []
-    
+
     let tripRankings: TripDecision[] = []
     for (let i = 0; i < trips.length; i++) {
         const delaySum = trips[i].legs.reduce((acc, leg) => {

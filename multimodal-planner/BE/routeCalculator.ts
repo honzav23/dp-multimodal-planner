@@ -11,7 +11,7 @@ import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
 import type { TripRequest } from "./types/TripRequest.ts";
-import type {TripResult, TripLeg, TripResponse, DelaysForLeg} from "../types/TripResult.ts";
+import type {TripResult, TripLeg, TripResponse, DelaysForLeg, TripResultWithId} from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops, lissyInfo } from "./api.ts";
 import {
@@ -24,6 +24,7 @@ import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
 import { fetchReturnTrips } from "./returnTrips.ts";
 import {TransportMode} from "../types/TransportMode.ts";
+import { WazeManager } from "./wazeManager.ts";
 
 const TRANSFER_STOP_THRESHOLD = 15
 
@@ -36,7 +37,7 @@ function pickupPointSet(pickupPoint: [number, number]): boolean {
  * @param tripRequest The trip request
  * @returns Candidate transfer stops
  */
-function removeDistantTransferStops(tripRequest: TripRequest): TransferStopWithDistance[] {
+function removeDistantTransferStops(tripRequest: TripRequest): TransferStop[] {
     const transferPointsWithDistance: TransferStopWithDistance[] = transferStops.map((row) => {
         return {
             ...row,
@@ -55,7 +56,14 @@ function removeDistantTransferStops(tripRequest: TripRequest): TransferStopWithD
     }
     const candidateTransferPoints = transferPointsWithDistance.filter((transferPoint) => transferPoint.distanceFromOrigin <= distanceFromOriginToDestination);
 
-    return candidateTransferPoints;
+    return candidateTransferPoints.map((candidate) => {
+        return {
+            stopId: candidate.stopId,
+            stopName: candidate.stopName,
+            stopCoords: candidate.stopCoords,
+            hasParking: candidate.hasParking
+        }
+    });
 }
 
 async function getCandidateTransferStops(tripRequest: TripRequest): Promise<TransferStop[]> {
@@ -78,6 +86,7 @@ async function getCandidateTransferStops(tripRequest: TripRequest): Promise<Tran
  */
 async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripResult> {
     const totalTransfers = calculateTotalNumberOfTransfers(trip)
+    const wazeManager = WazeManager.getInstance(Deno.env.get('WAZE_URL'))
     const baseTripResult: Partial<TripResult> = {
         totalTime: trip.duration,
         startTime: trip.aimedStartTime,
@@ -87,6 +96,7 @@ async function convertOTPDataToTripResult(trip: OTPTripPattern): Promise<TripRes
         via: '',
         lowestTime: false,
         lowestEmissions: false,
+        wazeEvents: wazeManager.getBaseWazeEventsObject()
     }
     const createBaseLeg = (leg: OTPTripLeg): Partial<TripLeg> => ({
         startTime: leg.aimedStartTime,
@@ -199,6 +209,7 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
     publicTransport.legs[0].from = transferStopName
 
     const updatedCarTrip = moveCarTimeForward(car, publicTransport.legs[0])
+    const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
 
     const mergedResult: TripResult = {
         totalTime: updatedCarTrip.totalTime + publicTransport.totalTime,
@@ -210,7 +221,8 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
         via: transferStopName,
         lowestTime: false,
         lowestEmissions: false,
-        totalEmissions: 0
+        totalEmissions: 0,
+        wazeEvents: wazeManager.getBaseWazeEventsObject()
     }
     return mergedResult
 }
@@ -239,6 +251,7 @@ function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTri
         }
         return finalTrip.legs[0].to
     }
+    const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
 
     const mergedResult: TripResult = {
         totalTime: finalTrip.totalTime + car.totalTime + (Date.parse(car.startTime) - Date.parse(finalTrip.endTime)) / 1000,
@@ -250,7 +263,8 @@ function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTri
         via: getViaStopText(),
         lowestTime: false,
         lowestEmissions: false,
-        totalEmissions: 0
+        totalEmissions: 0,
+        wazeEvents: wazeManager.getBaseWazeEventsObject()
     }
     
     return mergedResult
@@ -372,7 +386,16 @@ async function handleAdditionalPreferences(bestTrips: TripResult[], tripRequest:
     await handlePickupPointPreference(bestTrips, tripRequest)
     const returnTrips = await handleComingBackPreference(bestTrips, tripRequest)
 
-    return { outboundTrips: bestTrips, returnTrips }
+    const bestTripsWithId  = addIdentificationToTrips(bestTrips)
+    const returnTripsWithId = addIdentificationToTrips(returnTrips)
+
+    return { outboundTrips: bestTripsWithId, returnTrips: returnTripsWithId }
+}
+
+function addIdentificationToTrips(trips: TripResult[]): TripResultWithId[] {
+    return trips.map((t) => {
+        return {...t, uuid: crypto.randomUUID()}
+    })
 }
 
 async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> {
@@ -398,6 +421,8 @@ async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> 
     }
 
     const bestTrips = findBestTrips(tripResults)
+    const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
+    wazeManager.findNearestWazeEvents(bestTrips)
 
     const tripsWithAdditionalPreferences = await handleAdditionalPreferences(bestTrips, tripRequest)
     return tripsWithAdditionalPreferences

@@ -16,8 +16,9 @@ import type { TransferStop } from "../types/TransferStop.ts";
 import type { ResultStatus } from "../types/ResultStatus.ts";
 import { getTripsForLines, convert12HourTo24Hour, parseArguments } from "./common/common.ts";
 import { getTransferStops } from "./common/otpRequests.ts";
-import { connectToKordisWebSocket, createConversionTable } from './common/realtimeVehicleInfoProcessing.ts';
+import { KordisWebSocketManager } from './common/realtimeVehicleInfoProcessing.ts';
 import type {LissyObj} from "./types/LissyTypes.ts";
+import { WazeManager } from "./wazeManager.ts";
 
 export const rootDir = import.meta.dirname;
 
@@ -92,10 +93,15 @@ if (import.meta.main) {
   lissyInfo = await getTripsForLines()
 
   const externalGTFS = parseArguments()
+  const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
+
+  // No need to wait for the data
+  wazeManager.startFetchingWazeData()
 
   if (!externalGTFS) {
-    connectToKordisWebSocket();
-    await createConversionTable()
+    const kordisManager = KordisWebSocketManager.getInstance()
+    kordisManager.connectToKordisWebSocket();
+    await kordisManager.createConversionTable()
   }
   Deno.serve(app.fetch);
 }

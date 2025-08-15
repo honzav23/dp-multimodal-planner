@@ -12,7 +12,7 @@ import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
 import type { LissyAvailableTrip } from "./types/LissyTypes.ts";
 import polyline from "polyline-codec";
 import {DelayInfo, DelaysForLeg} from "../types/TripResult.ts";
-import { getTripIdToVehicleInfo } from "./common/realtimeVehicleInfoProcessing.ts";
+import { KordisWebSocketManager } from "./common/realtimeVehicleInfoProcessing.ts";
 import {RealtimeVehicleInfo} from "./types/RealtimeVehicleInfo.ts";
 
 /**
@@ -79,7 +79,8 @@ function findStopIndices(leg: OTPTripLeg, vehicleInfoOnCurrentLeg: RealtimeVehic
 
 function getVehicleInfoOnCurrentLeg(leg: OTPTripLeg): RealtimeVehicleInfo | undefined {
     const numericGtfsTripId = parseInt(leg.serviceJourney!.id!.split(':')[1]) // OTP GTFS trip id is in the format '1:123456'
-    const tripIdToVehicleInfo = getTripIdToVehicleInfo()
+    const kordisManager = KordisWebSocketManager.getInstance()
+    const tripIdToVehicleInfo = kordisManager.getTripIdToVehicleInfo()
     return tripIdToVehicleInfo[numericGtfsTripId]
 }
 

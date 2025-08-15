@@ -39,7 +39,7 @@ export async function getRepresentativeTransferStops(transferStops: TransferStop
             stopId: row.stopId,
             stopName: row.stopName,
             stopCoords: [parseFloat(row.stopLat), parseFloat(row.stopLon)],
-            hasParking: row.hasParking === "1",
+            hasParking: row.hasParking === "True",
         }
     ));
 

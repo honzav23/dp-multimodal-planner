@@ -9,6 +9,8 @@
     "@hono/hono": "jsr:@hono/hono@^4.6.10",
     "@std/csv": "jsr:@std/csv",
     "osm-conditional-restrictions": "npm:osm-conditional-restrictions",
-    "polyline-codec": "npm:@googlemaps/polyline-codec"
+    "polyline-codec": "npm:@googlemaps/polyline-codec",
+    "kdbush": "npm:kdbush",
+    "rbush": "npm:rbush"
   }
 }
