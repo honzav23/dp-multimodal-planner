@@ -27,7 +27,7 @@ function App() {
 
     const { startInputFocused, endInputFocused } = useAppSelector((state) => state.focus)
 
-    const showCollapse = selectedTrip !== -1
+    const showCollapse = selectedTrip !== null
 
     const { t, i18n } = useTranslation()
 

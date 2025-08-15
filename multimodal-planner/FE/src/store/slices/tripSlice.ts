@@ -7,7 +7,11 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LatLngTuple } from 'leaflet';
 import type { TripRequest } from '../../types/TripRequest';
 import type { TransferStop } from '../../../../types/TransferStop';
-import type { TripResponse } from "../../../../types/TripResult";
+import type {
+    TripResponse,
+    TripResponseConvertedRoute,
+    TripResultWithIdConvertedRoute
+} from "../../../../types/TripResult";
 import { decode } from '@googlemaps/polyline-codec'
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
@@ -15,17 +19,11 @@ import { openErrorSnackbar, openWarningSnackbar } from "./snackbarSlice.ts";
 
 interface TripSliceState {
     tripRequest: TripRequest;
-    tripResults: TripResponse;
+    tripResults: TripResponseConvertedRoute;
     isLoading: boolean;
     snackbarMessage: string;
     showOutboundTrips: boolean;
-
-    // Decoded routes for each leg of each trip
-    routes: {
-        outboundDecodedRoutes: {mode: TransportMode, route: LatLngTuple[]}[][],
-        returnDecodedRoutes: {mode: TransportMode, route: LatLngTuple[]}[][]
-    }
-    selectedTrip: number
+    selectedTrip: TripResultWithIdConvertedRoute | null;
 }
 
 export const initialCoords: LatLngTuple = [1000, 1000]
@@ -50,21 +48,17 @@ const initialState: TripSliceState = {
         outboundTrips: [],
         returnTrips: [],
     },
-    routes: {
-        outboundDecodedRoutes: [],
-        returnDecodedRoutes: [],
-    },
-    selectedTrip: -1,
+    selectedTrip: null,
     isLoading: false,
     snackbarMessage: '',
 };
 
 function getFormattedDate() {
     const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
+    const paddedMonth = (date.getMonth() + 1).toString().padStart(2, '0');
+    const paddedDay = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
+    return `${year}-${paddedMonth}-${paddedDay}`;
 }
 
 /**
@@ -111,7 +105,9 @@ const tripSlice = createSlice({
             state.tripRequest.preferences.pickupCoords = action.payload
         },
         setDepartureDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
-            state.tripRequest.departureDate = `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`;
+            const paddedMonth = (action.payload.month + 1).toString().padStart(2, '0');
+            const paddedDay = action.payload.day.toString().padStart(2, '0');
+            state.tripRequest.departureDate = `${action.payload.year}-${paddedMonth}-${paddedDay}`;
         },
         setDepartureTime(state, action: PayloadAction<string>) {
             state.tripRequest.departureTime = action.payload;
@@ -119,9 +115,12 @@ const tripSlice = createSlice({
         setTransferStop(state, action: PayloadAction<TransferStop | null>) {
             state.tripRequest.preferences.transferStop = action.payload;
         },
-        setSelectedTrip(state, action: PayloadAction<number>) {
-            if (action.payload === state.selectedTrip) {
-                state.selectedTrip = -1
+        setSelectedTrip(state, action: PayloadAction<TripResultWithIdConvertedRoute | null>) {
+            if (action.payload === null) {
+                state.selectedTrip = null
+            }
+            else if (state.selectedTrip !== null && action.payload.uuid === state.selectedTrip.uuid) {
+                state.selectedTrip = null
             }
             else {
                 state.selectedTrip = action.payload;
@@ -138,26 +137,26 @@ const tripSlice = createSlice({
         setFindBestTrip(state, action: PayloadAction<boolean>) {
             state.tripRequest.preferences.findBestTrip = action.payload
         },
-        clearTripsAndRoutes(state) {
+        clearTrips(state) {
             state.tripResults.outboundTrips = []
             state.tripResults.returnTrips = []
-            state.routes.outboundDecodedRoutes = []
-            state.routes.returnDecodedRoutes = []
-            state.selectedTrip = -1
+            state.selectedTrip = null
         },
         clearComingBackDateTime(state) {
           state.tripRequest.preferences.comingBack = null
         },
         setComingBackDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
+            const paddedMonth = (action.payload.month + 1).toString().padStart(2, '0');
+            const paddedDay = action.payload.day.toString().padStart(2, '0');
             if (state.tripRequest.preferences.comingBack === null) {
-
+                
                 state.tripRequest.preferences.comingBack = {
-                    returnDate: `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`,
+                    returnDate: `${action.payload.year}-${paddedMonth}-${paddedDay}`,
                     returnTime: (new Date()).toLocaleTimeString()
                 };
             }
             else {
-                state.tripRequest.preferences.comingBack = {...state.tripRequest.preferences.comingBack, returnDate: `${action.payload.year}-${action.payload.month + 1}-${action.payload.day}`};
+                state.tripRequest.preferences.comingBack = {...state.tripRequest.preferences.comingBack, returnDate: `${action.payload.year}-${paddedMonth}-${paddedDay}`};
             }
         },
         setComingBackTime(state, action: PayloadAction<string>) {
@@ -179,30 +178,23 @@ const tripSlice = createSlice({
         builder.addCase(getTrips.fulfilled,(state, action) => {
             state.isLoading = false;
 
-            // Clear the routes array from previous loads
-            state.routes.outboundDecodedRoutes = []
-            state.routes.returnDecodedRoutes = []
-            state.tripResults = action.payload;
+            state.tripResults.outboundTrips = action.payload.outboundTrips.map((trip) => {
+                return {
+                    ...trip,
+                    legs: trip.legs.map((leg) => {
+                        return {...leg, route: decode(leg.route, 5)}
+                    }),
+                }
+            })
 
-            for (const tripResult of state.tripResults.outboundTrips) {
-                const legs = tripResult.legs.map((leg) => (
-                    {
-                        mode: leg.modeOfTransport as TransportMode,
-                        route: decode(leg.route, 5) as LatLngTuple[]
-                    }
-                ));
-                state.routes.outboundDecodedRoutes.push(legs)
-            }
-
-            for (const tripResult of state.tripResults.returnTrips) {
-                const legs = tripResult.legs.map((leg) => (
-                    {
-                        mode: leg.modeOfTransport as TransportMode,
-                        route: decode(leg.route, 5) as LatLngTuple[]
-                    }
-                ));
-                state.routes.returnDecodedRoutes.push(legs)
-            }
+            state.tripResults.returnTrips = action.payload.returnTrips.map((trip) => {
+                return {
+                    ...trip,
+                    legs: trip.legs.map((leg) => {
+                        return {...leg, route: decode(leg.route, 5)}
+                    }),
+                }
+            })
         })
         builder.addCase(getTrips.rejected, (state) => {
             state.isLoading = false;
@@ -212,7 +204,7 @@ const tripSlice = createSlice({
 
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, setSelectedTrip,
-            setSelectedModeOfTransport, setFindBestTrip, clearTripsAndRoutes, setPickupCoords, clearComingBackDateTime,
+            setSelectedModeOfTransport, setFindBestTrip, clearTrips, setPickupCoords, clearComingBackDateTime,
             setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips } = tripSlice.actions;
 
 export default tripSlice.reducer;

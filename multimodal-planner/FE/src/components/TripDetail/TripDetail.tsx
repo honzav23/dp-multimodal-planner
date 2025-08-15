@@ -6,12 +6,12 @@
  */
 
 import { List } from '@mui/material'
-import type {TripResult} from "../../../../types/TripResult";
+import type { TripResultWithIdConvertedRoute } from "../../../../types/TripResult";
 import TripDetailLeg from './TripDetailLeg';
 import useIsMobile from '../../hooks/useIsMobile';
 
 interface TripDetailProps {
-    trip: TripResult | null
+    trip: TripResultWithIdConvertedRoute | null
 }
 function TripDetail({ trip }: TripDetailProps) {
     const isMobile = useIsMobile()

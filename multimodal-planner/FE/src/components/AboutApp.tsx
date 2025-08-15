@@ -10,11 +10,13 @@ import {type SyntheticEvent, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import CarPubLogo from '../img/CarPub_logo.png'
 import { useTranslation } from 'react-i18next'
-import '../css/tabStyle.css'
+import styles from '../css/styles.module.css'
 import type { AboutAppTabValue } from "../types/AboutAppTabValue.ts"
 import dataBrnoLogo from '../img/dataBrnoLogo.svg'
 import lissyLogo from '../img/lissyLogo.svg'
 import otpLogo from '../img/otpLogo.svg'
+import wazeLogo from '../img/wazeLogo.svg'
+import useIsMobile from "../hooks/useIsMobile.ts";
 
 
 interface AboutAppProps {
@@ -26,6 +28,7 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
     const { t } = useTranslation();
 
     const [tabValue, setTabValue] = useState<AboutAppTabValue>('overview');
+    const isMobile = useIsMobile()
 
     const handleTabChange = (e: SyntheticEvent, val: AboutAppTabValue) => {
         setTabValue(val);
@@ -57,9 +60,9 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
         <Divider/>
             <div>
                 <Tabs variant='fullWidth' value={tabValue} centered onChange={handleTabChange} sx={{ backgroundColor: '#f3f3f3' }}>
-                    <Tab className='tab' value='overview' label={t('about.basicInfoTitle')} />
-                    <Tab className='tab' value='usage' label={t('about.usageTitle')} />
-                    <Tab className='tab' value='contact' label={t('about.contactTitle')} />
+                    <Tab className={styles.tab} value='overview' label={t('about.basicInfoTitle')} />
+                    <Tab className={styles.tab} value='usage' label={t('about.usageTitle')} />
+                    <Tab className={styles.tab} value='contact' label={t('about.contactTitle')} />
                 </Tabs>
             </div>
         <Divider/>
@@ -100,6 +103,9 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
                     <Divider/>
                     <h2>{t('about.usage.tripShowHeader')}</h2>
                     <p>{t('about.usage.tripShowText')}</p>
+                    <Divider/>
+                    <h2>{t('about.usage.trafficDataHeader')}</h2>
+                    <p>{t('about.usage.trafficDataText')}</p>
 
                 </>
             }
@@ -113,9 +119,13 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
         <Divider/>
         <footer style={{  backgroundColor: '#f3f3f3' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'baseline', flexWrap: 'wrap', mt: 1 }}>
-                <a href="https://data.brno.cz/"><img style={{height: "10vh", width: '200px'}} src={dataBrnoLogo}/></a>
-                <a href="https://dexter.fit.vutbr.cz/lissy/"><img style={{height: "10vh"}} src={lissyLogo}/></a>
-                <a href="https://docs.opentripplanner.org/en/latest/"><img style={{height: "10vh"}} src={otpLogo}/></a>
+                <a href="https://data.brno.cz/"><img alt='Data.brno' style={{height: "10vh", width: '200px'}} src={dataBrnoLogo}/></a>
+                <a href="https://dexter.fit.vutbr.cz/lissy/"><img alt='Lissy' style={{height: "10vh"}} src={lissyLogo}/></a>
+                <a href="https://docs.opentripplanner.org/en/latest/"><img alt='OpenTripPlanner 2' style={{height: "10vh"}} src={otpLogo}/></a>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center' }}>
+                    <a href={ isMobile ? 'https://m.waze.com' : 'https://waze.com' }><img alt='OpenTripPlanner 2' style={{height: "5vh"}} src={wazeLogo}/></a>
+                    <p style={{ fontSize: '0.75rem' }} >Data provided by Waze App. Learn more at <a style={{ color: 'inherit' }} href={ isMobile ? 'https://m.waze.com' : 'https://waze.com' }>Waze.com</a></p>
+                </Box>
             </Box>
         </footer>
         </Dialog>

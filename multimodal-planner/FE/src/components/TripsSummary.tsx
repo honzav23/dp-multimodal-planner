@@ -19,7 +19,7 @@ import {
     Tooltip
 } from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
-import { setSelectedTrip, clearTripsAndRoutes, setShowOutboundTrips } from "../store/slices/tripSlice";
+import { setSelectedTrip, clearTrips, setShowOutboundTrips } from "../store/slices/tripSlice";
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
@@ -31,7 +31,7 @@ import { useSwapAddresses } from "../hooks/useSwapAddress.ts";
 
 import { useTranslation } from "react-i18next";
 import {SortState, SortInfo} from "../types/SortState.ts";
-import '../css/tabStyle.css'
+import styles from '../css/styles.module.css'
 
 interface TripSummaryProps {
     minimize?: (origin: string) => void;
@@ -68,10 +68,10 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
 
     // Whenever the trips are fetched, select by default the first one
     useEffect(() => {
-        if (selectedTrip === -1 && !isMobile && outboundTrips.length > 0) {
+        if (selectedTrip === null && !isMobile && outboundTrips.length > 0) {
             setTabValue('outbound');
             setShowOutboundTrips(true)
-            dispatch(setSelectedTrip(0))
+            dispatch(setSelectedTrip(outboundTrips[0]))
         }
     }, [outboundTrips]);
 
@@ -82,7 +82,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
         }
     }, [selectedTrip])
 
-    const showCollapse = selectedTrip !== -1
+    const showCollapse = selectedTrip !== null
 
     const [minimized, setMinimized] = useState(false);
 
@@ -142,18 +142,18 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
         setMinimized(false);
         conditionalMaximize()
         // Go from trip detail to trip summary
-        if (selectedTrip !== -1) {
-            dispatch(setSelectedTrip(-1))
+        if (selectedTrip !== null) {
+            dispatch(setSelectedTrip(null))
         }
 
         // Go from trip summary to trip planning
         else {
-            dispatch(clearTripsAndRoutes())
+            dispatch(clearTrips())
         }
     }
 
     const handleTabChange = (e: SyntheticEvent, val: string) => {
-        dispatch(setSelectedTrip(-1))
+        dispatch(setSelectedTrip(null))
         setTabValue(val)
         dispatch(setShowOutboundTrips(val === 'outbound'))
         swapOriginAndDestination()
@@ -199,8 +199,8 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
                 {/* Tabs for changing between outbound trips and return trips */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
                     <Tabs value={tabValue} color='error' onChange={handleTabChange}>
-                        <Tab className='tab' value='outbound' label={t('outbound')} />
-                        <Tab className='tab' value='return' disabled={returnTrips.length === 0} label={t('return')}/>
+                        <Tab className={styles.tab} value='outbound' label={t('outbound')} />
+                        <Tab className={styles.tab} value='return' disabled={returnTrips.length === 0} label={t('return')}/>
                     </Tabs>
 
                     {/* Sorting */}
@@ -212,7 +212,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
                 <List component="nav">
                 { tripsToShow.map((trip, idx) => {
                     return (
-                        <ListItem key={idx} sx={{ backgroundColor: selectedTrip === idx ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(idx))} dense divider={idx !== tripsToShow.length - 1}>
+                        <ListItem key={trip.uuid} sx={{ backgroundColor: selectedTrip !== null && selectedTrip.uuid === trip.uuid ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(trip))} dense divider={idx !== tripsToShow.length - 1}>
                             <ListItemText
                                 disableTypography
                                 primary={
@@ -257,7 +257,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
                                     </div>
                                 }
                             />
-                            {selectedTrip === idx ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}
+                            {selectedTrip !== null && selectedTrip.uuid === trip.uuid ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}
                         </ListItem>
                     )
                 }) }
@@ -265,7 +265,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
             </div>
                 {/* Show the trip detail when clicking at one of the trips */}
                 <Collapse ref={scrollRef} sx={{ overflow: 'auto', scrollbarWidth: 'thin', maxWidth: isMobile ? '100%' : '50%' }} in={showCollapse} timeout="auto" unmountOnExit orientation='horizontal'>
-                        <TripDetail trip={tripsToShow[selectedTrip] ?? null}/>
+                        <TripDetail trip={selectedTrip}/>
                 </Collapse>
         </>
         :

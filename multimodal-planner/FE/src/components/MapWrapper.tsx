@@ -14,16 +14,16 @@ import 'leaflet/dist/leaflet.css'
 import { routeColors } from "../common/common.ts";
 import useIsMobile from '../hooks/useIsMobile.ts'
 import ParkingLotInfo from "./ParkingLotInfo.tsx";
+import WazeEventsVisualizer from "./Waze/WazeEventsVisualizer.tsx";
+import {TransportMode} from "../../../types/TransportMode.ts";
 
 function MapWrapper() {
     const { outboundTrips, returnTrips } = useAppSelector((state) => state.trip.tripResults)
-    const { outboundDecodedRoutes, returnDecodedRoutes } = useAppSelector((state) => state.trip.routes)
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
     const showOutboundTrips = useAppSelector((state) => state.trip.showOutboundTrips)
 
     const parkingLots = useAppSelector((state) => state.parkingLot.parkingLots)
 
-    const routesToShow = showOutboundTrips ? outboundDecodedRoutes : returnDecodedRoutes;
     const tripsToShow = showOutboundTrips ? outboundTrips : returnTrips;
     const isMobile = useIsMobile()
 
@@ -37,26 +37,29 @@ function MapWrapper() {
             <TransferStopsSelection/>
 
             {/* Show the trip routes */}
-            {tripsToShow.length > 0 && selectedTrip !== -1 && routesToShow[selectedTrip].map((leg, i) => {
+            {tripsToShow.length > 0 && selectedTrip !== null && selectedTrip.legs.map((leg, i) => {
                 return (
                     <Polyline key={leg.route[0][0]} positions={leg.route}
-                              pathOptions={{color: routeColors[leg.mode], weight: 5, opacity: 0.8}} dashArray={leg.mode === "car" ? "5 10" : "0 0"}>
-                        <Popup closeOnClick={true}>
-                            <TripDetailLeg leg={tripsToShow[selectedTrip].legs[i]} idx={i} totalLegs={tripsToShow[selectedTrip].legs.length}/>
+                              pathOptions={{color: routeColors[leg.modeOfTransport as TransportMode], weight: 5, opacity: 0.8}} dashArray={leg.modeOfTransport === "car" ? "5 10" : "0 0"}>
+                        <Popup maxWidth={1000} closeOnClick={true}>
+                            <TripDetailLeg leg={leg} idx={i} totalLegs={selectedTrip.legs.length}/>
                         </Popup>
                     </Polyline>
                 )
             })}
 
+            {/* Show parking lots when requested */}
             { parkingLots.map((p) => {
                 return (
                     <Polygon key={(p.polygon[0][0] + p.polygon[0][1]).toString()} positions={p.polygon}>
-                        <Popup closeOnClick={true}>
+                        <Popup maxWidth={1000} closeOnClick={true}>
                             <ParkingLotInfo parkingLot={p}/>
                         </Popup>
                     </Polygon>
                 )
             })}
+
+            { selectedTrip && <WazeEventsVisualizer events={selectedTrip.wazeEvents}/> }
 
         </MapContainer>
     )

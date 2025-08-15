@@ -1,0 +1,30 @@
+.transparentIcon {
+    background-color: transparent;
+}
+
+.tab {
+    text-transform: none !important;
+    font-weight: bold !important;
+    font-size: 1rem !important;
+}
+
+.tableStyle {
+    border-collapse: collapse;
+    border-top: 1px solid #ddd;
+    margin: 20px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tableContent {
+    padding: 12px 15px;
+    border: 1px solid #ddd
+}
+
+.tableRow {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+.tableRow:nth-child(odd) {
+    background-color: #efefef;
+}

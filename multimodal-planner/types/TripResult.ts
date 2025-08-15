@@ -1,3 +1,5 @@
+import { type WazeEvents } from "./WazeEvents.ts";
+
 export type TripResult = {
     totalTime: number, // In seconds
     totalDistance: number, // In kilometers
@@ -8,8 +10,12 @@ export type TripResult = {
     totalEmissions: number,
     via: string,
     lowestTime: boolean,
-    lowestEmissions: boolean
+    lowestEmissions: boolean,
+    wazeEvents: WazeEvents
 }
+
+export type TripResultWithId = TripResult & { uuid: string }
+export type TripResultWithIdConvertedRoute = Omit<TripResultWithId, 'legs'> & { legs: TripLegConvertedRoute[] }
 
 export type TripLeg = {
     startTime: string,
@@ -23,13 +29,20 @@ export type TripLeg = {
     delays: DelaysForLeg
 }
 
+export type TripLegConvertedRoute = Omit<TripLeg, 'route'> & { route: [number, number][] }
+
 // The same modes of transport as in OTP2
 export type TransportMode = 'foot' | 'car' | 'rail' | 'bus' | 'tram' | 'trolleybus' | 'metro' | 'air' | 'bicycle'
     | 'cableway' | 'water' | 'funicular' | 'lift' | 'taxi' | 'monorail' | 'coach' | 'scooter'
 
 export type TripResponse = {
-    outboundTrips: TripResult[],
-    returnTrips: TripResult[],
+    outboundTrips: TripResultWithId[],
+    returnTrips: TripResultWithId[],
+}
+
+export type TripResponseConvertedRoute = {
+    outboundTrips: TripResultWithIdConvertedRoute[],
+    returnTrips: TripResultWithIdConvertedRoute[],
 }
 
 export type DelaysForLeg = {

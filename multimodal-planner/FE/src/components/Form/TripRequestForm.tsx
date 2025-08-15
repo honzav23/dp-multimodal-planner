@@ -13,9 +13,8 @@ import {Close, Minimize, SwapVert, Tune, ZoomOutMap} from '@mui/icons-material'
 
 import { useAppSelector, useAppDispatch } from '../../store/hooks.ts';
 import { setFocus } from '../../store/slices/inputsFocusSlice.ts';
-import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTripsAndRoutes } from '../../store/slices/tripSlice.ts';
+import { setStartCoords, setEndCoords, setDepartureDate, setDepartureTime, getTrips, initialCoords, setSelectedTrip, clearTrips } from '../../store/slices/tripSlice.ts';
 import { clearStartAddress, clearEndAddress } from '../../store/slices/addressSlice.ts';
-import { getTransferStops } from '../../store/slices/transferStopSlice.ts';
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import dayjs, {Dayjs} from 'dayjs';
 import AdditionalPreferences from './AdditionalPreferences.tsx';
@@ -63,10 +62,6 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     useEffect(() => {
         changeCursorStyle()
     }, [startInputFocused, endInputFocused, pickupInputFocused])
-
-    useEffect(() => {
-        dispatch(getTransferStops())
-    }, [])
 
     // Used to be able to submit the form by Enter key
     useEffect(() => {
@@ -129,7 +124,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
       }
 
       // Remove the route if present
-      dispatch(setSelectedTrip(-1))
+      dispatch(setSelectedTrip(null))
     }
 
     const handleDialogClosed = (comingBackDateValid: boolean, comingBackTimeValid: boolean) => {
@@ -161,7 +156,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const handleSubmit = () => {
         if (formValid && !isLoading) {
             dispatch(getTrips())
-            dispatch(clearTripsAndRoutes());
+            dispatch(clearTrips());
         }
     }
 

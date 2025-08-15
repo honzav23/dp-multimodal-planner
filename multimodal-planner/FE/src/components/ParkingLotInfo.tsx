@@ -8,6 +8,7 @@ import type {Fee, ParkingLot, MaxStay, OpeningHours, DayTimeRange} from "../../.
 import {Box} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
+import styles from '../css/styles.module.css'
 
 interface ParkingLotInfoProps {
     parkingLot: ParkingLot
@@ -123,24 +124,17 @@ function ParkingLotInfo({ parkingLot }: ParkingLotInfoProps) {
 
     return (
         <Box sx={{ padding: '0 10px' }}>
-            <h2 style={{ textAlign: 'center' }}>{getTitle()}</h2>
+            <h3 style={{ textAlign: 'center' }}>{getTitle()}</h3>
 
             { parkingLotTagsDefined &&
-                <table
-                    style={{
-                        borderCollapse: "collapse",
-                        borderTop: "1px solid #ddd",
-                        margin: "20px auto",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    }}
-                >
+                <table className={styles.tableStyle}>
                     <tbody>
                         {parkingLotTableKeys.map((key, i) => {
                             const typedKey = key as keyof ParkingLot
                             return (
-                                <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f9f9' : '#ffffff'}}>
-                                    <th style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{t(`parkingLots.${key}`)}:</th>
-                                    <td style={{ padding: "12px 15px", border: "1px solid #ddd" }}>{ formatOutputBasedOnKey(typedKey, parkingLot[typedKey]) }</td>
+                                <tr className={styles.tableRow} key={i}>
+                                    <th className={styles.tableContent}>{t(`parkingLots.${key}`)}:</th>
+                                    <td className={styles.tableContent}>{ formatOutputBasedOnKey(typedKey, parkingLot[typedKey]) }</td>
                                 </tr>
                             )
                         })}
