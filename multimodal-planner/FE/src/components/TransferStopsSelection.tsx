@@ -18,9 +18,11 @@ import { useState, useEffect } from "react";
 import markerIconTransfer from '../img/marker-icon-orange.png'
 import {Icon, LatLngTuple} from "leaflet";
 import { useTranslation } from "react-i18next";
+import {getTransferStops} from "../store/slices/transferStopSlice.ts";
 
 function TransferStopsSelection() {
     const transferStops = useAppSelector((state) => state.transferStop.transferStops);
+
     const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
     const parkingLotsLoading = useAppSelector((state) => state.parkingLot.parkingLotsLoading);
     const parkingLots = useAppSelector((state) => state.parkingLot.parkingLots);
@@ -42,6 +44,10 @@ function TransferStopsSelection() {
             setTransferStopForParkingCoords(null);
         }
     }, [parkingLots])
+
+    useEffect(() => {
+        dispatch(getTransferStops())
+    }, [])
 
     /**
      * Selects and deselects the transfer stop based on stopSelected parameter
@@ -79,27 +85,27 @@ function TransferStopsSelection() {
     return (
         <>
             { transferStops.map((stop) =>
-                    <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
-                        <Popup closeOnClick={true}>
-                            <Stack direction='column' sx={{alignItems: 'center', gap: '5px'}}>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                                    <h2 style={{ textAlign: 'center' }}>{stop.stopName}</h2>
-                                    { !stop.hasParking &&
-                                        <Tooltip sx={{ alignSelf: 'center' }} title={t('preferences.noParkingLots')} placement='right'>
-                                            <WarningAmber color='warning'/>
-                                        </Tooltip>
-                                    }
-                                </div>
-                                {
-                                    getSelectionButton(stop)
+                <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
+                    <Popup closeOnClick={true}>
+                        <Stack direction='column' sx={{alignItems: 'center', gap: '5px'}}>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                                <h2 style={{ textAlign: 'center' }}>{stop.stopName}</h2>
+                                { !stop.hasParking &&
+                                    <Tooltip sx={{ alignSelf: 'center' }} title={t('preferences.noParkingLots')} placement='right'>
+                                        <WarningAmber color='warning'/>
+                                    </Tooltip>
                                 }
-                                <Button onClick={() => handleShowParkingLotsForTransferStop(stop)}
-                                        color='secondary' size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained' loading={parkingLotsLoading} loadingPosition='end'>
-                                    { t('transfer.showParkingLots') }
-                                </Button>
-                            </Stack>
-                        </Popup>
-                    </CircleMarker>
+                            </div>
+                            {
+                                getSelectionButton(stop)
+                            }
+                            <Button onClick={() => handleShowParkingLotsForTransferStop(stop)}
+                                    color='secondary' size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained' loading={parkingLotsLoading} loadingPosition='end'>
+                                { t('transfer.showParkingLots') }
+                            </Button>
+                        </Stack>
+                    </Popup>
+                </CircleMarker>
             )}
             <Marker position={selectedTransferStop !== null ? selectedTransferStop.stopCoords : initialCoords}
                     icon={new Icon({iconUrl: markerIconTransfer, iconAnchor: [12, 41]})}/>
