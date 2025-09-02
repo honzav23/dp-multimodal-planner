@@ -349,7 +349,8 @@ async function convertPublicTransportTripsToTripResults(publicTransportTripsToDe
 }
 
 function mergeCarTripsWithPublicTransportTrips(candidateStopAndCarPairs: { candidate: TransferStop, carTrip: TripResult}[],
-                                               publicTransportTripResultsForCandidates: TripResult[][],  tripResults: TripResult[]) {
+                                               publicTransportTripResultsForCandidates: TripResult[][]): TripResult[] {
+    const tripResults: TripResult[] = []
     for (let i = 0; i < candidateStopAndCarPairs.length; i++) {
         const candidate = candidateStopAndCarPairs[i]
         const pTrips = publicTransportTripResultsForCandidates[i]
@@ -357,6 +358,7 @@ function mergeCarTripsWithPublicTransportTrips(candidateStopAndCarPairs: { candi
             tripResults.push(mergeCarWithPublicTransport(candidate.carTrip, trip, candidate.candidate.stopName))
         }
     }
+    return tripResults
 }
 
 async function handlePickupPointPreference(bestTrips: TripResult[], tripRequest: TripRequest) {
@@ -410,14 +412,13 @@ async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> 
     if (candidateTransferStops.length === 0 || preferences.useOnlyPublicTransport) {
         tripResults = await handleNoCandidateTransferStops(origin, finalDestination, departureDateTime, preferences.modeOfTransport)
     }
-
-    if (tripResults.length === 0 && candidateTransferStops.length > 0) {
+    else {
         const carTripsFromOriginToEachTransferStop = await getCarTripsFromOriginToEachTransferStop(candidateTransferStops, origin, departureDateTime)
         const candidateStopAndCarPairs = await pairTransferStopWithItsCarTrip(candidateTransferStops, carTripsFromOriginToEachTransferStop)
         const publicTransportTripsToDestination = await getPublicTransportTripsFromTransferStopToDestination(candidateStopAndCarPairs, finalDestination, preferences.modeOfTransport)
 
         const publicTransportTripResultsForCandidates = await convertPublicTransportTripsToTripResults(publicTransportTripsToDestination)
-        mergeCarTripsWithPublicTransportTrips(candidateStopAndCarPairs, publicTransportTripResultsForCandidates, tripResults)
+        tripResults = mergeCarTripsWithPublicTransportTrips(candidateStopAndCarPairs, publicTransportTripResultsForCandidates)
     }
 
     const bestTrips = findBestTrips(tripResults)
