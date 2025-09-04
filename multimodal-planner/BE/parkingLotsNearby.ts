@@ -33,7 +33,7 @@ async function getParkingLotsFromOverpass(stopId: string): Promise<OSMElement[]>
         >;
         out skel qt;
     `
-    const response = await fetch("https://overpass-api.de/api/interpreter", {
+    const response = await fetch("https://overpass.private.coffee/api/interpreter", {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
     })
