@@ -79,7 +79,6 @@
         "type": "Type",
         "subtype": "Subtype",
         "pubMillis": "Publication date",
-        "eventInfo": "Event information",
         "delay": "Delay",
         "speedKMH": "Speed",
         "length": "Length",

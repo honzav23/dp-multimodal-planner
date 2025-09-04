@@ -4,6 +4,7 @@ import {Box} from "@mui/material";
 import styles from "../../css/styles.module.css";
 import { useTranslation } from "react-i18next";
 import { warningSignIcon, trafficJamSignIcon } from "../../img/wazeDivIcons.ts";
+import warningSignSvg from "../../img/warningSign.svg"
 
 interface WazeAlertProps {
     alerts: WazeAlert[];
@@ -39,7 +40,9 @@ function WazeAlerts({ alerts }: WazeAlertProps) {
             { alerts.map((alert) =>
                 <Marker key={alert.uuid} position={[alert.location.y, alert.location.x]} icon={alert.type === 'JAM' ? trafficJamSignIcon : warningSignIcon}>
                     <Popup closeOnClick maxWidth={1000}>
-                        <h2 style={{ textAlign: 'center' }}>{t('waze.eventInfo')}</h2>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <img style={{ width: '60px', height: '50px' }} alt='' src={warningSignSvg}/>
+                        </div>
                         <Box sx={{ padding: '0 10px' }}>
                             <table className={styles.tableStyle}>
                                 <tbody>

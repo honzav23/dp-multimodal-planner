@@ -1,4 +1,4 @@
-import {DivIcon, divIcon} from 'leaflet'
+import {DivIcon} from 'leaflet'
 import styles from '../css/styles.module.css'
 
 const warningSignSvg = `

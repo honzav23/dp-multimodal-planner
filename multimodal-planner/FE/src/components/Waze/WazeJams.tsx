@@ -3,6 +3,7 @@ import {Marker, Polyline, Popup} from "react-leaflet";
 import { useTranslation } from "react-i18next";
 import styles from '../../css/styles.module.css'
 import { closedRoadSignIcon, trafficJamSignIcon } from "../../img/wazeDivIcons.ts";
+import trafficJamSvg from '../../img/trafficJamSign.svg'
 
 interface WazeJamsProps {
     jams: WazeJam[]
@@ -51,7 +52,9 @@ function WazeJams({ jams }: WazeJamsProps) {
                             <h3 style={{ textAlign: 'center' }}>{t('waze.types.road_closed')}</h3>
                             :
                             <>
-                                <h3 style={{ textAlign: 'center' }}>{t('waze.types.jam')}</h3>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <img style={{ width: '60px', height: '50px' }} alt='' src={trafficJamSvg}/>
+                                </div>
                                 <table className={styles.tableStyle}>
                                     <tbody>
                                         { keysForVisualization.map(key =>

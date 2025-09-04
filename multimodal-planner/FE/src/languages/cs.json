@@ -79,7 +79,6 @@
         "type": "Kategorie",
         "subtype": "Podkategorie",
         "pubMillis": "Datum zveřejnění",
-        "eventInfo": "Informace o události",
         "delay": "Zpoždění",
         "speedKMH": "Rychlost",
         "length": "Délka",
