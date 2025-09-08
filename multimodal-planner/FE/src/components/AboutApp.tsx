@@ -69,7 +69,11 @@ function AboutApp({ dialogOpen, closeDialog }: AboutAppProps) {
 
         <DialogContent sx={{ backgroundColor: '#f3f3f3' }}>
             {tabValue === 'overview' &&
-                <Typography variant='body1'>{t('about.basicInfo')}</Typography>
+                <>
+                    <Typography variant='body1'>{t('about.basicInfo')}</Typography>
+                    <br/><br/>
+                    <Typography variant='body1' sx={{ fontWeight: 'bold' }}>{t('about.warning')}</Typography>
+                </>
             }
             {tabValue === 'usage' &&
                 <>

@@ -16,14 +16,15 @@ import {
     ListItem,
     Tabs,
     Tab,
-    Tooltip
+    Tooltip,
 } from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
 import { setSelectedTrip, clearTrips, setShowOutboundTrips } from "../store/slices/tripSlice";
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
 import { formatDateTime } from "../common/common";
 import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
-    Minimize, EnergySavingsLeaf, DirectionsRun} from "@mui/icons-material";
+    Minimize, EnergySavingsLeaf, Speed} from "@mui/icons-material";
+import CrownIcon from "../img/CrownIcon";
 import TripDetail from "./TripDetail/TripDetail";
 import SortIcon from './SortIcon'
 import useIsMobile from '../hooks/useIsMobile';
@@ -205,7 +206,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
 
                     {/* Sorting */}
                     <Box sx={{ alignSelf: 'flex-end' }}>
-                        <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "time")}  mainIcon={<DirectionsRun/>} sortInfo={sortTimeState}/>
+                        <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "time")}  mainIcon={<Speed/>} sortInfo={sortTimeState}/>
                         <SortIcon sortStateChanged={(st) => handleSortStateChange(st, "emissions")} mainIcon={<EnergySavingsLeaf/>} sortInfo={sortEmissionsState} />
                     </Box>
                 </div>
@@ -218,13 +219,22 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
                                 primary={
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <Typography variant='body1' sx={{fontWeight: 'bold'}}>
-                                            {formatDateTime(trip.startTime)} - {formatDateTime(trip.endTime)} ({convertSecondsToHoursAndMinutes(trip.totalTime)})
+                                           {formatDateTime(trip.startTime)} - {formatDateTime(trip.endTime)} ({convertSecondsToHoursAndMinutes(trip.totalTime)})
                                         </Typography>
 
-                                        {/* Show the leaf icon when a trip is the fastest */}
+                                        {/* Show the crown icon when a trip has the best score */}
+                                        { trip.bestOverall &&
+                                            <Tooltip title={t('best')} placement='right'>
+                                                <div>
+                                                    <CrownIcon/>
+                                                </div>
+                                            </Tooltip>
+                                        }
+
+                                        {/* Show the speed icon when a trip is the fastest */}
                                         { trip.lowestTime &&
                                             <Tooltip title={t('fastest')} placement='right'>
-                                                <DirectionsRun sx={{ color: 'darkBlue' }}/>
+                                                <Speed sx={{ color: 'darkBlue' }}/>
                                             </Tooltip>
                                         }
 

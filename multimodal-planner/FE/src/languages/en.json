@@ -150,6 +150,7 @@
     "via": "via",
     "eco": "Most eco-friendly",
     "fastest": "Shortest travel time",
+    "best": "The best trip",
     "origin": "Origin",
     "destination": "Destination",
     "pickup": "Pickup point",
@@ -162,6 +163,7 @@
         "title": "About CarPub application",
         "basicInfoTitle": "Basic information",
         "usageTitle": "How to use this application",
+        "warning": "The trips are planned in a way to utilize the car and public transport evenly. That means the best trips are not usually the fastest ones.",
         "contactTitle": "Contact",
         "basicInfo": "The CarPub application was developed as a master thesis at the Faculty of Information Technology of Brno University of Technology under the supervision of Ing. Jiří Hynek, Ph.D. It is a multimodal transport planner that allows to create routes that combine automobile and public transport. This application is suitable, for example, for people who commute to work or for tourists. The open source application OpenTripPlanner 2 is used to calculate the routes. Delay data and routes for individual legs are obtained from the Lissy application.",
         "usage": {
