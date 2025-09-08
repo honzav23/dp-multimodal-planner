@@ -11,6 +11,7 @@ export type TripResult = {
     via: string,
     lowestTime: boolean,
     lowestEmissions: boolean,
+    bestOverall: boolean,
     wazeEvents: WazeEvents
 }
 

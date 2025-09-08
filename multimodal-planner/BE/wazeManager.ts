@@ -3,6 +3,7 @@ import KDBush from "kdbush";
 import RBush from 'rbush'
 import polyline from "polyline-codec";
 import {TripResult} from "../types/TripResult.ts";
+import type { WazeRTreeItem } from "./types/WazeRTree.ts";
 
 const FETCHING_INTERVAL = 2 * 60 * 1000; // 2 minutes
 
@@ -18,7 +19,7 @@ export class WazeManager {
     }
     private wazeEvents: WazeEvents;
     private alertIndex?: KDBush;
-    private jamIndex?: RBush;
+    private jamIndex?: RBush<WazeRTreeItem>;
     private readonly wazeUrl: string | undefined;
 
     constructor(wazeUrl: string | undefined) {
@@ -115,7 +116,7 @@ export class WazeManager {
     }
 
     private createJamIndex() {
-        const tree = new RBush()
+        const tree = new RBush<WazeRTreeItem>()
         const jamsEpsg3857Coords = this.wazeEvents.jams.map(j => {
             return j.line.map((l) => this.convertFromEpsg4326ToEpsg3857(l.x, l.y))
         })
@@ -125,7 +126,7 @@ export class WazeManager {
         this.jamIndex = tree
     }
 
-    private createBoundingBoxForJam(jamLine: [number, number][], jamIndex: number): Record<string, number> {
+    private createBoundingBoxForJam(jamLine: [number, number][], jamIndex: number): WazeRTreeItem {
         const minX = jamLine.reduce((minX, current) => current[0] < minX ? current[0] : minX, jamLine[0][0])
         const minY = jamLine.reduce((minY, current) => current[1] < minY ? current[1] : minY, jamLine[0][1])
         const maxX = jamLine.reduce((maxX, current) => current[0] > maxX ? current[0] : maxX, jamLine[0][0])

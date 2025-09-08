@@ -20,13 +20,19 @@ import {
     getLegRoute, getLegDelays
 } from "./transportRoutesWithDelays.ts";
 import type { OTPGraphQLTrip, OTPTripPattern, OTPTripLeg } from "./types/OTPGraphQLData.ts";
-import { findBestTrips } from "./transferStopSelector.ts";
 import {TransferStop} from "../types/TransferStop.ts";
 import { fetchReturnTrips } from "./returnTrips.ts";
 import {TransportMode} from "../types/TransportMode.ts";
 import { WazeManager } from "./wazeManager.ts";
+import {TripSelector} from "./tripSelector.ts";
 
 const TRANSFER_STOP_THRESHOLD = 15
+
+// Average emissions according to https://www.rekrabicka.cz/blog/ekologicky-dopad-dopravnich-prostredku
+// The values are grams of CO2 per kilometer per passenger
+const CAR_EMISSIONS = 192
+const BUS_EMISSIONS = 68
+const TRAIN_EMISSIONS = 35
 
 function pickupPointSet(pickupPoint: [number, number]): boolean {
     return pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000
@@ -176,6 +182,33 @@ function calculateTotalNumberOfTransfers(publicTransport: OTPTripPattern): numbe
     return totalNumberTransports - 1
 }
 
+/**
+ * Calculates the total amount of emissions based on the distance and mode of transport of
+ * individual legs
+ * @param trip Trip to calculate emissions from
+ * @returns Total amount of emissions for a given trip
+ */
+function calculateTripEmissions(trip: TripResult): number {
+    let totalEmissions = 0
+    for (const leg of trip.legs) {
+        switch (leg.modeOfTransport) {
+            case "car":
+                totalEmissions += leg.distance * CAR_EMISSIONS
+                break
+            case "rail":
+                totalEmissions += leg.distance * TRAIN_EMISSIONS
+                break
+            case "bus":
+                totalEmissions += leg.distance * BUS_EMISSIONS
+                break
+
+            default:
+                break
+        }
+    }
+    return totalEmissions
+}
+
 // Move the car time forward to get rid of unnecessary waiting
 // for public transport
 function moveCarTimeForward(carTrip: TripResult, firstPublicTransportLeg: TripLeg): TripResult {
@@ -221,7 +254,8 @@ function mergeCarWithPublicTransport(car: TripResult, publicTransport: TripResul
         via: transferStopName,
         lowestTime: false,
         lowestEmissions: false,
-        totalEmissions: 0,
+        bestOverall: false,
+        totalEmissions: calculateTripEmissions(car) + calculateTripEmissions(publicTransport),
         wazeEvents: wazeManager.getBaseWazeEventsObject()
     }
     return mergedResult
@@ -263,7 +297,8 @@ function mergeFinalTripWithCar(finalTrip: TripResult, car: TripResult, returnTri
         via: getViaStopText(),
         lowestTime: false,
         lowestEmissions: false,
-        totalEmissions: 0,
+        bestOverall: false,
+        totalEmissions: finalTrip.totalEmissions + calculateTripEmissions(car),
         wazeEvents: wazeManager.getBaseWazeEventsObject()
     }
     
@@ -421,7 +456,8 @@ async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> 
         tripResults = mergeCarTripsWithPublicTransportTrips(candidateStopAndCarPairs, publicTransportTripResultsForCandidates)
     }
 
-    const bestTrips = findBestTrips(tripResults)
+    const tripSelector = new TripSelector(tripResults)
+    const bestTrips = tripSelector.findBestTrips()
     const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
     wazeManager.findNearestWazeEvents(bestTrips)
 

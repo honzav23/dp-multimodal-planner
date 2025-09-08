@@ -16,5 +16,7 @@ export type TripDecision = {
     totalTimeNormalized: number,
     totalEmissionsNormalized: number,
     totalTransfersNormalized: number,
-    totalDelayNormalized: number
+    totalDelayNormalized: number,
+    publicTransportDistanceToTotalDistanceRatio: number,
+    publicTransportDistanceToTotalDistanceRatioNormalized: number,
 }
