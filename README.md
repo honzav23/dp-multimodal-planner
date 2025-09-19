@@ -27,6 +27,7 @@ Backend `.env` files include these variables:
 - `LISSY_API_KEY` -- if not provided, API calls to Lissy will be skipped
 - `LISSY_API_URL` -- if not provided, API calls to Lissy will be skipped,
 - `CORS_ORIGIN` -- for development mode it is `http://localhost:5173`
+- `WAZE_URL` -- url for getting current traffic information, if not provided no traffic info will be shown
 
 Frontend `.env` files have only `VITE_BACKEND_URL` which is the url for backend. It is `http://localhost:8000/api` for dev mode.
 

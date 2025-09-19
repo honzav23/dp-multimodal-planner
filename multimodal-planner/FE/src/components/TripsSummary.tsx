@@ -8,24 +8,18 @@
 import {
     List,
     Collapse,
-    ListItemText,
-    Typography,
     IconButton,
     Divider,
     Box,
-    ListItem,
     Tabs,
     Tab,
-    Tooltip,
 } from '@mui/material';
 import {useAppSelector, useAppDispatch} from "../store/hooks";
 import { setSelectedTrip, clearTrips, setShowOutboundTrips } from "../store/slices/tripSlice";
 import {useEffect, useState, SyntheticEvent, useRef} from "react";
-import { formatDateTime } from "../common/common";
-import {LocationOn, SwapHoriz, ChevronLeft, ChevronRight, ArrowBack, ZoomOutMap,
-    Minimize, EnergySavingsLeaf, Speed} from "@mui/icons-material";
-import CrownIcon from "../img/CrownIcon";
+import {ArrowBack, ZoomOutMap, Minimize, EnergySavingsLeaf, Speed} from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
+import TripSummaryItem from "./TripSummaryItem";
 import SortIcon from './SortIcon'
 import useIsMobile from '../hooks/useIsMobile';
 import { useSwapAddresses } from "../hooks/useSwapAddress.ts";
@@ -84,40 +78,8 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
     }, [selectedTrip])
 
     const showCollapse = selectedTrip !== null
-
     const [minimized, setMinimized] = useState(false);
-
     const { t } = useTranslation();
-
-    const convertSecondsToHoursAndMinutes = (seconds: number): string => {
-        let hours = Math.floor(seconds / 3600);
-        let minutes = Math.round((seconds - hours * 3600) / 60 );
-
-        if (minutes === 60) {
-            minutes = 0;
-            hours++
-        }
-
-        if (hours === 0) {
-            return `${minutes} min`
-        }
-        return `${hours} h ${minutes} min`
-    }
-
-    /**
-     * Gets correct transfer word based on the number of transfers (for example 1 transfer but 2 transfers)
-     * @param totalTransfers 
-     * @returns Correct transfer word
-     */
-    const getTransferTranslation =  (totalTransfers: number): string => {
-        if (totalTransfers === 1) {
-            return t('transfer.transferSingular')
-        }
-        else if (totalTransfers === 2 || totalTransfers === 3 || totalTransfers === 4) {
-            return t('transfer.transfer234')
-        }
-        return t('transfer.transferPlural')
-    }
 
     /**
      * Minimize only if the function is defined
@@ -211,66 +173,9 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
                     </Box>
                 </div>
                 <List component="nav">
-                { tripsToShow.map((trip, idx) => {
-                    return (
-                        <ListItem key={trip.uuid} sx={{ backgroundColor: selectedTrip !== null && selectedTrip.uuid === trip.uuid ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(trip))} dense divider={idx !== tripsToShow.length - 1}>
-                            <ListItemText
-                                disableTypography
-                                primary={
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <Typography variant='body1' sx={{fontWeight: 'bold'}}>
-                                           {formatDateTime(trip.startTime)} - {formatDateTime(trip.endTime)} ({convertSecondsToHoursAndMinutes(trip.totalTime)})
-                                        </Typography>
-
-                                        {/* Show the crown icon when a trip has the best score */}
-                                        { trip.bestOverall &&
-                                            <Tooltip title={t('best')} placement='right'>
-                                                <div>
-                                                    <CrownIcon/>
-                                                </div>
-                                            </Tooltip>
-                                        }
-
-                                        {/* Show the speed icon when a trip is the fastest */}
-                                        { trip.lowestTime &&
-                                            <Tooltip title={t('fastest')} placement='right'>
-                                                <Speed sx={{ color: 'darkBlue' }}/>
-                                            </Tooltip>
-                                        }
-
-                                        {/* Show the leaf icon when a trip is the most eco-friendly */}
-                                        { trip.lowestEmissions &&
-                                            <Tooltip title={t('eco')} placement='right'>
-                                                <EnergySavingsLeaf sx={{ color: '#008000' }}/>
-                                            </Tooltip>
-                                        }
-                                    </div>
-                                }
-                                secondary={
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap-reverse', gap: '10px', color: 'rgba(0, 0, 0, 0.6)' }}>
-                                        <div>
-                                            <Typography component='span' variant="body2">
-                                                <SwapHoriz style={{ verticalAlign: "middle" }} /> {`${trip.totalTransfers} ${getTransferTranslation(trip.totalTransfers)}`}
-                                            </Typography>
-                                            <br/>
-                                            <Typography component='span' variant="body2">
-                                                <LocationOn style={{ verticalAlign: "middle" }} /> {(trip.totalDistance / 1000).toFixed(1)} km
-                                            </Typography>
-                                        </div>
-                                        { trip.via !== '' && 
-                                            <div>
-                                                <Typography variant='body1'>
-                                                    {t('via')} <strong>{trip.via}</strong>
-                                                </Typography>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            />
-                            {selectedTrip !== null && selectedTrip.uuid === trip.uuid ? <ChevronLeft fontSize='large' /> : <ChevronRight fontSize='large'/>}
-                        </ListItem>
-                    )
-                }) }
+                { tripsToShow.map((trip, idx) =>
+                    <TripSummaryItem key={trip.uuid} trip={trip} tripIdx={idx} tripsToShowLength={tripsToShow.length}/>
+                )}
                 </List>
             </div>
                 {/* Show the trip detail when clicking at one of the trips */}

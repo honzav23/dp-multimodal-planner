@@ -24,15 +24,10 @@ import MapWrapper from "./components/MapWrapper.tsx";
 
 function App() {
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip)
-
     const { startInputFocused, endInputFocused } = useAppSelector((state) => state.focus)
-
     const showCollapse = selectedTrip !== null
-
     const { t, i18n } = useTranslation()
-
     const [aboutAppDialogOpen, setAboutAppDialogOpen] = useState(false);
-
     const isMobile = useIsMobile()
 
     useEffect(() => {
