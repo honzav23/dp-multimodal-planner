@@ -122,7 +122,7 @@ async function getPastDelaysForLeg(tripId: number, endingStopIndex: number): Pro
     const delayData = await getDelaysFromLissy(tripId, lissyInfo.availableDates)
     const pastDelays: DelayInfo[] = []
     if (delayData) {
-        for (const dateKey of Object.keys(delayData)) {
+        for (const dateKey in delayData) {
             const endSegmentDelay = findNearestDelay(delayData[dateKey], endingStopIndex)
 
             // Need to find the delay closest to the end stop
@@ -153,7 +153,7 @@ function findNearestDelay(delaysForTrip: Record<string, any>, endingStopIndex: n
     // Didn't find the delay for ending stop so find the delay for the nearest stop
     // before the end stop
     if (!possibleDelay) {
-        for (const key of Object.keys(delaysForTrip)) {
+        for (const key in delaysForTrip) {
             const numericKey = Number(key)
             if (numericKey < endingStopIndex - 1) {
                 const distance = endingStopIndex - 1 - numericKey

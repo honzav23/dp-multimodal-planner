@@ -24,15 +24,20 @@ function getHeaders() {
  * Get all dates when the delay information is available
  */
 async function getAvailableDatesFromLissy(): Promise<LissyAvailableDates | null> {
-    const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
-        method: "GET",
-        headers: getHeaders()
-    })
-    if (!dateResponse.ok) {
+    try {
+        const dateResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/availableDates`, {
+            method: "GET",
+            headers: getHeaders()
+        })
+        if (!dateResponse.ok) {
+            return null
+        }
+        const dateResponseJson = await dateResponse.json()
+        return dateResponseJson
+    }
+    catch {
         return null
     }
-    const dateResponseJson = await dateResponse.json()
-    return dateResponseJson
 }
 
 /**
@@ -41,31 +46,41 @@ async function getAvailableDatesFromLissy(): Promise<LissyAvailableDates | null>
  * @param endDate The end of range in YYYY-MM-DD format
  */
 async function getAvailableRoutesForDates(startDate: string, endDate: string): Promise<LissyAvailableRoute[] | null> {
-    const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[["${startDate}","${endDate}"]]`, {
-        method: "GET",
-        headers: getHeaders()
-    })
-    if (!availableRoutesResponse.ok) {
-        return null
-    }
-    const availableRoutesJson = await availableRoutesResponse.json()
-    if (Object.keys(availableRoutesJson).length === 0) {
-        return null
-    }
-    return availableRoutesJson
-}
-
-async function getAvailableTripsForRoutes(availableRoutes: LissyAvailableRoute[], startDate: string, endDate: string): Promise<LissyAvailableTrip[][] | null> {
-    const availableTripsFetches = availableRoutes.map((ar) => {
-        return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[["${startDate}","${endDate}"]]&route_id=${ar.id}&fullStopOrder=true`, {
+    try {
+        const availableRoutesResponse = await fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableRoutes?dates=[["${startDate}","${endDate}"]]`, {
             method: "GET",
             headers: getHeaders()
         })
-    })
-    const availableTripsResponses = await Promise.all(availableTripsFetches)
-    const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json()))
+        if (!availableRoutesResponse.ok) {
+            return null
+        }
+        const availableRoutesJson = await availableRoutesResponse.json()
+        if (Object.keys(availableRoutesJson).length === 0) {
+            return null
+        }
+        return availableRoutesJson
+    }
+    catch {
+        return null
+    }
+}
 
-    return availableTripsJson
+async function getAvailableTripsForRoutes(availableRoutes: LissyAvailableRoute[], startDate: string, endDate: string): Promise<LissyAvailableTrip[][] | null> {
+    try {
+        const availableTripsFetches = availableRoutes.map((ar) => {
+            return fetch(`${Deno.env.get("LISSY_API_URL")}/delayTrips/getAvailableTrips?dates=[["${startDate}","${endDate}"]]&route_id=${ar.id}&fullStopOrder=true`, {
+                method: "GET",
+                headers: getHeaders()
+            })
+        })
+        const availableTripsResponses = await Promise.all(availableTripsFetches)
+        const availableTripsJson = await Promise.all(availableTripsResponses.map((a) => a.json()))
+
+        return availableTripsJson
+    }
+    catch {
+        return null
+    }
 }
 
 /**
