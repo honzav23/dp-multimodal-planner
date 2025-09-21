@@ -27,6 +27,7 @@
         "noParkingLots": "No parking lots nearby",
         "transport": "Preferred means of transport",
         "onlyPublicTransport": "Use only public transport",
+        "showWazeEvents": "Show the current traffic situation along the route",
         "findBestTrip": "Find the best trip",
         "findBestTripText": "might take a long time to compute",
         "pickup": "Pickup point",

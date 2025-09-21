@@ -4,8 +4,7 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LatLngTuple } from 'leaflet';
-import type { TripRequest } from '../../types/TripRequest';
+import type { FormTripRequest } from '../../types/FormTripRequest.ts';
 import type { TransferStop } from '../../../../types/TransferStop';
 import type {
     TripResponse,
@@ -16,9 +15,10 @@ import { decode } from '@googlemaps/polyline-codec'
 import axios from 'axios';
 import type {TransportMode} from "../../../../types/TransportMode";
 import { openErrorSnackbar, openWarningSnackbar } from "./snackbarSlice.ts";
+import {TripRequest} from "../../../../types/TripRequest.ts";
 
 interface TripSliceState {
-    tripRequest: TripRequest;
+    tripRequest: FormTripRequest;
     tripResults: TripResponseConvertedRoute;
     isLoading: boolean;
     snackbarMessage: string;
@@ -26,7 +26,7 @@ interface TripSliceState {
     selectedTrip: TripResultWithIdConvertedRoute | null;
 }
 
-export const initialCoords: LatLngTuple = [1000, 1000]
+export const initialCoords: [number, number] = [1000, 1000]
 
 const initialState: TripSliceState = {
     tripRequest: {
@@ -36,6 +36,7 @@ const initialState: TripSliceState = {
         departureTime: (new Date()).toLocaleTimeString(),
         preferences: {
             modeOfTransport: [],
+            showWazeEvents: true,
             useOnlyPublicTransport: false,
             transferStop: null,
             findBestTrip: false,
@@ -66,9 +67,22 @@ function getFormattedDate() {
  */
 export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, {dispatch, getState }): Promise<TripResponse> => {
     const tripRequest = (getState() as { trip: TripSliceState }).trip.tripRequest;
+    const { departureDate, departureTime, preferences, ...rest } = tripRequest
+    const { comingBack, ...restPreferences } = preferences
+    const beTripRequest: TripRequest = {
+        ...rest,
+        departureDateTime: `${tripRequest.departureDate}T${tripRequest.departureTime}`,
+        preferences: {
+            ...restPreferences,
+            comingBack: preferences.comingBack ? {
+                returnDateTime: `${preferences.comingBack.returnDate}T${preferences.comingBack.returnTime}`
+            } : null
+        }
+    }
+    console.log(beTripRequest)
     const apiUrl = import.meta.env.VITE_BACKEND_URL;
     try {
-        const response = await axios.post(`${apiUrl}/calculateTrips`, tripRequest)
+        const response = await axios.post(`${apiUrl}/calculateTrips`, beTripRequest)
         const data = response.data
 
         const tripsNotFound = data.outboundTrips.length === 0
@@ -95,13 +109,13 @@ const tripSlice = createSlice({
     name: 'trip',
     initialState,
     reducers: {
-        setStartCoords(state, action: PayloadAction<LatLngTuple>) {
+        setStartCoords(state, action: PayloadAction<[number, number]>) {
             state.tripRequest.origin = action.payload;
         },
-        setEndCoords(state, action: PayloadAction<LatLngTuple>) {
+        setEndCoords(state, action: PayloadAction<[number, number]>) {
             state.tripRequest.destination = action.payload;
         },
-        setPickupCoords(state, action: PayloadAction<LatLngTuple>) {
+        setPickupCoords(state, action: PayloadAction<[number, number]>) {
             state.tripRequest.preferences.pickupCoords = action.payload
         },
         setDepartureDate(state, action: PayloadAction<{year: number, month: number, day: number}>) {
@@ -167,6 +181,9 @@ const tripSlice = createSlice({
         setUseOnlyPublicTransport(state, action: PayloadAction<boolean>) {
             state.tripRequest.preferences.useOnlyPublicTransport = action.payload
         },
+        setShowWazeEvents(state, action: PayloadAction<boolean>) {
+            state.tripRequest.preferences.showWazeEvents = action.payload
+        },
         setShowOutboundTrips(state, action: PayloadAction<boolean>) {
             state.showOutboundTrips = action.payload
         }
@@ -205,6 +222,6 @@ const tripSlice = createSlice({
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, setSelectedTrip,
             setSelectedModeOfTransport, setFindBestTrip, clearTrips, setPickupCoords, clearComingBackDateTime,
-            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips } = tripSlice.actions;
+            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips, setShowWazeEvents } = tripSlice.actions;
 
 export default tripSlice.reducer;

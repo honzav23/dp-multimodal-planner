@@ -19,7 +19,8 @@ import {
     clearComingBackDateTime,
     setComingBackDate,
     setComingBackTime,
-    setUseOnlyPublicTransport
+    setUseOnlyPublicTransport,
+    setShowWazeEvents
 } from "../../store/slices/tripSlice.ts";
 import { useAppSelector, useAppDispatch } from "../../store/hooks.ts";
 import type { TransportMode } from "../../../../types/TransportMode.ts";
@@ -48,6 +49,7 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
     const pickupAddress = useAppSelector((state) => state.address.pickupAddress)
     const pickupCoords = useAppSelector((state) => state.trip.tripRequest.preferences.pickupCoords)
     const preferences = useAppSelector((state) => state.trip.tripRequest.preferences)
+    const showWazeEvents = useAppSelector((state) => state.trip.tripRequest.preferences.showWazeEvents)
 
     const [returnDateTimeShown, setReturnDateTimeShown] = useState(false)
     const [dateError, setDateError, handleDateError] = useDateError()
@@ -201,39 +203,43 @@ function AdditionalPreferences({ dialogOpen, closeDialog }: AdditionalPreference
                     <Box sx={{ marginLeft: { md: '5%', sm: 0 }, display: 'flex', gap: '15px', flexDirection: 'column', width: { md: '30%', sm: '100%' }}}>
                         {/* Use only public transport */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setUseOnlyPublicTransport(val))}
-                                                             checked={useOnlyPublicTransport}/>} label={t('preferences.onlyPublicTransport')}/>
+                             checked={useOnlyPublicTransport}/>} label={t('preferences.onlyPublicTransport')}/>
+
+                        {/* Show waze events along the route */}
+                        <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setShowWazeEvents(val))}
+                             checked={showWazeEvents}/>} label={t('preferences.showWazeEvents')}/>
 
                          {/* Find the best solution checkbox */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => dispatch(setFindBestTrip(val))}
-                            checked={findBestTripSelected}/>} label={`${t('preferences.findBestTrip')} (${t('preferences.findBestTripText')})`}/>
+                             checked={findBestTripSelected}/>} label={`${t('preferences.findBestTrip')} (${t('preferences.findBestTripText')})`}/>
 
                         {/* I will be coming back checkbox */}
                         <FormControlLabel control={<Checkbox onChange={(_, val) => handleComingBackCheckboxChange(val)}
-                           checked={returnDateTimeShown}/>} label={t('preferences.comingBack')}/>
+                             checked={returnDateTimeShown}/>} label={t('preferences.comingBack')}/>
 
                         {returnDateTimeShown && (
                             <>
                                 {/* Select date */}
                                 <DatePicker sx={{ backgroundColor: 'white' }} label={t('preferences.comingBackDate')} defaultValue={defaultDate}
-                                            onError={(err, val) => handleDateError(err, val)}
-                                            slotProps={{
-                                                textField: {
-                                                    helperText: dateError.message
-                                                }
-                                            }}
-                                            value={preferences.comingBack ? dayjs(preferences.comingBack.returnDate) : null}
-                                            onChange={(date) => handleDateChange(date)}/>
+                                    onError={(err, val) => handleDateError(err, val)}
+                                    slotProps={{
+                                        textField: {
+                                            helperText: dateError.message
+                                        }
+                                    }}
+                                    value={preferences.comingBack ? dayjs(preferences.comingBack.returnDate) : null}
+                                    onChange={(date) => handleDateChange(date)}/>
 
                                 {/* Select time */}
                                 <TimePicker sx={{ backgroundColor: 'white' }} label={t('preferences.comingBackTime')} defaultValue={defaultDate}
-                                            onError={(err, val) => handleTimeError(err, val)}
-                                            slotProps={{
-                                                textField: {
-                                                    helperText: timeError.message
-                                                }
-                                            }}
-                                            value={preferences.comingBack ? dayjs(`${preferences.comingBack.returnDate}T${preferences.comingBack.returnTime}`) : null}
-                                            onChange={(time) => handleTimeChange(time)}/>
+                                    onError={(err, val) => handleTimeError(err, val)}
+                                    slotProps={{
+                                        textField: {
+                                            helperText: timeError.message
+                                        }
+                                    }}
+                                    value={preferences.comingBack ? dayjs(`${preferences.comingBack.returnDate}T${preferences.comingBack.returnTime}`) : null}
+                                    onChange={(time) => handleTimeChange(time)}/>
                             </>
                         )}
                     </Box>

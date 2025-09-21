@@ -27,6 +27,7 @@
         "noParkingLots": "Žádná parkoviště v blízkosti",
         "transport": "Preferované dopravní prostředky",
         "onlyPublicTransport": "Využít pouze hromadnou dopravu",
+        "showWazeEvents": "Zobrazit aktuální dopravní situaci na trase",
         "findBestTrip": "Nalézt nejlepší trasu",
         "findBestTripText": "výpočet může trvat dlouho",
         "pickup": "Místo vyzvednutí",
