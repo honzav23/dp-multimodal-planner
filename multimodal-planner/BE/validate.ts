@@ -35,11 +35,11 @@ export function validateCoordinates(coords: unknown): ResultStatus {
 
 /**
  * Validate the date and time
- * @param requestDate Date to validate
- * @param requestTime Time to validate
+ * @param requestDateTime DateTime to validate
  */
-export function validateDateAndTime(requestDate: string, requestTime: string): ResultStatus {
+export function validateDateAndTime(requestDateTime: string): ResultStatus {
     const result: ResultStatus = { error: false, message: '' };
+    const [requestDate, requestTime] = requestDateTime.split('T');
     if (typeof requestDate !== 'string' || typeof requestTime !== 'string') {
         result.error = true;
         result.message = 'Invalid date or time';
@@ -119,7 +119,7 @@ export function validateComingBackFields(comingBackFields: Record<string, any> |
         result.message = 'Invalid types of coming back fields';
         return result;
     }
-    const dateTimeResult = validateDateAndTime(comingBackFields.returnDate, comingBackFields.returnTime);
+    const dateTimeResult = validateDateAndTime(comingBackFields.returnDateTime);
     if (dateTimeResult.error) {
         result.error = true;
         result.message = "Invalid date or time for coming back";
@@ -129,9 +129,10 @@ export function validateComingBackFields(comingBackFields: Record<string, any> |
 }
 
 export function validatePreferences(preferences: Record<string, any>): ResultStatus {
+    const tripPreferencesKeys = new Set( ["modeOfTransport", "showWazeEvents", "transferStop", "findBestTrip", "pickupCoords",
+        "comingBack", "useOnlyPublicTransport"]);
     let result: ResultStatus = { error: false, message: '' };
-    if (!preferences.modeOfTransport || !("transferStop" in preferences) || !("findBestTrip" in preferences)
-        || !("pickupCoords" in preferences) || !("comingBack" in preferences)) {
+    if (!Object.keys(preferences).every(key => tripPreferencesKeys.has(key))) {
         result.error = true;
         result.message = 'Missing required fields for preferences';
         return result
@@ -172,7 +173,7 @@ export function validatePreferences(preferences: Record<string, any>): ResultSta
 export function validateRequestInput(body: Record<string, any>): ResultStatus {
     const result: ResultStatus = { error: false, message: '' };
 
-    if (!body.origin || !body.destination || !body.departureDate || !body.departureTime || !body.preferences) {
+    if (!body.origin || !body.destination || !body.departureDateTime || !body.preferences) {
         result.error = true;
         result.message = 'Missing required fields';
         return result;
@@ -180,7 +181,7 @@ export function validateRequestInput(body: Record<string, any>): ResultStatus {
     const originCoordinatesResult: ResultStatus = validateCoordinates(body.origin);
     const destinationCoordinatesResult: ResultStatus = validateCoordinates(body.destination);
 
-    const departureDateAndTimeResult: ResultStatus = validateDateAndTime(body.departureDate, body.departureTime);
+    const departureDateAndTimeResult: ResultStatus = validateDateAndTime(body.departureDateTime);
     const preferencesValid: ResultStatus = validatePreferences(body.preferences);
 
     if (originCoordinatesResult.error) {

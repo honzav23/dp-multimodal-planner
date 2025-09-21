@@ -10,7 +10,7 @@ import { calculateDistance, addSeconds } from "./common/common.ts";
 import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
-import type { TripRequest } from "./types/TripRequest.ts";
+import type { TripRequest } from "../types/TripRequest.ts";
 import type {TripResult, TripLeg, TripResponse, DelaysForLeg, TripResultWithId} from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops, lissyInfo } from "./api.ts";
@@ -458,8 +458,10 @@ async function calculateRoutes(tripRequest: TripRequest): Promise<TripResponse> 
 
     const tripSelector = new TripSelector(tripResults)
     const bestTrips = tripSelector.findBestTrips()
-    const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
-    wazeManager.findNearestWazeEvents(bestTrips)
+    if (preferences.showWazeEvents) {
+        const wazeManager = WazeManager.getInstance(Deno.env.get("WAZE_URL"));
+        wazeManager.findNearestWazeEvents(bestTrips)
+    }
 
     const tripsWithAdditionalPreferences = await handleAdditionalPreferences(bestTrips, tripRequest)
     return tripsWithAdditionalPreferences

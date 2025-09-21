@@ -7,7 +7,7 @@
  */
 
 import type {TripResult} from "../types/TripResult.ts";
-import type {TripRequest} from "./types/TripRequest.ts";
+import type {TripRequest} from "../types/TripRequest.ts";
 import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
 import {transferStops} from "./api.ts";
 import {addSeconds} from "./common/common.ts";

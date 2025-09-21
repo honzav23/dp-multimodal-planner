@@ -9,6 +9,7 @@
 import {getAvailableDatesFromLissy, getAvailableRoutesForDates, getAvailableTripsForRoutes} from "./lissyApi.ts";
 import type { LissyObj } from "../types/LissyTypes.ts";
 import { parseArgs } from "args";
+import {TripRequest} from "../../types/TripRequest.ts";
 
 function parseArguments(): boolean {
     const flags = parseArgs(Deno.args, {
@@ -96,6 +97,19 @@ function addSeconds(isoDate: string, seconds: number): string {
     return date.toISOString()
 }
 
+// Correct the date times of the trip request by
+// converting them to 24-hour format
+function correctDateTimes(tripRequest: TripRequest) {
+    const [tripDate, tripTime] = tripRequest.departureDateTime.split("T");
+    const updatedTime = convert12HourTo24Hour(tripTime);
+    tripRequest.departureDateTime = `${tripDate}T${updatedTime}`;
+    if (tripRequest.preferences.comingBack) {
+        const [comingBackDate, comingBackTime] = tripRequest.preferences.comingBack.returnDateTime.split("T");
+        const updatedComingBackTime = convert12HourTo24Hour(comingBackTime);
+        tripRequest.preferences.comingBack.returnDateTime = `${comingBackDate}T${updatedComingBackTime}`;
+    }
+}
+
 /**
  * Converts time from 12-hour format to 24-hour format
  * Created with the help of ChatGPT
@@ -120,4 +134,4 @@ function convert12HourTo24Hour(time: string): string {
     return time
 }
 
-export { parseArguments, convert12HourTo24Hour, addSeconds, calculateDistance, getTripsForLines }
+export { parseArguments, correctDateTimes, addSeconds, calculateDistance, getTripsForLines }

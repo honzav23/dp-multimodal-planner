@@ -11,10 +11,10 @@ import { cors } from '@hono/hono/cors';
 import { validateRequestInput } from './validate.ts';
 import { calculateRoutes } from "./routeCalculator.ts";
 import { fetchParkingLots } from './parkingLotsNearby.ts'
-import type { TripRequest } from "./types/TripRequest.ts";
+import type { TripRequest } from "../types/TripRequest.ts";
 import type { TransferStop } from "../types/TransferStop.ts";
 import type { ResultStatus } from "../types/ResultStatus.ts";
-import { getTripsForLines, convert12HourTo24Hour, parseArguments } from "./common/common.ts";
+import { getTripsForLines, correctDateTimes, parseArguments } from "./common/common.ts";
 import { getTransferStops } from "./common/otpRequests.ts";
 import { KordisWebSocketManager } from './common/realtimeVehicleInfoProcessing.ts';
 import type {LissyObj} from "./types/LissyTypes.ts";
@@ -37,29 +37,16 @@ app.use(`${apiUrl}/api/*`, cors({
 
 // Main endpoint which gets the best trips based on the request
 app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
-  const body = await request.req.json();
-  const inputValidationResult: ResultStatus = validateRequestInput(body);
+  const tripRequest = await request.req.json();
+  const inputValidationResult: ResultStatus = validateRequestInput(tripRequest);
   if (inputValidationResult.error) {
     return request.json({ error: inputValidationResult.message }, 400);
   }
+  const validTripRequest = tripRequest as TripRequest;
+  correctDateTimes(validTripRequest);
 
-  // Creating tripRequest object which is then used in calculateRoutes
-  const tripRequest: TripRequest = {
-    origin: body.origin,
-    destination: body.destination,
-    departureDateTime: `${body.departureDate}T${convert12HourTo24Hour(body.departureTime)}`,
-    preferences: {
-      modeOfTransport: body.preferences.modeOfTransport,
-      useOnlyPublicTransport: body.preferences.useOnlyPublicTransport,
-      transferStop: body.preferences.transferStop,
-      findBestTrip: body.preferences.findBestTrip,
-      pickupCoords: body.preferences.pickupCoords,
-      comingBack: body.preferences.comingBack === null ? null :
-          { returnDateTime: `${body.preferences.comingBack.returnDate}T${convert12HourTo24Hour(body.preferences.comingBack.returnTime)}` },
-    }
-  }
   try {
-    const response = await calculateRoutes(tripRequest);
+    const response = await calculateRoutes(validTripRequest);
     return request.json(response);
   }
   catch (error) {
