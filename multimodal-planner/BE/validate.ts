@@ -109,14 +109,14 @@ export function validateComingBackFields(comingBackFields: Record<string, any> |
     if (comingBackFields === null) {
         return result;
     }
-    if (!("returnDate" in comingBackFields) || !("returnTime" in comingBackFields)) {
+    if (!("returnDateTime" in comingBackFields)) {
         result.error = true;
-        result.message = 'Required fields missing for coming back';
+        result.message = 'Required field missing for coming back';
         return result;
     }
-    if (typeof comingBackFields.returnDate !== "string" || typeof comingBackFields.returnTime !== "string") {
+    if (typeof comingBackFields.returnDateTime !== "string") {
         result.error = true;
-        result.message = 'Invalid types of coming back fields';
+        result.message = 'Invalid types of coming back field';
         return result;
     }
     const dateTimeResult = validateDateAndTime(comingBackFields.returnDateTime);

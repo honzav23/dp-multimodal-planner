@@ -4,10 +4,10 @@
     "test": "deno test --allow-import --allow-env --allow-read --allow-net --env-file=.env.dev"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1",
-    "args":"jsr:@std/cli/parse-args",
-    "@hono/hono": "jsr:@hono/hono@^4.6.10",
-    "@std/csv": "jsr:@std/csv",
+    "@std/assert": "jsr:@std/assert@^1.0.14",
+    "args":"jsr:@std/cli@1.0.22/parse-args",
+    "@hono/hono": "jsr:@hono/hono@^4.9.9",
+    "@std/csv": "jsr:@std/csv@1.0.6",
     "osm-conditional-restrictions": "npm:osm-conditional-restrictions",
     "polyline-codec": "npm:@googlemaps/polyline-codec",
     "kdbush": "npm:kdbush",
