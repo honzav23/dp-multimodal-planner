@@ -6,9 +6,10 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {transferStops} from "./api.ts";
-import {OSMElement, OSMNode, OSMWay, OSMTag} from "./types/ParkingLotOSM.ts";
-import {ParkingLot, Fee, MaxStay, TimeUnits, DayTimeRange, StayTime, MaxStayCondition, OpeningHours} from "../types/ParkingLot.ts";
+import { transferStops } from "./api.ts";
+import { OSMElement, OSMNode, OSMWay, OSMTag } from "./types/ParkingLotOSM.ts";
+import { LatLngTuple } from "../types/TripRequest.ts";
+import { ParkingLot, Fee, MaxStay, TimeUnits, DayTimeRange, StayTime, MaxStayCondition, OpeningHours } from "../types/ParkingLot.ts";
 import { parseConditionalRestrictions, type Conditional, type Exception } from "osm-conditional-restrictions";
 
 /**
@@ -33,14 +34,19 @@ async function getParkingLotsFromOverpass(stopId: string): Promise<OSMElement[]>
         >;
         out skel qt;
     `
-    const response = await fetch("https://overpass.private.coffee/api/interpreter", {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+        controller.abort()
+    }, 5000)
+    const response = await fetch("https://overpass-api.de/api/interpreter", {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal,
     })
     if (!response.ok) {
         return []
     }
-
+    clearTimeout(timer)
     const result = await response.json();
     return result.elements as OSMElement[];
 }
@@ -50,8 +56,8 @@ async function getParkingLotsFromOverpass(stopId: string): Promise<OSMElement[]>
  * @param parkingLot Parking lot to create bounding box for
  * @param nodesObject Object containing the corners of the bounding box
  */
-function getParkingLotBoundingBox(parkingLot: OSMWay, nodesObject: Record<number, OSMNode>): [number, number][] {
-    const boundingBox: [number, number][] = parkingLot.nodes.map((n) => [nodesObject[n].lat, nodesObject[n].lon]);
+function getParkingLotBoundingBox(parkingLot: OSMWay, nodesObject: Record<number, OSMNode>): LatLngTuple[] {
+    const boundingBox: LatLngTuple[] = parkingLot.nodes.map((n) => [nodesObject[n].lat, nodesObject[n].lon]);
     return boundingBox;
 }
 

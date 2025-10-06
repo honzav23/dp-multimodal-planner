@@ -5,22 +5,23 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import type {OTPTripLeg} from "./types/OTPGraphQLData.ts";
-import {calculateDistance} from "./common/common.ts";
+import type { OTPTripLeg } from "./types/OTPGraphQLData.ts";
+import { calculateDistance } from "./common/common.ts";
 import { lissyInfo } from "./api.ts";
-import {getDelaysFromLissy, getShapesFromLissy} from "./common/lissyApi.ts";
+import { getDelaysFromLissy, getShapesFromLissy } from "./common/lissyApi.ts";
 import type { LissyAvailableTrip } from "./types/LissyTypes.ts";
 import polyline from "polyline-codec";
-import {DelayInfo, DelaysForLeg} from "../types/TripResult.ts";
+import { DelayInfo, DelaysForLeg } from "../types/TripResult.ts";
 import { KordisWebSocketManager } from "./common/realtimeVehicleInfoProcessing.ts";
-import {RealtimeVehicleInfo} from "./types/RealtimeVehicleInfo.ts";
+import { RealtimeVehicleInfo } from "./types/RealtimeVehicleInfo.ts";
+import type { LatLngTuple } from "../types/TripRequest.ts";
 
 /**
  * Calculate the total distance of a line given that the points form a line
  * @param coords The array of points (a line)
  * @returns The total distance
  */
-function calculateTotalDistance(coords: [number, number][]): number {
+function calculateTotalDistance(coords: LatLngTuple[]): number {
     let distance = 0
     for (let i = 0; i < coords.length - 1; i++) {
         distance += calculateDistance(coords[i][0], coords[i][1], coords[i+1][0], coords[i+1][1])
@@ -61,7 +62,7 @@ function findCorrectTripFromCorrespondingTrips(correspondingTrips: LissyAvailabl
     return null
 }
 
-function findStopIndices(leg: OTPTripLeg, vehicleInfoOnCurrentLeg: RealtimeVehicleInfo): [number, number] {
+function findStopIndices(leg: OTPTripLeg, vehicleInfoOnCurrentLeg: RealtimeVehicleInfo): LatLngTuple {
     const fromStopId = leg.fromPlace.quay!.id
     const fromStopIndex = leg.serviceJourney!.quays.findIndex((q) => q.id === fromStopId)
 

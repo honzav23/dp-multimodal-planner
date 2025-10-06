@@ -6,14 +6,14 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import type {TripResult} from "../types/TripResult.ts";
-import type {TripRequest} from "../types/TripRequest.ts";
+import type { TripResult } from "../types/TripResult.ts";
+import type { TripRequest } from "../types/TripRequest.ts";
 import type { TransferStopInTrip } from "./types/TransferStopInTrip.ts";
-import {transferStops} from "./api.ts";
-import {addSeconds} from "./common/common.ts";
+import { transferStops } from "./api.ts";
+import { addSeconds } from "./common/common.ts";
 import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
-import type {OTPGraphQLTrip, OTPTripPattern} from "./types/OTPGraphQLData.ts";
-import {convertOTPDataToTripResult, mergeFinalTripWithCar, tripUsesOnlyPublicTransport} from "./routeCalculator.ts";
+import type { OTPGraphQLTrip, OTPTripPattern } from "./types/OTPGraphQLData.ts";
+import { convertOTPDataToTripResult, mergeFinalTripWithCar, tripUsesOnlyPublicTransport } from "./routeCalculator.ts";
 
 /**
  * Assign coordinates to all transfer stops for the best trips

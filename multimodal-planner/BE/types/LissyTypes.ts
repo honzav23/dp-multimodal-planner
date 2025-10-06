@@ -5,6 +5,8 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
+import type { LatLngTuple } from "../../types/TripRequest.ts";
+
 export type LissyObj = {
     availableTripsByLines: LissyAvailableTrip[][],
     availableDates: string[]
@@ -32,12 +34,12 @@ export type LissyAvailableTrip = {
 }
 
 export type LissyShape = {
-    coords: [number, number][][],
+    coords: LatLngTuple[][],
     stops: {
         stop_name: string,
         wheelchair_boarding: number,
         zone_id: number,
-        coords: [number, number],
+        coords: LatLngTuple,
     }[]
 }
 

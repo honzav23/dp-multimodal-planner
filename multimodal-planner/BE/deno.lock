@@ -2,17 +2,12 @@
   "version": "5",
   "specifiers": {
     "jsr:@hono/hono@^4.9.9": "4.9.9",
-    "jsr:@std/assert@*": "1.0.8",
-    "jsr:@std/assert@1": "1.0.8",
+    "jsr:@logtape/logtape@^1.2.0-dev.344+834f24a9": "1.2.0-dev.344+834f24a9",
     "jsr:@std/assert@^1.0.14": "1.0.14",
-    "jsr:@std/assert@^1.0.8": "1.0.8",
     "jsr:@std/cli@1.0.22": "1.0.22",
     "jsr:@std/csv@1.0.6": "1.0.6",
-    "jsr:@std/expect@*": "1.0.8",
     "jsr:@std/internal@^1.0.10": "1.0.10",
-    "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/streams@^1.0.9": "1.0.12",
-    "jsr:@std/testing@*": "1.0.5",
     "npm:@googlemaps/polyline-codec@*": "1.0.28",
     "npm:@googlemaps/polyline-codec@^1.0.28": "1.0.28",
     "npm:@types/node@*": "22.10.1",
@@ -26,16 +21,13 @@
     "@hono/hono@4.9.9": {
       "integrity": "1d716e97b71e91b852c70beb85c9d3b236393282c59d5e268b07cfd224a77318"
     },
-    "@std/assert@1.0.8": {
-      "integrity": "ebe0bd7eb488ee39686f77003992f389a06c3da1bbd8022184804852b2fa641b",
-      "dependencies": [
-        "jsr:@std/internal@^1.0.5"
-      ]
+    "@logtape/logtape@1.2.0-dev.344+834f24a9": {
+      "integrity": "204222be0f94cd1b64a500e2dcdea22a1618a086fc531b054351e3cfa079c435"
     },
     "@std/assert@1.0.14": {
       "integrity": "68d0d4a43b365abc927f45a9b85c639ea18a9fab96ad92281e493e4ed84abaa4",
       "dependencies": [
-        "jsr:@std/internal@^1.0.10"
+        "jsr:@std/internal"
       ]
     },
     "@std/cli@1.0.22": {
@@ -47,28 +39,11 @@
         "jsr:@std/streams"
       ]
     },
-    "@std/expect@1.0.8": {
-      "integrity": "27e40d8f3aefb372fc6a703fb0b69e34560e72a2f78705178babdffa00119a5f",
-      "dependencies": [
-        "jsr:@std/assert@^1.0.8",
-        "jsr:@std/internal@^1.0.5"
-      ]
-    },
-    "@std/internal@1.0.5": {
-      "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
-    },
     "@std/internal@1.0.10": {
       "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
     },
     "@std/streams@1.0.12": {
       "integrity": "ae925fa1dc459b1abf5cbaa28cc5c7b0485853af3b2a384b0dc22d86e59dfbf4"
-    },
-    "@std/testing@1.0.5": {
-      "integrity": "6e693cbec94c81a1ad3df668685c7ba8e20742bb10305bc7137faa5cf16d2ec4",
-      "dependencies": [
-        "jsr:@std/assert@^1.0.8",
-        "jsr:@std/internal@^1.0.5"
-      ]
     }
   },
   "npm": {
@@ -552,6 +527,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@hono/hono@^4.9.9",
+      "jsr:@logtape/logtape@^1.2.0-dev.344+834f24a9",
       "jsr:@std/assert@^1.0.14",
       "jsr:@std/cli@1.0.22",
       "jsr:@std/csv@1.0.6",

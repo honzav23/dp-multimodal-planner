@@ -17,8 +17,9 @@ import type { ResultStatus } from "../types/ResultStatus.ts";
 import { getTripsForLines, correctDateTimes, parseArguments } from "./common/common.ts";
 import { getTransferStops } from "./common/otpRequests.ts";
 import { KordisWebSocketManager } from './common/realtimeVehicleInfoProcessing.ts';
-import type {LissyObj} from "./types/LissyTypes.ts";
+import type { LissyObj } from "./types/LissyTypes.ts";
 import { WazeManager } from "./wazeManager.ts";
+import { appLogger } from "./logger.ts";
 
 export const rootDir = import.meta.dirname;
 
@@ -50,7 +51,7 @@ app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
     return request.json(response);
   }
   catch (error) {
-    console.log(error);
+    appLogger.error("{error}", { error });
     return request.json({ outboundTrips: [], returnTrips: [] }, 500);
   }
 });
@@ -62,8 +63,16 @@ app.get(`${apiUrl}/api/transferStops`, (request) => {
 
 app.post(`${apiUrl}/api/parkingLotsNearby`, async (request) => {
   const body = await request.req.json();
-  const parkingLots = await fetchParkingLots(body.stopId)
-  return request.json(parkingLots);
+  try {
+    const parkingLots = await fetchParkingLots(body.stopId)
+    return request.json(parkingLots);
+  }
+  catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      appLogger.error("Request for parking lots timed out");
+    }
+    return request.json([], 500);
+  }
 })
 
 app.notFound((request) => {

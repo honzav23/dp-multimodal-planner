@@ -1,4 +1,5 @@
 import { RealtimeVehicleInfo } from "../types/RealtimeVehicleInfo.ts";
+import { kordisLogger } from "../logger.ts";
 
 const EXTERNAL_WS_SERVER_URL = 'wss://gis.brno.cz/geoevent/ws/services/ODAE_public_transit_stream_service/StreamServer/subscribe';
 
@@ -30,16 +31,18 @@ export class KordisWebSocketManager {
             return;
         }
         this.wsUrl = new WebSocket(EXTERNAL_WS_SERVER_URL);
+        kordisLogger.info("Connected to KORDIS WebSocket");
 
         this.wsUrl.onmessage = (event) => this.processRealtimeVehicleInfo(event)
 
         this.wsUrl.onclose = () => {
             this.wsUrl = null;
-            setTimeout(this.connectToKordisWebSocket, 5000); // Try to reconnect after 5 seconds
+            setTimeout(() => this.connectToKordisWebSocket(), 5000);
         };
 
         this.wsUrl.onerror = (event) => {
-            console.error('Websocket Kordis:', event);
+            kordisLogger.error("Could not connect to Kordis WebSocket. Trying again...");
+            setTimeout(() => this.connectToKordisWebSocket(), 5000);
             this.wsUrl = null;
         };
     }

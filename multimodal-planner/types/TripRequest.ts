@@ -8,9 +8,11 @@
 import type { TransferStop } from "./TransferStop.ts";
 import type { TransportMode } from "./TransportMode.ts"
 
+export type LatLngTuple = [number, number];
+
 export type TripRequest = {
-    origin: [number, number];
-    destination: [number, number];
+    origin: LatLngTuple;
+    destination: LatLngTuple;
     departureDateTime: string;
     preferences: TripPreferences;
 }
@@ -21,7 +23,7 @@ export type TripPreferences = {
     useOnlyPublicTransport: boolean;
     transferStop: TransferStop | null;
     findBestTrip: boolean;
-    pickupCoords: [number, number];
+    pickupCoords: LatLngTuple;
     comingBack: {
         returnDateTime: string
     } | null;

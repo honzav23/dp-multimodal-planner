@@ -1,9 +1,10 @@
 import { rootDir } from "../api.ts";
-import {parse} from "@std/csv"
-import type {TransferStop} from "../../types/TransferStop.ts";
+import { parse } from "@std/csv"
+import type { TransferStop } from "../../types/TransferStop.ts";
 import {gql, request} from "https://deno.land/x/graphql_request@v4.1.0/mod.ts";
-import type {OTPGraphQLTrip} from "../types/OTPGraphQLData.ts";
+import type { OTPGraphQLTrip } from "../types/OTPGraphQLData.ts";
 import type { TransportMode } from '../../types/TransportMode.ts'
+import type { LatLngTuple } from "../../types/TripRequest.ts";
 
 /**
  * Gets available transfer stops from .csv file
@@ -123,7 +124,7 @@ function getGqlQueryString(): string {
  * @param to
  * @param dateTime Date and time of departure (in ISO format)
  */
-async function getCarTrip(from: [number, number], to: [number, number], dateTime: string): Promise<OTPGraphQLTrip> {
+async function getCarTrip(from: LatLngTuple, to: LatLngTuple, dateTime: string): Promise<OTPGraphQLTrip> {
     const query = getGqlQueryString()
     const variables = {
         from: {
@@ -167,7 +168,7 @@ async function getCarTrip(from: [number, number], to: [number, number], dateTime
  * all means of transport
  * @returns Promise of the result from OTP
  */
-async function getPublicTransportTrip(from: [number, number], to: [number, number], dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLTrip> {
+async function getPublicTransportTrip(from: LatLngTuple, to: LatLngTuple, dateTime: string, transport: TransportMode[], numTripPatterns: number): Promise<OTPGraphQLTrip> {
     const query = getGqlQueryString()
     const variables: Record<string, any> = {
         from: {

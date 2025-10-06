@@ -10,8 +10,8 @@ import { calculateDistance, addSeconds } from "./common/common.ts";
 import { getCarTrip, getPublicTransportTrip } from "./common/otpRequests.ts"
 import { getRepresentativeTransferStops } from "./cluster.ts";
 
-import type { TripRequest } from "../types/TripRequest.ts";
-import type {TripResult, TripLeg, TripResponse, DelaysForLeg, TripResultWithId} from "../types/TripResult.ts";
+import type { TripRequest, LatLngTuple } from "../types/TripRequest.ts";
+import type { TripResult, TripLeg, TripResponse, DelaysForLeg, TripResultWithId } from "../types/TripResult.ts";
 import type { TransferStopWithDistance } from "./types/TransferStopWithDistance.ts";
 import { transferStops, lissyInfo } from "./api.ts";
 import {
@@ -20,11 +20,11 @@ import {
     getLegRoute, getLegDelays
 } from "./transportRoutesWithDelays.ts";
 import type { OTPGraphQLTrip, OTPTripPattern, OTPTripLeg } from "./types/OTPGraphQLData.ts";
-import {TransferStop} from "../types/TransferStop.ts";
+import { TransferStop } from "../types/TransferStop.ts";
 import { fetchReturnTrips } from "./returnTrips.ts";
-import {TransportMode} from "../types/TransportMode.ts";
+import { TransportMode } from "../types/TransportMode.ts";
 import { WazeManager } from "./wazeManager.ts";
-import {TripSelector} from "./tripSelector.ts";
+import { TripSelector } from "./tripSelector.ts";
 
 const TRANSFER_STOP_THRESHOLD = 15
 
@@ -34,7 +34,7 @@ const CAR_EMISSIONS = 192
 const BUS_EMISSIONS = 68
 const TRAIN_EMISSIONS = 35
 
-function pickupPointSet(pickupPoint: [number, number]): boolean {
+function pickupPointSet(pickupPoint: LatLngTuple): boolean {
     return pickupPoint[0] !== 1000 && pickupPoint[1] !== 1000
 }
 
@@ -334,7 +334,7 @@ async function getFromPickupPointToDestination(trip: TripResult, tripRequest: Tr
 
 // Handles the case when no transfer stops are found by
 // fetching only public transport trips from OTP
-async function handleNoCandidateTransferStops(origin: [number, number], destination: [number, number], departureDateTime: string, modeOfTransport: TransportMode[]): Promise<TripResult[]> {
+async function handleNoCandidateTransferStops(origin: LatLngTuple, destination: LatLngTuple, departureDateTime: string, modeOfTransport: TransportMode[]): Promise<TripResult[]> {
     const tripPublicTransport: OTPGraphQLTrip = await getPublicTransportTrip(origin, destination,
         departureDateTime, modeOfTransport, 12)
     const publicTransportResultsPromises = tripPublicTransport.trip.tripPatterns.map((tripPattern) => convertOTPDataToTripResult(tripPattern))
@@ -342,7 +342,7 @@ async function handleNoCandidateTransferStops(origin: [number, number], destinat
     return [...publicTransportResults]
 }
 
-async function getCarTripsFromOriginToEachTransferStop(candidateTransferStops: TransferStop[], origin: [number, number],
+async function getCarTripsFromOriginToEachTransferStop(candidateTransferStops: TransferStop[], origin: LatLngTuple,
                                                        departureDateTime: string): Promise<OTPGraphQLTrip[]> {
     const carPromises = candidateTransferStops.map((c) => getCarTrip(origin, c.stopCoords, departureDateTime))
     return await Promise.all(carPromises)
@@ -351,7 +351,7 @@ async function getCarTripsFromOriginToEachTransferStop(candidateTransferStops: T
 // Returns public transport trips for each transfer stop (usually multiple different trips)
 // for one transfer stop (up to 12)
 async function getPublicTransportTripsFromTransferStopToDestination(candidateStopAndCarPairs: { candidate: TransferStop, carTrip: TripResult}[],
-                                                                    destination: [number, number], modeOfTransport: TransportMode[]): Promise<OTPGraphQLTrip[]> {
+                                                                    destination: LatLngTuple, modeOfTransport: TransportMode[]): Promise<OTPGraphQLTrip[]> {
     const ptPromises = candidateStopAndCarPairs.map((c) => getPublicTransportTrip(c.candidate.stopCoords, destination,
         addSeconds(c.carTrip.endTime, 300), modeOfTransport, 12))
     return await Promise.all(ptPromises)

@@ -6,7 +6,9 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
+import type { LatLngTuple } from "../../types/TripRequest.ts";
+
 export type TransferStopInTrip = {
     name: string,
-    coords: [number, number],
+    coords: LatLngTuple,
 }

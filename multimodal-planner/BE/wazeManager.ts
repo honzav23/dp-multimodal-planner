@@ -2,7 +2,9 @@ import {WazeAlert, WazeEvents, WazeJam} from "../types/WazeEvents.ts";
 import KDBush from "kdbush";
 import RBush from 'rbush'
 import polyline from "polyline-codec";
-import {TripResult} from "../types/TripResult.ts";
+import { TripResult } from "../types/TripResult.ts";
+import type { LatLngTuple } from "../types/TripRequest.ts";
+import { wazeLogger } from "./logger.ts";
 import type {BoundingBox, LineBoundingBoxPair, WazeRTreeItem} from "./types/WazeRTree.ts";
 
 export class WazeManager {
@@ -47,7 +49,7 @@ export class WazeManager {
         const wazeEvents = this.getWazeData()
         for (const trip of trips) {
             const alertIndicesSet = new Set<number>()
-            const allJamsIndexToOrderMapping: Record<string, [number, number]> = {}
+            const allJamsIndexToOrderMapping: Record<string, LatLngTuple> = {}
             let removedJamIndicesSet = new Set<number>()
             for (const leg of trip.legs) {
 
@@ -74,7 +76,7 @@ export class WazeManager {
         }
     }
 
-    private getFinalJams(allJamsIndexToOrderMapping: Record<string, [number, number]>) {
+    private getFinalJams(allJamsIndexToOrderMapping: Record<string, LatLngTuple>) {
         return Object.keys(allJamsIndexToOrderMapping).map((idx) => {
             const arrIdx = parseInt(idx)
             const correspondingJam: WazeJam = {...this.wazeEvents.jams[arrIdx]}
@@ -84,7 +86,7 @@ export class WazeManager {
         })
     }
 
-    private mergeJamMappings(targetMapping: Record<string, [number, number]>, sourceMapping: Record<string, [number, number]>) {
+    private mergeJamMappings(targetMapping: Record<string, LatLngTuple>, sourceMapping: Record<string, LatLngTuple>) {
         for (const key in sourceMapping) {
             if (!(key in targetMapping)) {
                 targetMapping[key] = sourceMapping[key]
@@ -139,7 +141,7 @@ export class WazeManager {
         }
     }
 
-    private convertFromEpsg4326ToEpsg3857(x: number, y: number): [number, number] {
+    private convertFromEpsg4326ToEpsg3857(x: number, y: number): LatLngTuple {
         const newX = (x * 20037508.34) / 180;
         let newY = Math.log(Math.tan(((90 + y) * Math.PI) / 360)) / (Math.PI / 180);
         newY = (newY * 20037508.34) / 180;
@@ -183,7 +185,7 @@ export class WazeManager {
 
     // Points in format [lat, lng] in epsg 3857
     // Returns an array [minX, minY, maxX, maxY]
-    private createBoundingBoxForLine(p1: [number, number], p2: [number, number], distanceToleranceInMeters = 10): BoundingBox | null {
+    private createBoundingBoxForLine(p1: LatLngTuple, p2: LatLngTuple, distanceToleranceInMeters = 10): BoundingBox | null {
 
         const dx = p2[0] - p1[0]
         const dy = p2[1] - p1[1]
@@ -195,10 +197,10 @@ export class WazeManager {
         const xPerp = dy / lineLength;
         const yPerp = -dx / lineLength;
 
-        const bbp1a: [number, number] = [p1[0] + distanceToleranceInMeters * xPerp, p1[1] + distanceToleranceInMeters * yPerp];
-        const bbp1b: [number, number] = [p1[0] - distanceToleranceInMeters * xPerp, p1[1] - distanceToleranceInMeters * yPerp];
-        const bbp2a: [number, number] = [p2[0] + distanceToleranceInMeters * xPerp, p2[1] + distanceToleranceInMeters * yPerp];
-        const bbp2b: [number, number] = [p2[0] - distanceToleranceInMeters * xPerp, p2[1] - distanceToleranceInMeters * yPerp];
+        const bbp1a: LatLngTuple = [p1[0] + distanceToleranceInMeters * xPerp, p1[1] + distanceToleranceInMeters * yPerp];
+        const bbp1b: LatLngTuple = [p1[0] - distanceToleranceInMeters * xPerp, p1[1] - distanceToleranceInMeters * yPerp];
+        const bbp2a: LatLngTuple = [p2[0] + distanceToleranceInMeters * xPerp, p2[1] + distanceToleranceInMeters * yPerp];
+        const bbp2b: LatLngTuple = [p2[0] - distanceToleranceInMeters * xPerp, p2[1] - distanceToleranceInMeters * yPerp];
 
         const xs = [bbp1a[0], bbp1b[0], bbp2a[0], bbp2b[0]];
         const ys = [bbp1a[1], bbp1b[1], bbp2a[1], bbp2b[1]];
@@ -228,17 +230,17 @@ export class WazeManager {
         return lineBoundingBoxPairs
     }
 
-    private calculateSquareDistanceBetweenPointAndLine(point: [number, number], linePoint1: [number, number], linePoint2: [number, number]): number {
+    private calculateSquareDistanceBetweenPointAndLine(point: LatLngTuple, linePoint1: LatLngTuple, linePoint2: LatLngTuple): number {
         const distanceBetweenAlertAndLine = Math.pow((linePoint2[0] - linePoint1[0]) * (linePoint1[1] - point[1]) - (linePoint1[0] - point[0]) * (linePoint2[1] - linePoint1[1]), 2) /
             (Math.pow(linePoint2[0] - linePoint1[0], 2) + Math.pow(linePoint2[1] - linePoint1[1], 2))
 
         return distanceBetweenAlertAndLine
     }
 
-    private twoLinesIntersect(line1StartPoint: [number, number], line1Endpoint: [number, number],
-                              line2StartPoint: [number, number], line2Endpoint: [number, number]): boolean {
+    private twoLinesIntersect(line1StartPoint: LatLngTuple, line1Endpoint: LatLngTuple,
+                              line2StartPoint: LatLngTuple, line2Endpoint: LatLngTuple): boolean {
 
-        const orientation = (p: [number, number], q: [number, number], r: [number, number]): number => {
+        const orientation = (p: LatLngTuple, q: LatLngTuple, r: LatLngTuple): number => {
             const val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]);
 
             // collinear
@@ -251,7 +253,7 @@ export class WazeManager {
             return (val > 0) ? 1 : -1;
         }
 
-        const onSegment = (p: [number, number], q: [number, number], r: [number, number]): boolean => {
+        const onSegment = (p: LatLngTuple, q: LatLngTuple, r: LatLngTuple): boolean => {
             return (q[0] <= Math.max(p[0], r[0]) && q[0] >= Math.min(p[0], r[0]) && q[1] <= Math.max(p[1], r[1]) &&
                 q[1] >= Math.min(p[1], r[1]));
         }
@@ -279,8 +281,8 @@ export class WazeManager {
         return o4 === 0 && onSegment(line2StartPoint, line1Endpoint, line2Endpoint);
     }
 
-    private calculateDistanceBetweenTwoLines(line1StartPoint: [number, number], line1Endpoint: [number, number],
-                                              line2StartPoint: [number, number], line2Endpoint: [number, number]): number {
+    private calculateDistanceBetweenTwoLines(line1StartPoint: LatLngTuple, line1Endpoint: LatLngTuple,
+                                              line2StartPoint: LatLngTuple, line2Endpoint: LatLngTuple): number {
 
         if (this.twoLinesIntersect(line1StartPoint, line1Endpoint, line2StartPoint, line2Endpoint)) {
             return 0
@@ -293,10 +295,10 @@ export class WazeManager {
         return Math.min(d1, d2, d3, d4)
     }
 
-    private linesHavesSimilarDirection(line1StartPoint: [number, number], line1Endpoint: [number, number],
-                                      line2StartPoint: [number, number], line2Endpoint: [number, number]): boolean {
-        const line1Vector: [number, number] = [line1Endpoint[0] - line1StartPoint[0], line1Endpoint[1] - line1StartPoint[1]];
-        const line2Vector: [number, number] = [line2Endpoint[0] - line2StartPoint[0], line2Endpoint[1] - line2StartPoint[1]];
+    private linesHavesSimilarDirection(line1StartPoint: LatLngTuple, line1Endpoint: LatLngTuple,
+                                      line2StartPoint: LatLngTuple, line2Endpoint: LatLngTuple): boolean {
+        const line1Vector: LatLngTuple = [line1Endpoint[0] - line1StartPoint[0], line1Endpoint[1] - line1StartPoint[1]];
+        const line2Vector: LatLngTuple = [line2Endpoint[0] - line2StartPoint[0], line2Endpoint[1] - line2StartPoint[1]];
 
         const vec1Length = Math.sqrt(line1Vector[0] * line1Vector[0] + line1Vector[1] * line1Vector[1]);
         const vec2Length = Math.sqrt(line2Vector[0] * line2Vector[0] + line2Vector[1] * line2Vector[1]);
@@ -314,7 +316,7 @@ export class WazeManager {
         for (const lineBoundingBoxPair of lineBoundingBoxesPairs) {
             const foundAlertIndices = this.alertIndex.range(lineBoundingBoxPair[2].minX, lineBoundingBoxPair[2].minY, lineBoundingBoxPair[2].maxX, lineBoundingBoxPair[2].maxY)
             for (const foundIndex of foundAlertIndices) {
-                const pointCoords: [number, number] = this.convertFromEpsg4326ToEpsg3857(this.wazeEvents.alerts[foundIndex].location.x, this.wazeEvents.alerts[foundIndex].location.y)
+                const pointCoords: LatLngTuple = this.convertFromEpsg4326ToEpsg3857(this.wazeEvents.alerts[foundIndex].location.x, this.wazeEvents.alerts[foundIndex].location.y)
                 const dist = this.calculateSquareDistanceBetweenPointAndLine(pointCoords, lineBoundingBoxPair[0], lineBoundingBoxPair[1])
                 if (dist <= WazeManager.SQUARED_DISTANCE_TOLERANCE) {
                     foundValidAlertIndices.push(foundIndex)
@@ -324,12 +326,12 @@ export class WazeManager {
         return foundValidAlertIndices;
     }
 
-    private findNearestJams(lineBoundingBoxesPairs: LineBoundingBoxPair[]): [Record<string, [number, number]>, Set<number>] {
+    private findNearestJams(lineBoundingBoxesPairs: LineBoundingBoxPair[]): [Record<string, LatLngTuple>, Set<number>] {
         if (!this.jamIndex) {
             return [{}, new Set<number>()]
         }
         const indicesToRemove = new Set<number>()
-        const foundJamIndices: Record<string, [number, number]> = {}
+        const foundJamIndices: Record<string, LatLngTuple> = {}
 
         for (const lineBoundingBoxPair of lineBoundingBoxesPairs) {
             const searchResult = this.jamIndex.search({...lineBoundingBoxPair[2]})
@@ -361,6 +363,7 @@ export class WazeManager {
             if (!wazeResponse.ok) {
                 return
             }
+            wazeLogger.info("Data from Waze fetched")
             const wazeResponseBody = (await wazeResponse.json()) as WazeEvents
 
             for (const jam of wazeResponseBody.jams) {
@@ -369,8 +372,7 @@ export class WazeManager {
             this.wazeEvents = wazeResponseBody
         }
         catch {
-            console.log("Unable to connect to Waze, trying again...")
-            setTimeout(this.fetchWazeData, 10000)
+            wazeLogger.warn("Unable to connect to Waze, trying again...")
         }
     }
 }
