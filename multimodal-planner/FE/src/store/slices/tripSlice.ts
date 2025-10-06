@@ -79,7 +79,6 @@ export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, {dis
             } : null
         }
     }
-    console.log(beTripRequest)
     const apiUrl = import.meta.env.VITE_BACKEND_URL;
     try {
         const response = await axios.post(`${apiUrl}/calculateTrips`, beTripRequest)
