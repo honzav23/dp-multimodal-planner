@@ -3,9 +3,30 @@ import pandas as pd
 import overpy
 import zipfile
 import os
+import logging
+import sys
+from datetime import datetime
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 processed = 0
+
+
+def get_logger_setup():
+    logger = logging.getLogger("getTransferStops.py")
+    logger.setLevel(logging.INFO)
+
+    handler = logging.StreamHandler(sys.stdout)
+
+    LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+    TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+    formatter = logging.Formatter(fmt=LOG_FORMAT, datefmt=TIME_FORMAT)
+    handler.setFormatter(formatter)
+
+    logger.propagate = False
+    logger.addHandler(handler)
+
+    return logger
 
 
 def get_GTFS_files():
@@ -49,14 +70,14 @@ def fetch_possible_transfer_stops():
 
     return result_df
 
-def find_nearest_parking_lot(row, length):
+def find_nearest_parking_lot(row, length, logger):
     '''
     Find the nearest parking lot for given transfer stop
     :param row: Transfer stop
     :param length: Total number of transfer stops (for printing progress)
     :return: 1 if parking lot is near the transfer stop, 0 if not
     '''
-    api = overpy.Overpass(url="https://overpass.private.coffee/api/interpreter")
+    api = overpy.Overpass(url="https://overpass-api.de/api/interpreter")
     result = api.query(f"""[out:json][timeout:25];
             node(around:500, {row['stop_lat']}, {row['stop_lon']});
             (
@@ -69,11 +90,11 @@ def find_nearest_parking_lot(row, length):
         """)
     global processed
     processed += 1
-    print(f"{processed}/{length} complete")
+    logger.info(f"{processed}/{length} complete")
 
     return "1" if len(result.ways) > 0 else "0"
 
-def get_available_parking_lots(transfer_stops_df):
+def get_available_parking_lots(transfer_stops_df, logger):
     '''
     Enrich the transfer stops with information about parking lots nearby
     and store this DataFrame to disk
@@ -83,9 +104,9 @@ def get_available_parking_lots(transfer_stops_df):
     transfer_stops_df["has_parking"] = "0"
     try:
         for i, row in transfer_stops_df.iterrows():
-            transfer_stops_df.at[i, 'has_parking'] = find_nearest_parking_lot(row, transfer_stops_len)
+            transfer_stops_df.at[i, 'has_parking'] = find_nearest_parking_lot(row, transfer_stops_len, logger)
     except:
-        pass
+        logger.warning("Error occurred while fetching parking lots, saving the results so far...")
     finally:
         transfer_stops_dir = os.path.join(script_dir, "..", "transferStops")
         transfer_stops_dir = os.path.normpath(transfer_stops_dir)
@@ -98,17 +119,18 @@ def get_available_parking_lots(transfer_stops_df):
 
 
 def main():
-    print("Getting GTFS...", end='')
+    logger = get_logger_setup()
+    logger.info("Getting GTFS...")
     get_GTFS_files()
-    print("Done")
+    logger.info("GTFS downloaded")
 
-    print("Fetching possible transfer stops... ", end='')
+    logger.info("Fetching possible transfer stops... ")
     transfer_stops_df = fetch_possible_transfer_stops()
-    print("Done")
+    logger.info(f"Found {len(transfer_stops_df)} possible transfer stops")
 
-    print("Getting available parking lots for transfer stops... ")
-    get_available_parking_lots(transfer_stops_df)
-    print("Done")
+    logger.info("Getting available parking lots for transfer stops... ")
+    get_available_parking_lots(transfer_stops_df, logger)
+    logger.info("Available parking lots fetched")
 
 if __name__ == "__main__":
     main()
