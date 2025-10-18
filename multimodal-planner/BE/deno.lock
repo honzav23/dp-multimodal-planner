@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@hono/hono@^4.9.9": "4.9.9",
+    "jsr:@hono/hono@^4.9.10": "4.9.10",
     "jsr:@logtape/logtape@^1.2.0-dev.344+834f24a9": "1.2.0-dev.344+834f24a9",
     "jsr:@std/assert@^1.0.14": "1.0.14",
     "jsr:@std/cli@1.0.22": "1.0.22",
@@ -18,8 +18,8 @@
     "npm:rbush@*": "4.0.1"
   },
   "jsr": {
-    "@hono/hono@4.9.9": {
-      "integrity": "1d716e97b71e91b852c70beb85c9d3b236393282c59d5e268b07cfd224a77318"
+    "@hono/hono@4.9.10": {
+      "integrity": "b416cf3bf42e33353e37ea13df409b08bd9a67fabc5fca630f76924fbadb01e5"
     },
     "@logtape/logtape@1.2.0-dev.344+834f24a9": {
       "integrity": "204222be0f94cd1b64a500e2dcdea22a1618a086fc531b054351e3cfa079c435"
@@ -526,7 +526,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@hono/hono@^4.9.9",
+      "jsr:@hono/hono@^4.9.10",
       "jsr:@logtape/logtape@^1.2.0-dev.344+834f24a9",
       "jsr:@std/assert@^1.0.14",
       "jsr:@std/cli@1.0.22",

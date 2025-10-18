@@ -77,7 +77,7 @@ def find_nearest_parking_lot(row, length, logger):
     :param length: Total number of transfer stops (for printing progress)
     :return: 1 if parking lot is near the transfer stop, 0 if not
     '''
-    api = overpy.Overpass(url="https://overpass-api.de/api/interpreter")
+    api = overpy.Overpass(url="https://overpass.osm.jp/api/interpreter")
     result = api.query(f"""[out:json][timeout:25];
             node(around:500, {row['stop_lat']}, {row['stop_lon']});
             (
