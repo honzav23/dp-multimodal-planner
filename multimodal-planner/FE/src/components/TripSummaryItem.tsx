@@ -48,8 +48,18 @@ function TripSummaryItem({ trip, tripIdx, tripsToShowLength }: TripSummaryItemPr
         return t('transfer.transferPlural')
     }
 
+    const handleTripItemClick = () => {
+        // Deselect the trip if it is already selected
+        if (selectedTrip !== null && selectedTrip.uuid === trip.uuid) {
+            dispatch(setSelectedTrip(null))
+        }
+        else {
+            dispatch(setSelectedTrip(trip))
+        }
+    }
+
     return (
-        <ListItem sx={{ backgroundColor: selectedTrip !== null && selectedTrip.uuid === trip.uuid ? '#bdbdbd' : 'inherit' }} onClick={() => dispatch(setSelectedTrip(trip))} dense divider={tripIdx !== tripsToShowLength - 1}>
+        <ListItem sx={{ backgroundColor: selectedTrip !== null && selectedTrip.uuid === trip.uuid ? '#bdbdbd' : 'inherit' }} onClick={handleTripItemClick} dense divider={tripIdx !== tripsToShowLength - 1}>
             <ListItemText
                 disableTypography
                 primary={
