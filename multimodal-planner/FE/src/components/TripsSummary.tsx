@@ -8,8 +8,6 @@
 import {
     List,
     Collapse,
-    IconButton,
-    Divider,
     Box,
     Tabs,
     Tab,
@@ -17,14 +15,10 @@ import {
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import {
     setSelectedTrip,
-    clearTrips,
     setShowOutboundTrips,
 } from "../store/slices/tripSlice";
 import { useEffect, useState, SyntheticEvent, useRef } from "react";
 import {
-    ArrowBack,
-    ZoomOutMap,
-    Minimize,
     EnergySavingsLeaf,
     Speed,
 } from "@mui/icons-material";
@@ -38,12 +32,7 @@ import { useTranslation } from "react-i18next";
 import { SortState, SortInfo } from "../types/SortState.ts";
 import styles from "../css/styles.module.css";
 
-interface TripSummaryProps {
-    minimize?: (origin: string) => void;
-    maximize?: (origin: string) => void;
-}
-
-function TripsSummary({ minimize, maximize }: TripSummaryProps) {
+function TripsSummary() {
     const isMobile = useIsMobile();
     const { outboundTrips, returnTrips } = useAppSelector(
         (state) => state.trip.tripResults
@@ -87,12 +76,11 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
         });
     }
 
-    // Whenever the trips are fetched, select by default the first one
+    // Whenever the trips are fetched, select by default the first one when in desktop view
     useEffect(() => {
         if (selectedTrip === null && !isMobile && outboundTrips.length > 0) {
             setTabValue("outbound");
             setShowOutboundTrips(true);
-            console.log(outboundTrips[0]);
             dispatch(setSelectedTrip(outboundTrips[0]));
         }
     }, [outboundTrips]);
@@ -105,43 +93,7 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
     }, [selectedTrip]);
 
     const showCollapse = selectedTrip !== null;
-    const [minimized, setMinimized] = useState(false);
     const { t } = useTranslation();
-
-    /**
-     * Minimize only if the function is defined
-     */
-    const conditionalMinimize = () => {
-        if (minimize) {
-            setMinimized(true);
-            minimize("summary");
-        }
-    };
-
-    /**
-     * Maximize only if the function is defined
-     */
-    const conditionalMaximize = () => {
-        if (maximize) {
-            setMinimized(false);
-            maximize("summary");
-        }
-    };
-
-    const backToTrips = () => {
-        setMinimized(false);
-        conditionalMaximize();
-
-        // Go from trip detail to trip summary
-        if (selectedTrip !== null) {
-            dispatch(setSelectedTrip(null));
-        }
-
-        // Go from trip summary to trip planning
-        else {
-            dispatch(clearTrips());
-        }
-    };
 
     const handleTabChange = (e: SyntheticEvent, val: string) => {
         dispatch(setSelectedTrip(null));
@@ -183,35 +135,6 @@ function TripsSummary({ minimize, maximize }: TripSummaryProps) {
 
     return (
         <>
-            {isMobile && (
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <IconButton
-                        color="primary"
-                        edge="end"
-                        onClick={backToTrips}
-                    >
-                        <ArrowBack />
-                    </IconButton>
-                    {minimized ? (
-                        <IconButton
-                            onClick={conditionalMaximize}
-                            color="primary"
-                            edge="start"
-                        >
-                            <ZoomOutMap />
-                        </IconButton>
-                    ) : (
-                        <IconButton
-                            onClick={conditionalMinimize}
-                            color="primary"
-                            edge="start"
-                        >
-                            <Minimize />
-                        </IconButton>
-                    )}
-                </Box>
-            )}
-            <Divider />
             <div
                 style={{
                     width: showCollapse ? "50%" : "100%",

@@ -1,6 +1,6 @@
 /**
  * @file App.tsx
- * @brief Main component of the application, contains all of the subcomponents either
+ * @brief Main component of the application, contains all the subcomponents either
  * in desktop or mobile view
  *
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
@@ -12,7 +12,6 @@ import { useAppSelector } from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 import "../i18n.ts";
 import useIsMobile from "./hooks/useIsMobile";
-import { useEffect } from "react";
 import MobileTripRequestForm from "./components/MobileViews/MobileTripRequestForm.tsx";
 import MobileTripsSummary from "./components/MobileViews/MobileTripSummary";
 import MapWrapper from "./components/MapWrapper.tsx";
@@ -20,43 +19,9 @@ import Sidebar from "./components/Sidebar.tsx";
 
 function App() {
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip);
-    const outboundTripsLength = useAppSelector(
-        (state) => state.trip.tripResults.outboundTrips.length
-    );
-    const { startInputFocused, endInputFocused } = useAppSelector(
-        (state) => state.focus
-    );
+    const showTripsSummary = useAppSelector((state) => state.trip.showTripsSummary)
     const showCollapse = selectedTrip !== null;
     const isMobile = useIsMobile();
-
-    useEffect(() => {
-        // Minimize the request form in mobile view when selecting a point
-        if (isMobile) {
-            if (startInputFocused || endInputFocused) {
-                minimize("form");
-            } else {
-                if (document.getElementById("form")) {
-                    maximize("form");
-                }
-            }
-        }
-    }, [startInputFocused, endInputFocused, isMobile]);
-
-    /**
-     * Minimize the content
-     * @param origin Element id to minimize
-     */
-    const minimize = (origin: string) => {
-        document.getElementById(origin)!.style.maxHeight = "5vh";
-    };
-
-    /**
-     * Maximize the content
-     * @param origin Element id to maximize
-     */
-    const maximize = (origin: string) => {
-        document.getElementById(origin)!.style.maxHeight = "60vh";
-    };
 
     return (
         <div style={{ position: "relative", width: "100%" }}>
@@ -95,7 +60,7 @@ function App() {
                 )}
 
                 {/* Mobile view for the trips summary */}
-                {outboundTripsLength > 0 &&
+                {showTripsSummary &&
                     (isMobile ? (
                         <MobileTripsSummary />
                     ) : (

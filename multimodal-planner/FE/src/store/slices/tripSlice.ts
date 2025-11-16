@@ -23,6 +23,7 @@ interface TripSliceState {
     isLoading: boolean;
     snackbarMessage: string;
     showOutboundTrips: boolean;
+    showTripsSummary: boolean;
     selectedTrip: TripResultWithIdConvertedRoute | null;
 }
 
@@ -45,6 +46,7 @@ const initialState: TripSliceState = {
         }
     },
     showOutboundTrips: true,
+    showTripsSummary: false,
     tripResults: {
         outboundTrips: [],
         returnTrips: [],
@@ -129,15 +131,7 @@ const tripSlice = createSlice({
             state.tripRequest.preferences.transferStop = action.payload;
         },
         setSelectedTrip(state, action: PayloadAction<TripResultWithIdConvertedRoute | null>) {
-            if (action.payload === null) {
-                state.selectedTrip = null
-            }
-            else if (state.selectedTrip !== null && action.payload.uuid === state.selectedTrip.uuid) {
-                state.selectedTrip = null
-            }
-            else {
-                state.selectedTrip = action.payload;
-            }
+            state.selectedTrip = action.payload;
         },
         setSelectedModeOfTransport(state, action: PayloadAction<TransportMode[] | null>) {
             if (action.payload === null) {
@@ -185,6 +179,9 @@ const tripSlice = createSlice({
         },
         setShowOutboundTrips(state, action: PayloadAction<boolean>) {
             state.showOutboundTrips = action.payload
+        },
+        setShowTripsSummary(state, action: PayloadAction<boolean>) {
+            state.showTripsSummary = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -193,7 +190,7 @@ const tripSlice = createSlice({
         })
         builder.addCase(getTrips.fulfilled,(state, action) => {
             state.isLoading = false;
-
+            state.showTripsSummary = true
             state.tripResults.outboundTrips = action.payload.outboundTrips.map((trip) => {
                 return {
                     ...trip,
@@ -221,6 +218,7 @@ const tripSlice = createSlice({
 export const { setStartCoords, setEndCoords, setDepartureDate,
             setDepartureTime, setTransferStop, setSelectedTrip,
             setSelectedModeOfTransport, setFindBestTrip, clearTrips, setPickupCoords, clearComingBackDateTime,
-            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips, setShowWazeEvents } = tripSlice.actions;
+            setComingBackTime, setComingBackDate, setUseOnlyPublicTransport, setShowOutboundTrips, setShowWazeEvents,
+            setShowTripsSummary } = tripSlice.actions;
 
 export default tripSlice.reducer;

@@ -35,6 +35,7 @@ import {
     initialCoords,
     setSelectedTrip,
     clearTrips,
+    setShowTripsSummary
 } from "../../store/slices/tripSlice.ts";
 import {
     clearStartAddress,
@@ -262,21 +263,22 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                 </h2>
                 {isMobile && (
                     <div style={{ display: "flex" }}>
-                        {!(startInputFocused || endInputFocused) && (
-                            <IconButton
-                                onClick={
-                                    minimized
-                                        ? conditionalMaximize
-                                        : conditionalMinimize
-                                }
-                                color="primary"
-                                edge="start"
-                            >
-                                {minimized ? <ZoomOutMap /> : <Minimize />}
-                            </IconButton>
-                        )}
+                        <IconButton
+                            sx={{
+                                visibility: !(startInputFocused || endInputFocused) ? "visible" : "hidden",
+                            }}
+                            onClick={
+                                minimized
+                                    ? conditionalMaximize
+                                    : conditionalMinimize
+                            }
+                            color="primary"
+                            edge="start"
+                        >
+                            {minimized ? <ZoomOutMap /> : <Minimize />}
+                        </IconButton>
                         {outboundTrips.length > 0 && (
-                            <IconButton>
+                            <IconButton onClick={() => dispatch(setShowTripsSummary(true))}>
                                 <ArrowForwardIcon color="primary" />
                             </IconButton>
                         )}

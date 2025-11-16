@@ -18,7 +18,13 @@ import { Marker, useMapEvents } from 'react-leaflet'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { getAddress } from '../store/slices/addressSlice';
 import { setFocus } from '../store/slices/inputsFocusSlice';
-import { setStartCoords, setEndCoords, setPickupCoords, clearTrips } from '../store/slices/tripSlice';
+import {
+  setStartCoords,
+  setEndCoords,
+  setPickupCoords,
+  clearTrips,
+  setShowTripsSummary
+} from '../store/slices/tripSlice';
 import { useRef } from 'react'
 
 function PositionSelection() {
@@ -71,6 +77,7 @@ function PositionSelection() {
    */
   const handleMarkerDrag = (origin: string) => {
     dispatch(clearTrips())
+    dispatch(setShowTripsSummary(false))
     if (origin === 'start' && startMarkerRef.current !== null) {
       const coords = startMarkerRef.current.getLatLng()
       const coordsTuple: LatLngTuple = [coords.lat, coords.lng]

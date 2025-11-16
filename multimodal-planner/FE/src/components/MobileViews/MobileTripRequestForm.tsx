@@ -1,15 +1,15 @@
 import { Box, Drawer } from "@mui/material";
 import TripRequestForm from "../Form/TripRequestForm.tsx";
 import { useAppSelector } from "../../store/hooks.ts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function MobileTripRequestForm() {
-    const outboundTrips = useAppSelector(
-        (state) => state.trip.tripResults.outboundTrips
-    );
+    const showTripsSummary = useAppSelector((state) => state.trip.showTripsSummary)
+    const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
+    const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
 
     const maximizeHeight = "60vh";
-    const minimizeHeight = "5vh";
+    const minimizeHeight = "36px";
 
     const [drawerMaxHeight, setDrawerMaxHeight] = useState(maximizeHeight);
 
@@ -21,8 +21,18 @@ function MobileTripRequestForm() {
         setDrawerMaxHeight(maximizeHeight);
     };
 
+    // Minimize the request form when choosing from the map and maximize when not choosing
+    useEffect(() => {
+        if (startInputFocused || endInputFocused) {
+            setDrawerMaxHeight(minimizeHeight);
+        }
+        else {
+            setDrawerMaxHeight(maximizeHeight);
+        }
+    }, [startInputFocused, endInputFocused]);
+
     return (
-        outboundTrips.length === 0 && (
+        !showTripsSummary && (
             <Drawer
                 sx={{ pointerEvents: "none" }}
                 open={true}
