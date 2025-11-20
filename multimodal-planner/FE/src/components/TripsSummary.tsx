@@ -5,23 +5,14 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {
-    List,
-    Collapse,
-    Box,
-    Tabs,
-    Tab,
-} from "@mui/material";
+import { List, Collapse, Box, Tabs, Tab } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import {
     setSelectedTrip,
     setShowOutboundTrips,
 } from "../store/slices/tripSlice";
 import { useEffect, useState, SyntheticEvent, useRef } from "react";
-import {
-    EnergySavingsLeaf,
-    Speed,
-} from "@mui/icons-material";
+import { EnergySavingsLeaf, Speed } from "@mui/icons-material";
 import TripDetail from "./TripDetail/TripDetail";
 import TripSummaryItem from "./TripSummaryItem";
 import SortIcon from "./SortIcon";
@@ -150,6 +141,7 @@ function TripsSummary() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-around",
+                        flexWrap: "wrap",
                     }}
                 >
                     <Tabs
@@ -161,12 +153,14 @@ function TripsSummary() {
                             className={styles.tab}
                             value="outbound"
                             label={t("outbound")}
+                            wrapped
                         />
                         <Tab
                             className={styles.tab}
                             value="return"
                             disabled={returnTrips.length === 0}
                             label={t("return")}
+                            wrapped
                         />
                     </Tabs>
 

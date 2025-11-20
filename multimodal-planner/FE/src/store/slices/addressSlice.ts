@@ -30,6 +30,12 @@ export const getAddress = createAsyncThunk('address/getAddress', async (params: 
     return {origin: params.origin, address: response.data.display_name}
 });
 
+export const getCoordinatesFromAddress = createAsyncThunk('address/getCoordinatesFromAddress', async (params: {address: string}) => {
+    const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(params.address)}`)
+    const coords: [number, number] = [parseFloat(response.data[0].lat), parseFloat(response.data[0].lon)];
+    return { coords };
+});
+
 const addressSlice = createSlice({
     name: 'address',
     initialState,

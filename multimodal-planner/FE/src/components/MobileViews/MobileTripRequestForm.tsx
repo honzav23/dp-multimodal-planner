@@ -4,9 +4,15 @@ import { useAppSelector } from "../../store/hooks.ts";
 import { useState, useEffect } from "react";
 
 function MobileTripRequestForm() {
-    const showTripsSummary = useAppSelector((state) => state.trip.showTripsSummary)
-    const startInputFocused = useAppSelector((state) => state.focus.startInputFocused)
-    const endInputFocused = useAppSelector((state) => state.focus.endInputFocused)
+    const showTripsSummary = useAppSelector(
+        (state) => state.trip.showTripsSummary
+    );
+    const startInputFocused = useAppSelector(
+        (state) => state.focus.startInputFocused
+    );
+    const endInputFocused = useAppSelector(
+        (state) => state.focus.endInputFocused
+    );
 
     const maximizeHeight = "60vh";
     const minimizeHeight = "36px";
@@ -25,8 +31,7 @@ function MobileTripRequestForm() {
     useEffect(() => {
         if (startInputFocused || endInputFocused) {
             setDrawerMaxHeight(minimizeHeight);
-        }
-        else {
+        } else {
             setDrawerMaxHeight(maximizeHeight);
         }
     }, [startInputFocused, endInputFocused]);
@@ -48,7 +53,6 @@ function MobileTripRequestForm() {
                 hideBackdrop
             >
                 <Box
-                    id="form"
                     sx={{
                         pointerEvents: "auto",
                         display: "flex",

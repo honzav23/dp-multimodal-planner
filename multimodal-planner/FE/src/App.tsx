@@ -19,7 +19,9 @@ import Sidebar from "./components/Sidebar.tsx";
 
 function App() {
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip);
-    const showTripsSummary = useAppSelector((state) => state.trip.showTripsSummary)
+    const showTripsSummary = useAppSelector(
+        (state) => state.trip.showTripsSummary
+    );
     const showCollapse = selectedTrip !== null;
     const isMobile = useIsMobile();
 
@@ -29,7 +31,7 @@ function App() {
                 style={{
                     height: "90vh",
                     minWidth: isMobile ? "auto" : "700px", // 700 px is approximately 36 % of full hd width
-                    width: "36%",
+                    width: "40%",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",

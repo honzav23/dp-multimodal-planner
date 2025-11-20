@@ -1,8 +1,10 @@
 {
     "form": {
         "plan": "Plánování trasy",
-        "start": "Zvolte počátek kliknutím do mapy",
-        "end": "Zvolte cíl kliknutím do mapy",
+        "start": "Zadejte počáteční bod",
+        "end": "Zadejte cílový bod",
+        "startFromMap": "Vyberte počáteční bod z mapy",
+        "endFromMap": "Vyberte cílový bod z mapy",
         "departureDate": "Datum odjezdu",
         "departureTime": "Čas odjezdu",
         "show": "Ukázat trasy",

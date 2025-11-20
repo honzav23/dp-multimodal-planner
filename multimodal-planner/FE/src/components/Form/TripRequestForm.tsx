@@ -15,6 +15,7 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 import {
     Close,
@@ -35,11 +36,13 @@ import {
     initialCoords,
     setSelectedTrip,
     clearTrips,
-    setShowTripsSummary
+    setShowTripsSummary,
 } from "../../store/slices/tripSlice.ts";
 import {
     clearStartAddress,
     clearEndAddress,
+    setStartAddress,
+    setEndAddress,
 } from "../../store/slices/addressSlice.ts";
 import { useEffect, useState, type KeyboardEvent } from "react";
 import dayjs, { Dayjs } from "dayjs";
@@ -50,10 +53,12 @@ import useIsMobile from "../../hooks/useIsMobile.ts";
 import { useSwapAddresses } from "../../hooks/useSwapAddress.ts";
 import useDateError from "../../hooks/useDateError.ts";
 import useTimeError from "../../hooks/useTimeError.ts";
+import { getCoordinatesFromAddress } from "../../store/slices/addressSlice.ts";
+import { useDebouncedCallback } from "use-debounce";
 
 interface TripRequestFormProps {
-    minimize?: (origin: string) => void;
-    maximize?: (origin: string) => void;
+    minimize?: () => void;
+    maximize?: () => void;
 }
 
 export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
@@ -148,6 +153,34 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
         }
     };
 
+    const debouncedNominatimSearch = useDebouncedCallback(
+        async (value: string, origin: "start" | "end") => {
+            const trimmedValue = value.trim();
+            if (trimmedValue.length === 0) {
+                return;
+            }
+            const coordinates = await dispatch(
+                getCoordinatesFromAddress({ address: value })
+            ).unwrap();
+            if (origin === "start") {
+                dispatch(setStartCoords(coordinates.coords));
+            } else {
+                dispatch(setEndCoords(coordinates.coords));
+            }
+        },
+        1000
+    );
+
+    const handleInputChange = (value: string, origin: "start" | "end") => {
+        if (origin === "start") {
+            dispatch(setStartAddress(value));
+            debouncedNominatimSearch(value, "start");
+        } else {
+            dispatch(setEndAddress(value));
+            debouncedNominatimSearch(value, "end");
+        }
+    };
+
     /**
      * Changes the cursor style based on the input focus
      */
@@ -170,6 +203,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
      * @param origin - The origin of the input field
      */
     const clearInput = (origin: string) => {
+        dispatch(setShowTripsSummary(false));
         if (origin === "start") {
             dispatch(setStartCoords(initialCoords));
             dispatch(clearStartAddress());
@@ -197,7 +231,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const conditionalMinimize = () => {
         if (minimize) {
             setMinimized(true);
-            minimize("form");
+            minimize();
         }
     };
 
@@ -207,7 +241,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const conditionalMaximize = () => {
         if (maximize) {
             setMinimized(false);
-            maximize("form");
+            maximize();
         }
     };
 
@@ -265,7 +299,11 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                     <div style={{ display: "flex" }}>
                         <IconButton
                             sx={{
-                                visibility: !(startInputFocused || endInputFocused) ? "visible" : "hidden",
+                                visibility: !(
+                                    startInputFocused || endInputFocused
+                                )
+                                    ? "visible"
+                                    : "hidden",
                             }}
                             onClick={
                                 minimized
@@ -278,7 +316,11 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                             {minimized ? <ZoomOutMap /> : <Minimize />}
                         </IconButton>
                         {outboundTrips.length > 0 && (
-                            <IconButton onClick={() => dispatch(setShowTripsSummary(true))}>
+                            <IconButton
+                                onClick={() =>
+                                    dispatch(setShowTripsSummary(true))
+                                }
+                            >
                                 <ArrowForwardIcon color="primary" />
                             </IconButton>
                         )}
@@ -292,27 +334,47 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                 slotProps={{
                     input: {
                         endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    edge="end"
-                                    onClick={() => clearInput("start")}
-                                >
-                                    <Close />
-                                </IconButton>
-                            </InputAdornment>
+                            <div style={{ display: "flex" }}>
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        edge="end"
+                                        onClick={() => clearInput("start")}
+                                    >
+                                        <Close />
+                                    </IconButton>
+                                </InputAdornment>
+
+                                <InputAdornment position="end">
+                                    <Tooltip
+                                        placement="right"
+                                        title={t("form.startFromMap")}
+                                    >
+                                        <IconButton
+                                            onClick={() =>
+                                                dispatch(
+                                                    setFocus({
+                                                        origin: "start",
+                                                        focused: true,
+                                                    })
+                                                )
+                                            }
+                                            edge="end"
+                                        >
+                                            <LocationOnIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </InputAdornment>
+                            </div>
                         ),
-                    },
-                    htmlInput: {
-                        readOnly: true,
                     },
                 }}
                 size="small"
+                onChange={(e) => {
+                    handleInputChange(e.target.value, "start");
+                }}
                 value={startInputValue}
                 placeholder={t("form.start")}
                 type="text"
-                onFocus={() =>
-                    dispatch(setFocus({ origin: "start", focused: true }))
-                }
             />
             <Tooltip placement="right" title={t("form.switch")}>
                 <IconButton
@@ -330,27 +392,46 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                 slotProps={{
                     input: {
                         endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    edge="end"
-                                    onClick={() => clearInput("end")}
-                                >
-                                    <Close />
-                                </IconButton>
-                            </InputAdornment>
+                            <div style={{ display: "flex" }}>
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        edge="end"
+                                        onClick={() => clearInput("end")}
+                                    >
+                                        <Close />
+                                    </IconButton>
+                                </InputAdornment>
+                                <InputAdornment position="end">
+                                    <Tooltip
+                                        placement="right"
+                                        title={t("form.endFromMap")}
+                                    >
+                                        <IconButton
+                                            edge="end"
+                                            onClick={() =>
+                                                dispatch(
+                                                    setFocus({
+                                                        origin: "end",
+                                                        focused: true,
+                                                    })
+                                                )
+                                            }
+                                        >
+                                            <LocationOnIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </InputAdornment>
+                            </div>
                         ),
-                    },
-                    htmlInput: {
-                        readOnly: true,
                     },
                 }}
                 size="small"
+                onChange={(e) => {
+                    handleInputChange(e.target.value, "end");
+                }}
                 value={endInputValue}
                 placeholder={t("form.end")}
                 type="text"
-                onFocus={() =>
-                    dispatch(setFocus({ origin: "end", focused: true }))
-                }
             />
 
             <div style={{ display: "flex", gap: "10px" }}>

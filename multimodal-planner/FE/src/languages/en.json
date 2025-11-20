@@ -1,8 +1,10 @@
 {
     "form": {
         "plan": "Plan a trip",
-        "start": "Select origin from the map",
-        "end": "Select destination from the map",
+        "start": "Enter starting point",
+        "end": "Enter destination",
+        "startFromMap": "Select starting point from map",
+        "endFromMap": "Select destination from map",
         "departureDate": "Departure date",
         "departureTime": "Departure time",
         "show": "Show trips",
