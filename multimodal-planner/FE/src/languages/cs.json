@@ -5,6 +5,7 @@
         "end": "Zadejte cílový bod",
         "startFromMap": "Vyberte počáteční bod z mapy",
         "endFromMap": "Vyberte cílový bod z mapy",
+        "pickupFromMap": "Vyberte bod vyzvednutí z mapy",
         "departureDate": "Datum odjezdu",
         "departureTime": "Čas odjezdu",
         "show": "Ukázat trasy",
@@ -21,7 +22,9 @@
         "parkingLotError": "Nepodařilo se načíst parkoviště",
         "noTripsFound": "Nebyla nalezena žádná vhodná trasa",
         "noReturnTripsFound": "Nebyly nalezeny cesty zpět",
-        "noParkingLotsFound": "Žádná parkoviště v okolí"
+        "noParkingLotsFound": "Žádná parkoviště v okolí",
+        "coordinatesError": "Nepodařilo se načíst souřadnice",
+        "addressNotFound": "Zadaná adresa neexistuje"
     },
     "preferences": {
         "headline": "Rozšířená nastavení",

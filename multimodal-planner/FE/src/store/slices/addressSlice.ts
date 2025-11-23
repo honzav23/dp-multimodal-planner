@@ -5,35 +5,52 @@
  * 
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import axios from 'axios';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { LatLngTuple } from 'leaflet';
+import {LatLngTuple} from 'leaflet';
+import {openErrorSnackbar} from "./snackbarSlice.ts";
+import {ResultStatus} from "../../../../types/ResultStatus.ts";
+import {InputLocation} from '../../types/FormTripRequest.ts'
 
 interface AddressState {
-    startAddress: string | null;
-    endAddress: string | null;
-    pickupAddress: string | null
+    startAddress: string;
+    startAddressError: ResultStatus
+    endAddress: string;
+    endAddressError: ResultStatus
+    pickupAddress: string
+    pickupAddressError: ResultStatus
 }
 
 const initialState: AddressState = {
-    startAddress: null,
-    endAddress: null,
-    pickupAddress: null
+    startAddress: '',
+    startAddressError: { error: false, message: '' },
+    endAddress: '',
+    endAddressError: { error: false, message: '' },
+    pickupAddress: '',
+    pickupAddressError: { error: false, message: '' }
 };
 
 /**
  * Fetches the address of the given coordinates
  */
-export const getAddress = createAsyncThunk('address/getAddress', async (params: {origin: string, coords: LatLngTuple}) => {
+export const getAddress = createAsyncThunk('address/getAddress', async (params: {origin: InputLocation, coords: LatLngTuple}) => {
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${params.coords[0]}&lon=${params.coords[1]}`)
-    return {origin: params.origin, address: response.data.display_name}
+    return {address: response.data.display_name}
 });
 
-export const getCoordinatesFromAddress = createAsyncThunk('address/getCoordinatesFromAddress', async (params: {address: string}) => {
-    const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(params.address)}`)
-    const coords: [number, number] = [parseFloat(response.data[0].lat), parseFloat(response.data[0].lon)];
-    return { coords };
+export const getCoordinatesFromAddress = createAsyncThunk('address/getCoordinatesFromAddress', async (params: {address: string}, { dispatch }) => {
+    try {
+        const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(params.address)}`)
+        if (response.data.length === 0) {
+            return []
+        }
+        const coords = [parseFloat(response.data[0].lat), parseFloat(response.data[0].lon)];
+        return coords;
+    }
+    catch {
+        dispatch(openErrorSnackbar("coordinatesError"))
+        return []
+    }
 });
 
 const addressSlice = createSlice({
@@ -41,47 +58,76 @@ const addressSlice = createSlice({
     initialState,
     reducers: {
         clearStartAddress(state) {
-            state.startAddress = null;
+            state.startAddress = '';
         },
         clearEndAddress(state) {
-            state.endAddress = null;
+            state.endAddress = '';
         },
         clearPickupAddress(state) {
-            state.pickupAddress = null
+            state.pickupAddress = ''
         },
         setStartAddress(state, action: PayloadAction<string>) {
             state.startAddress = action.payload
         },
+        setPickupAddress(state, action: PayloadAction<string>) {
+            state.pickupAddress = action.payload
+        },
         setEndAddress(state, action: PayloadAction<string>) {
             state.endAddress = action.payload
-        }
+        },
+        setAddressError(state, action: PayloadAction<{ message: string, origin: InputLocation }>) {
+            const errorObject: ResultStatus = { error: true, message: action.payload.message }
+            if (action.payload.origin === InputLocation.START) {
+                state.startAddressError = errorObject
+            }
+            else if (action.payload.origin === InputLocation.END) {
+                state.endAddressError = errorObject
+            }
+            else {
+                state.pickupAddressError = errorObject
+            }
+        },
+        clearAddressError(state, action: PayloadAction<InputLocation>) {
+            const errorObject: ResultStatus = { error: false, message: '' }
+            if (action.payload === InputLocation.START) {
+                state.startAddressError = errorObject
+            }
+            else if (action.payload === InputLocation.PICKUP) {
+                state.pickupAddressError = errorObject
+            }
+            else {
+                state.endAddressError = errorObject
+            }
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(getAddress.rejected, (state, action) => {
-            if (action.meta.arg.origin === 'start') {
-                state.startAddress = '';
+            const coordsToString = `${action.meta.arg.coords[0].toFixed(5)} ${action.meta.arg.coords[1].toFixed(5)}`
+            if (action.meta.arg.origin === InputLocation.START) {
+                state.startAddress = coordsToString;
             }
-            else if (action.meta.arg.origin === 'pickup') {
-                state.pickupAddress = ''
+            else if (action.meta.arg.origin === InputLocation.PICKUP) {
+                state.pickupAddress = coordsToString
             }
-            else if (action.meta.arg.origin === 'end') {
-                state.endAddress = '';
+            else {
+                state.endAddress = coordsToString;
             }
         })
         .addCase(getAddress.fulfilled, (state, action) => {
-            if (action.payload.origin === 'start')  {
+            if (action.meta.arg.origin === InputLocation.START)  {
                 state.startAddress = action.payload.address;
             }
-            else if (action.meta.arg.origin === 'pickup') {
+            else if (action.meta.arg.origin === InputLocation.PICKUP) {
                 state.pickupAddress = action.payload.address
             }
-            else if (action.meta.arg.origin === 'end') {
+            else {
                 state.endAddress = action.payload.address;
             }
-        });
+        })
     }
 });
 
-export const { clearStartAddress, clearEndAddress, clearPickupAddress, setStartAddress, setEndAddress } = addressSlice.actions;
+export const { clearStartAddress, clearEndAddress, clearPickupAddress, setStartAddress, setPickupAddress, setEndAddress,
+    setAddressError, clearAddressError } = addressSlice.actions;
 
 export default addressSlice.reducer;

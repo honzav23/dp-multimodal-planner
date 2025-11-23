@@ -5,56 +5,47 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {
-    TextField,
-    InputAdornment,
-    IconButton,
-    Button,
-    Tooltip,
-} from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import {Button, IconButton, InputAdornment, TextField, Tooltip,} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import {TimePicker} from "@mui/x-date-pickers/TimePicker";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-import {
-    Close,
-    Minimize,
-    SwapVert,
-    Tune,
-    ZoomOutMap,
-} from "@mui/icons-material";
+import {Close, Minimize, SwapVert, Tune, ZoomOutMap,} from "@mui/icons-material";
 
-import { useAppSelector, useAppDispatch } from "../../store/hooks.ts";
-import { setFocus } from "../../store/slices/inputsFocusSlice.ts";
+import {useAppDispatch, useAppSelector} from "../../store/hooks.ts";
+import {setFocus} from "../../store/slices/inputsFocusSlice.ts";
 import {
-    setStartCoords,
-    setEndCoords,
-    setDepartureDate,
-    setDepartureTime,
+    clearTrips,
     getTrips,
     initialCoords,
+    setDepartureDate,
+    setDepartureTime,
+    setEndCoords,
     setSelectedTrip,
-    clearTrips,
     setShowTripsSummary,
+    setStartCoords,
 } from "../../store/slices/tripSlice.ts";
 import {
-    clearStartAddress,
+    clearAddressError,
     clearEndAddress,
-    setStartAddress,
+    clearStartAddress,
     setEndAddress,
+    setStartAddress,
 } from "../../store/slices/addressSlice.ts";
-import { useEffect, useState, type KeyboardEvent } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import { textFieldBackround } from "../../css/inputStyles.ts";
+import {type KeyboardEvent, useEffect, useState} from "react";
+import dayjs, {Dayjs} from "dayjs";
 import AdditionalPreferences from "./AdditionalPreferences.tsx";
 
-import { useTranslation } from "react-i18next";
+import {useTranslation} from "react-i18next";
 import useIsMobile from "../../hooks/useIsMobile.ts";
-import { useSwapAddresses } from "../../hooks/useSwapAddress.ts";
+import {useSwapAddresses} from "../../hooks/useSwapAddress.ts";
 import useDateError from "../../hooks/useDateError.ts";
 import useTimeError from "../../hooks/useTimeError.ts";
-import { getCoordinatesFromAddress } from "../../store/slices/addressSlice.ts";
-import { useDebouncedCallback } from "use-debounce";
+import {useDebouncedCallback} from "use-debounce";
+import {InputLocation} from "../../types/FormTripRequest.ts";
+import { useAddressCoords } from "../../hooks/useAddressCoords.ts";
 
 interface TripRequestFormProps {
     minimize?: () => void;
@@ -65,16 +56,10 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const { startInputFocused, endInputFocused, pickupInputFocused } =
         useAppSelector((state) => state.focus);
 
-    const { startAddress, endAddress } = useAppSelector(
+    const { startAddress, endAddress, startAddressError, endAddressError, pickupAddressError } = useAppSelector(
         (state) => state.address
     );
 
-    const startCoords = useAppSelector(
-        (state) => state.trip.tripRequest.origin
-    );
-    const endCoords = useAppSelector(
-        (state) => state.trip.tripRequest.destination
-    );
     const outboundTrips = useAppSelector(
         (state) => state.trip.tripResults.outboundTrips
     );
@@ -82,23 +67,11 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
     const isMobile = useIsMobile();
     const swapOriginAndDestination = useSwapAddresses();
+    const getAddressCoords = useAddressCoords()
     const [minimized, setMinimized] = useState(false);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const { t } = useTranslation();
-
-    const startInputValue =
-        startAddress === null
-            ? ""
-            : startAddress === ""
-            ? `${startCoords[0].toFixed(5)} ${startCoords[1].toFixed(5)}`
-            : startAddress;
-    const endInputValue =
-        endAddress === null
-            ? ""
-            : endAddress === ""
-            ? `${endCoords[0].toFixed(5)} ${endCoords[1].toFixed(5)}`
-            : endAddress;
 
     const [dateError, setDateError, handleDateError] = useDateError();
     const [timeError, setTimeError, handleTimeError] = useTimeError();
@@ -106,8 +79,11 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const [comingBackTimeValid, setComingBackTimeValid] = useState(true);
 
     const formValid =
-        startAddress !== null &&
-        endAddress !== null &&
+        startAddress !== '' &&
+        endAddress !== '' &&
+        !startAddressError.error &&
+        !endAddressError.error &&
+        !pickupAddressError.error &&
         !dateError.error &&
         !timeError.error &&
         comingBackDateValid &&
@@ -154,31 +130,32 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     };
 
     const debouncedNominatimSearch = useDebouncedCallback(
-        async (value: string, origin: "start" | "end") => {
-            const trimmedValue = value.trim();
-            if (trimmedValue.length === 0) {
+        async (value: string, origin: InputLocation) => {
+            const coordinates = await getAddressCoords(value, origin)
+            if (coordinates.length === 0) {
                 return;
             }
-            const coordinates = await dispatch(
-                getCoordinatesFromAddress({ address: value })
-            ).unwrap();
-            if (origin === "start") {
-                dispatch(setStartCoords(coordinates.coords));
+            if (origin === InputLocation.START) {
+                dispatch(setStartCoords([coordinates[0], coordinates[1]]));
             } else {
-                dispatch(setEndCoords(coordinates.coords));
+                dispatch(setEndCoords([coordinates[0], coordinates[1]]));
             }
         },
         1000
     );
 
-    const handleInputChange = (value: string, origin: "start" | "end") => {
-        if (origin === "start") {
+    const handleInputChange = (value: string, origin: InputLocation) => {
+        if (origin === InputLocation.START) {
             dispatch(setStartAddress(value));
-            debouncedNominatimSearch(value, "start");
-        } else {
-            dispatch(setEndAddress(value));
-            debouncedNominatimSearch(value, "end");
         }
+        else {
+            dispatch(setEndAddress(value))
+        }
+        if (value === '') {
+            dispatch(clearAddressError(origin));
+            return
+        }
+        debouncedNominatimSearch(value, origin);
     };
 
     /**
@@ -202,9 +179,10 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
      * Clears the input field and the address
      * @param origin - The origin of the input field
      */
-    const clearInput = (origin: string) => {
+    const clearInput = (origin: InputLocation) => {
         dispatch(setShowTripsSummary(false));
-        if (origin === "start") {
+        dispatch(clearAddressError(origin))
+        if (origin === InputLocation.START) {
             dispatch(setStartCoords(initialCoords));
             dispatch(clearStartAddress());
         } else {
@@ -330,7 +308,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
             {/* Start point text field */}
             <TextField
-                style={{ backgroundColor: "white" }}
+                sx={textFieldBackround}
                 slotProps={{
                     input: {
                         endAdornment: (
@@ -338,7 +316,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                 <InputAdornment position="end">
                                     <IconButton
                                         edge="end"
-                                        onClick={() => clearInput("start")}
+                                        onClick={() => clearInput(InputLocation.START)}
                                     >
                                         <Close />
                                     </IconButton>
@@ -353,7 +331,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                             onClick={() =>
                                                 dispatch(
                                                     setFocus({
-                                                        origin: "start",
+                                                        origin: InputLocation.START,
                                                         focused: true,
                                                     })
                                                 )
@@ -369,10 +347,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                     },
                 }}
                 size="small"
+                error={startAddressError.error}
+                helperText={startAddressError.message}
                 onChange={(e) => {
-                    handleInputChange(e.target.value, "start");
+                    handleInputChange(e.target.value, InputLocation.START);
                 }}
-                value={startInputValue}
+                value={startAddress}
                 placeholder={t("form.start")}
                 type="text"
             />
@@ -388,7 +368,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
             {/* End point text field */}
             <TextField
-                sx={{ backgroundColor: "white", mb: 2 }}
+                sx={{ mb: 2, ...textFieldBackround }}
                 slotProps={{
                     input: {
                         endAdornment: (
@@ -396,7 +376,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                 <InputAdornment position="end">
                                     <IconButton
                                         edge="end"
-                                        onClick={() => clearInput("end")}
+                                        onClick={() => clearInput(InputLocation.END)}
                                     >
                                         <Close />
                                     </IconButton>
@@ -411,7 +391,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                             onClick={() =>
                                                 dispatch(
                                                     setFocus({
-                                                        origin: "end",
+                                                        origin: InputLocation.END,
                                                         focused: true,
                                                     })
                                                 )
@@ -426,10 +406,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                     },
                 }}
                 size="small"
+                error={endAddressError.error}
+                helperText={endAddressError.message}
                 onChange={(e) => {
-                    handleInputChange(e.target.value, "end");
+                    handleInputChange(e.target.value, InputLocation.END);
                 }}
-                value={endInputValue}
+                value={endAddress}
                 placeholder={t("form.end")}
                 type="text"
             />

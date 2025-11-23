@@ -96,10 +96,14 @@ export const getTrips = createAsyncThunk('tripRequest/getRoutes', async (_, {dis
         else if (returnTripsNotFound) {
             dispatch(openWarningSnackbar('noReturnTripsFound'))
         }
+        else {
+            dispatch(setShowTripsSummary(true))
+        }
         return data
     }
 
     catch {
+        dispatch(setShowTripsSummary(false))
         dispatch(openErrorSnackbar('tripError'))
         return { outboundTrips: [], returnTrips: [] }
     }
@@ -145,6 +149,7 @@ const tripSlice = createSlice({
             state.tripRequest.preferences.findBestTrip = action.payload
         },
         clearTrips(state) {
+            state.showTripsSummary = false
             state.tripResults.outboundTrips = []
             state.tripResults.returnTrips = []
             state.selectedTrip = null
@@ -190,7 +195,6 @@ const tripSlice = createSlice({
         })
         builder.addCase(getTrips.fulfilled,(state, action) => {
             state.isLoading = false;
-            state.showTripsSummary = true
             state.tripResults.outboundTrips = action.payload.outboundTrips.map((trip) => {
                 return {
                     ...trip,
@@ -208,9 +212,6 @@ const tripSlice = createSlice({
                     }),
                 }
             })
-        })
-        builder.addCase(getTrips.rejected, (state) => {
-            state.isLoading = false;
         })
     }
 });

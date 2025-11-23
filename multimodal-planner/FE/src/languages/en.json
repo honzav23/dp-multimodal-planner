@@ -5,6 +5,7 @@
         "end": "Enter destination",
         "startFromMap": "Select starting point from map",
         "endFromMap": "Select destination from map",
+        "pickupFromMap": "Select pickup point from map",
         "departureDate": "Departure date",
         "departureTime": "Departure time",
         "show": "Show trips",
@@ -21,7 +22,9 @@
         "parkingLotError": "Unable to fetch parking lots",
         "noTripsFound": "No suitable trips were found",
         "noReturnTripsFound": "No return trips were found",
-        "noParkingLotsFound": "No parking lots nearby"
+        "noParkingLotsFound": "No parking lots nearby",
+        "coordinatesError": "Unable to fetch coordinates",
+        "addressNotFound": "Provided address doesn't exist"
     },
     "preferences": {
         "headline": "Additional preferences",

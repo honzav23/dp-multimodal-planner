@@ -10,3 +10,9 @@ import type { TripRequest, TripPreferences } from "../../../types/TripRequest";
 export type FormTripRequest = Omit<TripRequest, "departureDateTime" | "preferences"> & { departureDate: string, departureTime: string, preferences: FormTripPreferences };
 
 type FormTripPreferences = Omit<TripPreferences, "comingBack"> & { comingBack: { returnDate: string, returnTime: string } | null }
+
+export enum InputLocation {
+    START,
+    PICKUP,
+    END
+}

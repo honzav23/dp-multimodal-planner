@@ -5,7 +5,8 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {InputLocation} from '../../types/FormTripRequest.ts'
 
 interface FocusState {
     startInputFocused: boolean;
@@ -23,26 +24,26 @@ const inputFocusSlice = createSlice({
     name: 'focus',
     initialState,
     reducers: {
-        setFocus(state, action: PayloadAction<{origin: string, focused: boolean}>) {
-            if (action.payload.origin === 'start') {
+        setFocus(state, action: PayloadAction<{origin: InputLocation, focused: boolean}>) {
+            if (action.payload.origin === InputLocation.START) {
                 state.startInputFocused = action.payload.focused;
             }
-            else if (action.payload.origin === 'pickup') {
+            else if (action.payload.origin === InputLocation.PICKUP) {
                 state.pickupInputFocused = action.payload.focused;
             }
-            else if (action.payload.origin === 'end') {
+            else {
                 state.endInputFocused = action.payload.focused;
             }
 
-            if (state.startInputFocused && action.payload.origin === "start") {
+            if (state.startInputFocused && action.payload.origin === InputLocation.START) {
                 state.endInputFocused = false
                 state.pickupInputFocused = false
             }
-            else if (state.pickupInputFocused && action.payload.origin === "pickup") {
+            else if (state.pickupInputFocused && action.payload.origin === InputLocation.PICKUP) {
                 state.startInputFocused = false
                 state.endInputFocused = false
             }
-            else if (state.endInputFocused && action.payload.origin === "end") {
+            else if (state.endInputFocused && action.payload.origin === InputLocation.END) {
                 state.startInputFocused = false
                 state.pickupInputFocused = false
             }
