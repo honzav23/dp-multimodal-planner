@@ -5,7 +5,7 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { TransferStop } from '../../../../types/TransferStop';
 import {ParkingLot} from "../../../../types/ParkingLot.ts";
@@ -16,6 +16,7 @@ interface TransferStopState {
     selectedTransferStop: TransferStop | null;
     parkingLots: ParkingLot[]
     parkingLotsLoading: boolean;
+    transferStopsFetched: boolean;
 }
 
 const initialState: TransferStopState = {
@@ -23,6 +24,7 @@ const initialState: TransferStopState = {
     selectedTransferStop: null,
     parkingLots: [],
     parkingLotsLoading: false,
+    transferStopsFetched: false,
 };
 
 /**
@@ -47,10 +49,15 @@ export const getTransferStops = createAsyncThunk(
 const transferStopSlice = createSlice({
     name: 'transferStops',
     initialState,
-    reducers: {},
+    reducers: {
+        setTransferStopsFetched(state, action: PayloadAction<boolean>) {
+            state.transferStopsFetched = action.payload;
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(getTransferStops.fulfilled, (state, action) => {
                 state.transferStops = action.payload;
+                state.transferStopsFetched = true;
         })
     },
 });

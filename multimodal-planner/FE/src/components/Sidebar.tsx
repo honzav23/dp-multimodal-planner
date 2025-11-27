@@ -1,7 +1,7 @@
 import { Box, IconButton, MenuItem, Select, Tooltip } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { SelectChangeEvent } from "@mui/material/Select/Select";
-import AboutApp from "../components/AboutApp";
+import AboutApp from "./AboutApp/AboutApp";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { availableLanguages } from "../../i18n";

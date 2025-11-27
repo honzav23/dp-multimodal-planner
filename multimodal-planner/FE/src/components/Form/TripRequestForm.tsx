@@ -5,16 +5,28 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {Button, IconButton, InputAdornment, TextField, Tooltip,} from "@mui/material";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
-import {TimePicker} from "@mui/x-date-pickers/TimePicker";
+import {
+    Button,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Tooltip,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-import {Close, Minimize, SwapVert, Tune, ZoomOutMap,} from "@mui/icons-material";
+import {
+    Close,
+    Minimize,
+    SwapVert,
+    Tune,
+    ZoomOutMap,
+} from "@mui/icons-material";
 
-import {useAppDispatch, useAppSelector} from "../../store/hooks.ts";
-import {setFocus} from "../../store/slices/inputsFocusSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../store/hooks.ts";
+import { setFocus } from "../../store/slices/inputsFocusSlice.ts";
 import {
     clearTrips,
     getTrips,
@@ -33,18 +45,18 @@ import {
     setEndAddress,
     setStartAddress,
 } from "../../store/slices/addressSlice.ts";
-import { textFieldBackround } from "../../css/inputStyles.ts";
-import {type KeyboardEvent, useEffect, useState} from "react";
-import dayjs, {Dayjs} from "dayjs";
+import { pickerBackround, textFieldBackround } from "../../css/inputStyles.ts";
+import { type KeyboardEvent, useEffect, useState } from "react";
+import dayjs, { Dayjs } from "dayjs";
 import AdditionalPreferences from "./AdditionalPreferences.tsx";
 
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import useIsMobile from "../../hooks/useIsMobile.ts";
-import {useSwapAddresses} from "../../hooks/useSwapAddress.ts";
+import { useSwapAddresses } from "../../hooks/useSwapAddress.ts";
 import useDateError from "../../hooks/useDateError.ts";
 import useTimeError from "../../hooks/useTimeError.ts";
-import {useDebouncedCallback} from "use-debounce";
-import {InputLocation} from "../../types/FormTripRequest.ts";
+import { useDebouncedCallback } from "use-debounce";
+import { InputLocation } from "../../types/FormTripRequest.ts";
 import { useAddressCoords } from "../../hooks/useAddressCoords.ts";
 
 interface TripRequestFormProps {
@@ -56,18 +68,25 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const { startInputFocused, endInputFocused, pickupInputFocused } =
         useAppSelector((state) => state.focus);
 
-    const { startAddress, endAddress, startAddressError, endAddressError, pickupAddressError } = useAppSelector(
-        (state) => state.address
-    );
+    const {
+        startAddress,
+        endAddress,
+        startAddressError,
+        endAddressError,
+        pickupAddressError,
+    } = useAppSelector((state) => state.address);
 
     const outboundTrips = useAppSelector(
         (state) => state.trip.tripResults.outboundTrips
     );
     const isLoading = useAppSelector((state) => state.trip.isLoading);
+    const { departureDate, departureTime } = useAppSelector(
+        (state) => state.trip.tripRequest
+    );
 
     const isMobile = useIsMobile();
     const swapOriginAndDestination = useSwapAddresses();
-    const getAddressCoords = useAddressCoords()
+    const getAddressCoords = useAddressCoords();
     const [minimized, setMinimized] = useState(false);
 
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -79,8 +98,8 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const [comingBackTimeValid, setComingBackTimeValid] = useState(true);
 
     const formValid =
-        startAddress !== '' &&
-        endAddress !== '' &&
+        startAddress !== "" &&
+        endAddress !== "" &&
         !startAddressError.error &&
         !endAddressError.error &&
         !pickupAddressError.error &&
@@ -110,7 +129,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     }, [formValid, isLoading]);
 
     const handleDateChange = (date: Dayjs | null) => {
-        if (date !== null) {
+        if (date === null) {
+            setDateError({
+                error: true,
+                message: t("form.validation.invalidDate"),
+            });
+        } else {
             setDateError({ error: false, message: "" });
             dispatch(
                 setDepartureDate({
@@ -123,7 +147,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     };
 
     const handleTimeChange = (time: Dayjs | null) => {
-        if (time !== null) {
+        if (time === null) {
+            setTimeError({
+                error: true,
+                message: t("form.validation.invalidTime"),
+            });
+        } else {
             setTimeError({ error: false, message: "" });
             dispatch(setDepartureTime(time.toDate().toLocaleTimeString()));
         }
@@ -131,7 +160,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
 
     const debouncedNominatimSearch = useDebouncedCallback(
         async (value: string, origin: InputLocation) => {
-            const coordinates = await getAddressCoords(value, origin)
+            const coordinates = await getAddressCoords(value, origin);
             if (coordinates.length === 0) {
                 return;
             }
@@ -147,13 +176,12 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
     const handleInputChange = (value: string, origin: InputLocation) => {
         if (origin === InputLocation.START) {
             dispatch(setStartAddress(value));
+        } else {
+            dispatch(setEndAddress(value));
         }
-        else {
-            dispatch(setEndAddress(value))
-        }
-        if (value === '') {
+        if (value === "") {
             dispatch(clearAddressError(origin));
-            return
+            return;
         }
         debouncedNominatimSearch(value, origin);
     };
@@ -181,7 +209,7 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
      */
     const clearInput = (origin: InputLocation) => {
         dispatch(setShowTripsSummary(false));
-        dispatch(clearAddressError(origin))
+        dispatch(clearAddressError(origin));
         if (origin === InputLocation.START) {
             dispatch(setStartCoords(initialCoords));
             dispatch(clearStartAddress());
@@ -316,7 +344,9 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                 <InputAdornment position="end">
                                     <IconButton
                                         edge="end"
-                                        onClick={() => clearInput(InputLocation.START)}
+                                        onClick={() =>
+                                            clearInput(InputLocation.START)
+                                        }
                                     >
                                         <Close />
                                     </IconButton>
@@ -376,7 +406,9 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                                 <InputAdornment position="end">
                                     <IconButton
                                         edge="end"
-                                        onClick={() => clearInput(InputLocation.END)}
+                                        onClick={() =>
+                                            clearInput(InputLocation.END)
+                                        }
                                     >
                                         <Close />
                                     </IconButton>
@@ -420,11 +452,15 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                 {/* Select date */}
                 <DatePicker
                     label={t("form.departureDate")}
-                    sx={{ backgroundColor: "white", flex: "1" }}
+                    sx={{
+                        flex: "1",
+                        ...pickerBackround,
+                    }}
                     defaultValue={dayjs(Date.now())}
                     onError={(err, val) => handleDateError(err, val)}
                     slotProps={{
                         textField: {
+                            error: dateError.error,
                             helperText: dateError.message,
                         },
                     }}
@@ -434,11 +470,15 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
                 {/* Select time */}
                 <TimePicker
                     label={t("form.departureTime")}
-                    sx={{ backgroundColor: "white", flex: "0 0 40%" }}
+                    sx={{
+                        flex: "0 0 40%",
+                        ...pickerBackround,
+                    }}
                     defaultValue={dayjs(Date.now())}
                     onError={(err, val) => handleTimeError(err, val)}
                     slotProps={{
                         textField: {
+                            error: timeError.error,
                             helperText: timeError.message,
                         },
                     }}

@@ -6,7 +6,7 @@
  * @author Jan Vaclavik (xvacla35@stud.fit.vutbr.cz)
  */
 
-import {CircleMarker, Marker, Popup, useMap} from "react-leaflet";
+import { CircleMarker, Marker, Popup, useMap } from "react-leaflet";
 import { Button, Stack, Tooltip } from "@mui/material";
 import type { TransferStop } from "../../../types/TransferStop";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
@@ -15,102 +15,159 @@ import { getParkingLotsNearby } from "../store/slices/parkingLotSlice";
 import { WarningAmber } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 
-import markerIconTransfer from '../img/marker-icon-orange.png'
-import {Icon, LatLngTuple} from "leaflet";
+import markerIconTransfer from "../img/marker-icon-orange.png";
+import { Icon, LatLngTuple } from "leaflet";
 import { useTranslation } from "react-i18next";
-import {getTransferStops} from "../store/slices/transferStopSlice.ts";
+import { getTransferStops } from "../store/slices/transferStopSlice.ts";
 
 function TransferStopsSelection() {
-    const transferStops = useAppSelector((state) => state.transferStop.transferStops);
+    const { transferStops, transferStopsFetched } = useAppSelector(
+        (state) => state.transferStop
+    );
+    const selectedTransferStop = useAppSelector(
+        (state) => state.trip.tripRequest.preferences.transferStop
+    );
+    const { parkingLots, parkingLotsLoading } = useAppSelector(
+        (state) => state.parkingLot
+    );
 
-    const selectedTransferStop = useAppSelector((state) => state.trip.tripRequest.preferences.transferStop);
-    const parkingLotsLoading = useAppSelector((state) => state.parkingLot.parkingLotsLoading);
-    const parkingLots = useAppSelector((state) => state.parkingLot.parkingLots);
-
-    const [transferStopForParkingCoords, setTransferStopForParkingCoords] = useState<LatLngTuple | null>(null);
+    const [transferStopForParkingCoords, setTransferStopForParkingCoords] =
+        useState<LatLngTuple | null>(null);
 
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
 
-    const map = useMap()
+    const map = useMap();
 
     useEffect(() => {
         // Go to the transfer stop with the parking lots and zoom in
         // so that the parking lots are more visible
         if (parkingLots.length > 0 && transferStopForParkingCoords) {
-            map.flyTo(transferStopForParkingCoords, 16)
-        }
-        else {
+            map.flyTo(transferStopForParkingCoords, 16);
+        } else {
             setTransferStopForParkingCoords(null);
         }
-    }, [parkingLots])
+    }, [parkingLots]);
 
     useEffect(() => {
-        dispatch(getTransferStops())
-    }, [])
+        // Fetch transfer stops only once because map can rerender based on device type
+        if (!transferStopsFetched) {
+            dispatch(getTransferStops());
+        }
+    }, [transferStopsFetched, dispatch]);
 
     /**
      * Selects and deselects the transfer stop based on stopSelected parameter
      * @param stopSelected Boolean saying if the current transfer stop is selected at the moment
      * @param stop Transfer stop to select
      */
-    const selectTransferStop = (stopSelected: boolean, stop: TransferStop | null) => {
+    const selectTransferStop = (
+        stopSelected: boolean,
+        stop: TransferStop | null
+    ) => {
         if (stopSelected) {
             dispatch(setTransferStop(null));
-        }
-        else {
+        } else {
             dispatch(setTransferStop(stop));
         }
-    }
+    };
 
     const handleShowParkingLotsForTransferStop = (stop: TransferStop) => {
         setTransferStopForParkingCoords(stop.stopCoords);
-        dispatch(getParkingLotsNearby(stop.stopId))
-    }
+        dispatch(getParkingLotsNearby(stop.stopId));
+    };
 
     /**
      * Returns a button based on whether the current transfer stop is selected or not
      * @param stop Transfer stop that was clicked on the map
      */
     const getSelectionButton = (stop: TransferStop) => {
-        const currentTransferStopSelected = selectedTransferStop?.stopId === stop.stopId;
+        const currentTransferStopSelected =
+            selectedTransferStop?.stopId === stop.stopId;
 
         return (
-            <Button onClick={() => selectTransferStop(currentTransferStopSelected, stop)} color='secondary'
-                    size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained'>
-                { selectedTransferStop?.stopId !== stop.stopId ? t('transfer.select') : t('transfer.deselect') }
+            <Button
+                onClick={() =>
+                    selectTransferStop(currentTransferStopSelected, stop)
+                }
+                color="secondary"
+                size="small"
+                sx={{ width: "auto", alignSelf: "center" }}
+                variant="contained"
+            >
+                {selectedTransferStop?.stopId !== stop.stopId
+                    ? t("transfer.select")
+                    : t("transfer.deselect")}
             </Button>
-            )
-    }
+        );
+    };
     return (
         <>
-            { transferStops.map((stop) =>
-                <CircleMarker key={stop.stopId} center={stop.stopCoords} radius={5} color='green'>
+            {transferStops.map((stop) => (
+                <CircleMarker
+                    key={stop.stopId}
+                    center={stop.stopCoords}
+                    radius={5}
+                    color="green"
+                >
                     <Popup closeOnClick={true}>
-                        <Stack direction='column' sx={{alignItems: 'center', gap: '5px'}}>
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                                <h2 style={{ textAlign: 'center' }}>{stop.stopName}</h2>
-                                { !stop.hasParking &&
-                                    <Tooltip sx={{ alignSelf: 'center' }} title={t('preferences.noParkingLots')} placement='right'>
-                                        <WarningAmber color='warning'/>
+                        <Stack
+                            direction="column"
+                            sx={{ alignItems: "center", gap: "5px" }}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    gap: "10px",
+                                }}
+                            >
+                                <h2 style={{ textAlign: "center" }}>
+                                    {stop.stopName}
+                                </h2>
+                                {!stop.hasParking && (
+                                    <Tooltip
+                                        sx={{ alignSelf: "center" }}
+                                        title={t("preferences.noParkingLots")}
+                                        placement="right"
+                                    >
+                                        <WarningAmber color="warning" />
                                     </Tooltip>
-                                }
+                                )}
                             </div>
-                            {
-                                getSelectionButton(stop)
-                            }
-                            <Button onClick={() => handleShowParkingLotsForTransferStop(stop)}
-                                    color='secondary' size='small' sx={{width: 'auto', alignSelf: 'center'}} variant='contained' loading={parkingLotsLoading} loadingPosition='end'>
-                                { t('transfer.showParkingLots') }
+                            {getSelectionButton(stop)}
+                            <Button
+                                onClick={() =>
+                                    handleShowParkingLotsForTransferStop(stop)
+                                }
+                                color="secondary"
+                                size="small"
+                                sx={{ width: "auto", alignSelf: "center" }}
+                                variant="contained"
+                                loading={parkingLotsLoading}
+                                loadingPosition="end"
+                            >
+                                {t("transfer.showParkingLots")}
                             </Button>
                         </Stack>
                     </Popup>
                 </CircleMarker>
-            )}
-            <Marker position={selectedTransferStop !== null ? selectedTransferStop.stopCoords : initialCoords}
-                    icon={new Icon({iconUrl: markerIconTransfer, iconAnchor: [12, 41]})}/>
+            ))}
+            <Marker
+                position={
+                    selectedTransferStop !== null
+                        ? selectedTransferStop.stopCoords
+                        : initialCoords
+                }
+                icon={
+                    new Icon({
+                        iconUrl: markerIconTransfer,
+                        iconAnchor: [12, 41],
+                    })
+                }
+            />
         </>
-    )
+    );
 }
 
 export default TransferStopsSelection;
