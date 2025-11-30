@@ -20,6 +20,7 @@ import { KordisWebSocketManager } from './common/realtimeVehicleInfoProcessing.t
 import type { LissyObj } from "./types/LissyTypes.ts";
 import { WazeManager } from "./wazeManager.ts";
 import { appLogger } from "./logger.ts";
+import {BoundingBox} from "../types/BoundingBox.ts";
 
 export const rootDir = import.meta.dirname;
 
@@ -60,6 +61,16 @@ app.post(`${apiUrl}/api/calculateTrips`, async (request) => {
 app.get(`${apiUrl}/api/transferStops`, (request) => {
   return request.json(transferStops);
 });
+
+app.get(`${apiUrl}/api/boundingBox`, (request) => {
+  const boundingBox: BoundingBox = {
+    minX: 15.538767,
+    minY: 48.616718,
+    maxX: 17.645923,
+    maxY: 49.633254,
+  }
+  return request.json(boundingBox);
+})
 
 app.post(`${apiUrl}/api/parkingLotsNearby`, async (request) => {
   const body = await request.req.json();

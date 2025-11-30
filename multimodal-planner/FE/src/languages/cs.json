@@ -24,7 +24,8 @@
         "noReturnTripsFound": "Nebyly nalezeny cesty zpět",
         "noParkingLotsFound": "Žádná parkoviště v okolí",
         "coordinatesError": "Nepodařilo se načíst souřadnice",
-        "addressNotFound": "Zadaná adresa neexistuje"
+        "addressNotFound": "Zadaná adresa neexistuje",
+        "notInBoundingBox": "Adresa se nenachází v dané hranici"
     },
     "preferences": {
         "headline": "Rozšířená nastavení",
