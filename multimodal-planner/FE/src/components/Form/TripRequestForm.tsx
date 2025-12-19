@@ -41,7 +41,7 @@ import {
 import {
     clearAddressError,
     clearEndAddress,
-    clearStartAddress,
+    clearStartAddress, setAddressError,
     setEndAddress,
     setStartAddress,
 } from "../../store/slices/addressSlice.ts";
@@ -80,13 +80,10 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
         (state) => state.trip.tripResults.outboundTrips
     );
     const isLoading = useAppSelector((state) => state.trip.isLoading);
-    const { departureDate, departureTime } = useAppSelector(
-        (state) => state.trip.tripRequest
-    );
 
     const isMobile = useIsMobile();
     const swapOriginAndDestination = useSwapAddresses();
-    const getAddressCoords = useAddressCoords();
+    const { getAddressCoords, coordsInBoundingBox } = useAddressCoords();
     const [minimized, setMinimized] = useState(false);
 
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -162,6 +159,10 @@ export function TripRequestForm({ minimize, maximize }: TripRequestFormProps) {
         async (value: string, origin: InputLocation) => {
             const coordinates = await getAddressCoords(value, origin);
             if (coordinates.length === 0) {
+                return;
+            }
+            if (!coordsInBoundingBox(coordinates)) {
+                dispatch(setAddressError({ origin, message: t('feedback.notInBoundingBox') }))
                 return;
             }
             if (origin === InputLocation.START) {

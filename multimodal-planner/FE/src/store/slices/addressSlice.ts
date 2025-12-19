@@ -11,6 +11,7 @@ import {LatLngTuple} from 'leaflet';
 import {openErrorSnackbar} from "./snackbarSlice.ts";
 import {ResultStatus} from "../../../../types/ResultStatus.ts";
 import {InputLocation} from '../../types/FormTripRequest.ts'
+import {BoundingBox} from "../../../../types/BoundingBox.ts";
 
 interface AddressState {
     startAddress: string;
@@ -18,7 +19,8 @@ interface AddressState {
     endAddress: string;
     endAddressError: ResultStatus
     pickupAddress: string
-    pickupAddressError: ResultStatus
+    pickupAddressError: ResultStatus,
+    boundingBox: BoundingBox | null
 }
 
 const initialState: AddressState = {
@@ -27,7 +29,8 @@ const initialState: AddressState = {
     endAddress: '',
     endAddressError: { error: false, message: '' },
     pickupAddress: '',
-    pickupAddressError: { error: false, message: '' }
+    pickupAddressError: { error: false, message: '' },
+    boundingBox: null,
 };
 
 /**
@@ -36,6 +39,15 @@ const initialState: AddressState = {
 export const getAddress = createAsyncThunk('address/getAddress', async (params: {origin: InputLocation, coords: LatLngTuple}) => {
     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${params.coords[0]}&lon=${params.coords[1]}`)
     return {address: response.data.display_name}
+});
+
+/**
+ * Fetches the bounding box
+ */
+export const getBoundingBox = createAsyncThunk('address/getBoundingBox', async () => {
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+    const response = await axios.get<BoundingBox>(`${apiUrl}/boundingBox`)
+    return response.data
 });
 
 export const getCoordinatesFromAddress = createAsyncThunk('address/getCoordinatesFromAddress', async (params: {address: string}, { dispatch }) => {
@@ -123,6 +135,12 @@ const addressSlice = createSlice({
             else {
                 state.endAddress = action.payload.address;
             }
+        })
+        .addCase(getBoundingBox.fulfilled, (state, action) => {
+            state.boundingBox = action.payload
+        })
+        .addCase(getBoundingBox.rejected, (state) => {
+            state.boundingBox = null
         })
     }
 });

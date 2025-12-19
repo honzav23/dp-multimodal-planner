@@ -1,9 +1,4 @@
-export type BoundingBox = {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-}
+import type { BoundingBox } from "../../types/BoundingBox.ts";
 
 export type LineBoundingBoxPair = [[number, number], [number, number], BoundingBox];
 

@@ -16,7 +16,7 @@ import markerIconEnd from '../img/marker-icon-red.png'
 import markerIconPickup from '../img/marker-icon-blue.png'
 import {Marker, useMapEvents} from 'react-leaflet'
 import {useAppDispatch, useAppSelector} from '../store/hooks';
-import {getAddress} from '../store/slices/addressSlice';
+import {clearAddressError, getAddress, setAddressError} from '../store/slices/addressSlice';
 import {setFocus} from '../store/slices/inputsFocusSlice';
 import {
   clearTrips,
@@ -27,9 +27,14 @@ import {
 } from '../store/slices/tripSlice';
 import {InputLocation} from '../types/FormTripRequest.ts'
 import {useRef} from 'react'
+import {useAddressCoords} from "../hooks/useAddressCoords.ts";
+import {useTranslation} from "react-i18next";
+import {UnknownAction} from "@reduxjs/toolkit";
 
 function PositionSelection() {
   const dispatch = useAppDispatch()
+  const { coordsInBoundingBox } = useAddressCoords()
+  const { t } = useTranslation()
 
   const { startInputFocused, endInputFocused, pickupInputFocused } = useAppSelector((state) => state.focus)
 
@@ -40,6 +45,27 @@ function PositionSelection() {
   const startMarkerRef = useRef<LeafletMarker>(null);
   const endMarkerRef = useRef<LeafletMarker>(null);
   const pickupMarkerRef = useRef<LeafletMarker>(null);
+
+  const handleFocusedInput = (
+      origin: InputLocation,
+      coords: [number, number],
+      setCoords: (coords: [number, number]) => UnknownAction ,
+  ) => {
+    const inBoundingBox = coordsInBoundingBox(coords)
+    if (!inBoundingBox) {
+      dispatch(
+          setAddressError({
+            message: t('feedback.notInBoundingBox'),
+            origin,
+          }),
+      )
+      return
+    }
+    dispatch(getAddress({ coords, origin }))
+    dispatch(setCoords(coords))
+    dispatch(setFocus({ origin, focused: false }))
+    dispatch(clearAddressError(origin))
+  }
   
   useMapEvents({
     /**
@@ -55,19 +81,13 @@ function PositionSelection() {
       }
 
       if (startInputFocused) {
-        dispatch(getAddress({coords, origin: InputLocation.START}))
-        dispatch(setStartCoords(coords))
-        dispatch(setFocus({origin: InputLocation.START, focused: false}))
+        handleFocusedInput(InputLocation.START, coords, setStartCoords)
       }
       else if (pickupInputFocused) {
-        dispatch(getAddress({coords, origin: InputLocation.PICKUP}))
-        dispatch(setPickupCoords(coords))
-        dispatch(setFocus({origin: InputLocation.PICKUP, focused: false}))
+        handleFocusedInput(InputLocation.PICKUP, coords, setPickupCoords)
       }
       else if (endInputFocused) {
-        dispatch(getAddress({coords, origin: InputLocation.END}))
-        dispatch(setEndCoords(coords))
-        dispatch(setFocus({origin: InputLocation.END, focused: false}))
+        handleFocusedInput(InputLocation.END, coords, setEndCoords)
       }
     }
   })
@@ -81,21 +101,15 @@ function PositionSelection() {
     dispatch(setShowTripsSummary(false))
     if (origin === InputLocation.START && startMarkerRef.current !== null) {
       const coords = startMarkerRef.current.getLatLng()
-      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
-      dispatch(getAddress({coords: coordsTuple, origin}))
-      dispatch(setStartCoords(coordsTuple))
+      handleFocusedInput(origin, [coords.lat, coords.lng], setStartCoords)
     }
     else if (origin === InputLocation.PICKUP && pickupMarkerRef.current !== null) {
       const coords = pickupMarkerRef.current.getLatLng()
-      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
-      dispatch(getAddress({coords: coordsTuple, origin}))
-      dispatch(setPickupCoords(coordsTuple))
+      handleFocusedInput(origin, [coords.lat, coords.lng], setPickupCoords)
     }
     else if (origin === InputLocation.END && endMarkerRef.current !== null) {
       const coords = endMarkerRef.current.getLatLng()
-      const coordsTuple: LatLngTuple = [coords.lat, coords.lng]
-      dispatch(getAddress({coords: coordsTuple, origin}))
-      dispatch(setEndCoords(coordsTuple))
+      handleFocusedInput(origin, [coords.lat, coords.lng], setEndCoords)
     }
   }
 

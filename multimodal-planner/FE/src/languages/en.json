@@ -24,7 +24,8 @@
         "noReturnTripsFound": "No return trips were found",
         "noParkingLotsFound": "No parking lots nearby",
         "coordinatesError": "Unable to fetch coordinates",
-        "addressNotFound": "Provided address doesn't exist"
+        "addressNotFound": "Provided address doesn't exist",
+        "notInBoundingBox": "The address is not located in a given bounding box"
     },
     "preferences": {
         "headline": "Additional preferences",

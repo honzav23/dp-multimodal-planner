@@ -8,7 +8,7 @@
 
 import TripRequestForm from "./components/Form/TripRequestForm.tsx";
 import TripsSummary from "./components/TripsSummary";
-import { useAppSelector } from "./store/hooks";
+import {useAppDispatch, useAppSelector} from "./store/hooks";
 import ActionFeedback from "./components/ActionFeedback";
 import "../i18n.ts";
 import useIsMobile from "./hooks/useIsMobile";
@@ -16,6 +16,8 @@ import MobileTripRequestForm from "./components/MobileViews/MobileTripRequestFor
 import MobileTripsSummary from "./components/MobileViews/MobileTripSummary";
 import MapWrapper from "./components/MapWrapper.tsx";
 import Sidebar from "./components/Sidebar.tsx";
+import {useEffect} from "react";
+import { getBoundingBox } from "./store/slices/addressSlice.ts";
 
 function App() {
     const selectedTrip = useAppSelector((state) => state.trip.selectedTrip);
@@ -24,6 +26,11 @@ function App() {
     );
     const showCollapse = selectedTrip !== null;
     const isMobile = useIsMobile();
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(getBoundingBox())
+    }, []);
 
     return (
         <div style={{ position: "relative", width: "100%" }}>
