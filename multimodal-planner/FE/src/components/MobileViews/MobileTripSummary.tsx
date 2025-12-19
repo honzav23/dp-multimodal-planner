@@ -1,12 +1,11 @@
-import { Box, Divider, Drawer, IconButton } from "@mui/material";
+import { Box, Divider, Drawer } from "@mui/material";
 import TripsSummary from "../TripsSummary.tsx";
 import { useAppSelector, useAppDispatch } from "../../store/hooks.ts";
 import {
     setSelectedTrip,
     setShowTripsSummary,
 } from "../../store/slices/tripSlice.ts";
-import { useState } from "react";
-import { ArrowBack, Minimize, ZoomOutMap } from "@mui/icons-material";
+import { useState, Activity } from "react";
 import ControlPanel from "./ControlPanel";
 
 function MobileTripSummary() {
@@ -44,7 +43,7 @@ function MobileTripSummary() {
     };
 
     return (
-        showTripsSummary && (
+        <Activity mode={showTripsSummary ? "visible" : "hidden"}>
             <Drawer
                 sx={{ pointerEvents: "none" }}
                 slotProps={{
@@ -80,7 +79,7 @@ function MobileTripSummary() {
                     <TripsSummary />
                 </Box>
             </Drawer>
-        )
+        </Activity>
     );
 }
 
