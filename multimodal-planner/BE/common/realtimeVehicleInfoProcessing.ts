@@ -27,11 +27,14 @@ export class KordisWebSocketManager {
     }
 
     public connectToKordisWebSocket() {
-        if (this.wsUrl && this.wsUrl.readyState === WebSocket.OPEN) {
+        if (this.wsUrl && (this.wsUrl.readyState === WebSocket.OPEN || this.wsUrl.readyState === WebSocket.CONNECTING)) {
             return;
         }
         this.wsUrl = new WebSocket(EXTERNAL_WS_SERVER_URL);
-        kordisLogger.info("Connected to KORDIS WebSocket");
+
+        this.wsUrl.onopen = () => {
+            kordisLogger.info("Connected to KORDIS WebSocket");
+        }
 
         this.wsUrl.onmessage = (event) => this.processRealtimeVehicleInfo(event)
 
@@ -42,8 +45,6 @@ export class KordisWebSocketManager {
 
         this.wsUrl.onerror = (event) => {
             kordisLogger.error("Could not connect to Kordis WebSocket. Trying again...");
-            setTimeout(() => this.connectToKordisWebSocket(), 5000);
-            this.wsUrl = null;
         };
     }
 

@@ -12,7 +12,7 @@ await configure({
                     const day = date.getDate().toString().padStart(2, '0');
                     const formattedDate = `${year}-${month}-${day}`;
 
-                    const timeString = date.toLocaleTimeString();
+                    const timeString = date.toLocaleTimeString('cs');
                     return `${formattedDate} ${timeString}`;
                 }
             })
@@ -21,16 +21,6 @@ await configure({
     loggers: [
         {
             category: ["CarPub"],
-            lowestLevel: "info",
-            sinks: ["console"]
-        },
-        {
-            category: ["CarPub", "KordisWebsocket"],
-            lowestLevel: "info",
-            sinks: ["console"]
-        },
-        {
-            category: ["CarPub", "WazeManager"],
             lowestLevel: "info",
             sinks: ["console"]
         },

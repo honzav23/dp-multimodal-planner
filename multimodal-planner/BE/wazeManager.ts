@@ -5,7 +5,8 @@ import polyline from "polyline-codec";
 import { TripResult } from "../types/TripResult.ts";
 import type { LatLngTuple } from "../types/TripRequest.ts";
 import { wazeLogger } from "./logger.ts";
-import type {BoundingBox, LineBoundingBoxPair, WazeRTreeItem} from "./types/WazeRTree.ts";
+import type { LineBoundingBoxPair, WazeRTreeItem } from "./types/WazeRTree.ts";
+import type { BoundingBox } from "../types/BoundingBox.ts";
 
 export class WazeManager {
     private static instance: WazeManager;

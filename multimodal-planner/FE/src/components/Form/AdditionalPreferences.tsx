@@ -81,7 +81,7 @@ function AdditionalPreferences({
         (state) => state.trip.tripRequest.preferences
     );
 
-    const getAddressCoords = useAddressCoords();
+    const { getAddressCoords } = useAddressCoords();
     const [returnDateTimeShown, setReturnDateTimeShown] = useState(false);
     const [dateError, setDateError, handleDateError] = useDateError();
     const [timeError, setTimeError, handleTimeError] = useTimeError();
