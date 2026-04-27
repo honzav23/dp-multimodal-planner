@@ -1,0 +1,12 @@
+services:
+  backend:
+    image: dexter.fit.vutbr.cz/carpub/carpub-backend
+    build:
+      context: ./multimodal-planner
+      dockerfile: ./BE/Dockerfile.prod
+
+  frontend:
+    image: dexter.fit.vutbr.cz/carpub/carpub-frontend
+    build:
+      context: ./multimodal-planner
+      dockerfile: ./FE/Dockerfile.subdir.prod

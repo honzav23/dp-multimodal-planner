@@ -1,0 +1,39 @@
+services:
+  backend:
+    container_name: carpub-backend
+    restart: unless-stopped
+    image: dexter.fit.vutbr.cz/carpub/carpub-backend
+    env_file:
+      - .env
+    environment:
+      - API_BASE_URL=/carpub
+    networks:
+      - carpubNetwork
+
+  frontend:
+    container_name: carpub-frontend
+    restart: unless-stopped
+    image: dexter.fit.vutbr.cz/carpub/carpub-frontend
+    depends_on:
+      - backend
+    networks:
+      - carpubNetwork
+
+  proxy:
+    container_name: carpub-proxy
+    image: nginx:1.19
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+    networks:
+      - carpubNetwork
+      - network
+
+networks:
+  network:
+    name: kristyna-dev
+    external: true
+  carpubNetwork:
+    name: carpubNetwork

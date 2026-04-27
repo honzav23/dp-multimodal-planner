@@ -1,0 +1,4 @@
+services:
+  proxy:
+    ports:
+      - "9095:80"
